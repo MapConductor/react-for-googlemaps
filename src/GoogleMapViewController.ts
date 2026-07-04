@@ -122,7 +122,10 @@ export class GoogleMapViewController
   moveCamera(position: MapCameraPosition): Promise<boolean> {
     const cameraOptions = this.holder.zoomConverter.mapCameraPositionToCameraOptions(position);
     if (!cameraOptions) return Promise.resolve(false);
-    this.holder.map.cameraPosition = this.holder.zoomConverter.mapCameraPositionToLatLngAltitude(position);
+    this.holder.map.center = cameraOptions.center;
+    this.holder.map.range = cameraOptions.range;
+    this.holder.map.tilt = cameraOptions.tilt;
+    this.holder.map.heading = cameraOptions.heading;
     return Promise.resolve(true);
   }
 
@@ -142,16 +145,22 @@ export class GoogleMapViewController
   }
 
   getCameraPosition(): MapCameraPosition | null {
-    const cameraPosition = this.holder.map.cameraPosition;
-    if (!cameraPosition) return null;
-    
-    const zoom = this.holder.zoomConverter.altitudeToZoomLevel({
-      altitude: cameraPosition.altitude,
-      latitude: cameraPosition.lat,
-      tilt: this.holder.map.tilt || 0,
+    // Oblique semantics (uniform across providers): position is the ground
+    // point at screen center (map.center), tilt is the orbit angle from nadir,
+    // and zoom derives from the camera-to-center distance (map.range) — not
+    // from the camera's own location/altitude (bird's-eye semantics).
+    const center = this.holder.map.center;
+    if (!center) return null;
+
+    const range = this.holder.map.range;
+    if (range == null) return null;
+
+    const zoom = this.holder.zoomConverter.distanceToZoomLevel({
+      distance: range,
+      latitude: center.lat,
     });
     return createMapCameraPosition({
-      position: latLngAltToGeoPoint(cameraPosition),
+      position: latLngAltToGeoPoint(center),
       zoom,
       bearing: this.holder.map.heading ?? 0,
       tilt: this.holder.map.tilt ?? 0,

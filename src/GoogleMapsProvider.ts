@@ -57,15 +57,20 @@ export class GoogleMapsProvider extends MapProvider {
       throw new Error('Container element not found');
     }
 
-    // Calibration zoom level by hand (using binary search)
-    const ADJUST_ZOOM_ALTITUDE = -45000000;
-    const zoomConverter = new ZoomAltitudeConverter(ZoomAltitudeConverter.DEFAULT_ZOOM0_ALTITUDE + ADJUST_ZOOM_ALTITUDE);
+    const zoomConverter = new ZoomAltitudeConverter(ZoomAltitudeConverter.DEFAULT_ZOOM0_ALTITUDE);
 
-    // Create Google Maps instance
+    // Create Google Maps instance.
+    // Oblique camera semantics: initCameraPosition.position is the ground point
+    // at screen center, so apply it via center/range/tilt (orbit model) — never
+    // via cameraPosition, which would treat it as the camera's own location.
+    const initCameraOptions = zoomConverter.mapCameraPositionToCameraOptions(config.initCameraPosition ?? null);
     const map = new Map3DElement({
-      cameraPosition: zoomConverter.mapCameraPositionToLatLngAltitude(config.initCameraPosition) || { lat: 0, lng: 0, altitude: 0 },
-      heading: config.initCameraPosition?.bearing ?? 0,
-      tilt: config.initCameraPosition?.pitch ?? 45,
+      ...(initCameraOptions ?? {
+        center: { lat: 0, lng: 0, altitude: 0 },
+        range: zoomConverter.zoomLevelToDistance({ zoomLevel: 1, latitude: 0 }),
+        tilt: 0,
+        heading: 0,
+      }),
       mapId: config.mapId, // Styles are associated with map IDs.
       mode: config.mapDesignType,
       ...config.options,
