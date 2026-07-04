@@ -174,7 +174,6 @@ export class GoogleMapViewController
   // --- Marker ---
 
   async compositionMarkers(data: MarkerState[]): Promise<void> {
-    console.log('compositionMarkers')
     this.markerController.composition(data);
   }
 

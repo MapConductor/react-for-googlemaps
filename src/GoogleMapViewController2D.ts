@@ -169,11 +169,17 @@ export class GoogleMapViewController2D
     const center = this.holder.map.getCenter();
     const zoom = this.holder.map.getZoom();
     if (!center || zoom === undefined) return null;
+    const bounds = this.getBounds();
     return createMapCameraPosition({
       position: latLngToGeoPoint(center),
       zoom,
       bearing: this.holder.map.getHeading() ?? 0,
       tilt: this.holder.map.getTilt() ?? 0,
+      // Matches Android: the visible region rides on cameraPosition so that
+      // mapViewState.cameraPosition.visibleRegion works without the controller.
+      visibleRegion: bounds
+        ? { bounds, nearLeft: null, nearRight: null, farLeft: null, farRight: null }
+        : null,
     });
   }
 
