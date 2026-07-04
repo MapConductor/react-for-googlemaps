@@ -26,6 +26,8 @@ import {
   type PolylineState,
   type RasterLayerCapable,
   type RasterLayerState,
+  createGeoRectBounds,
+  type VisibleRegion,
 } from '@mapconductor/js-sdk-core';
 import { GoogleMapMarkerController } from './marker/GoogleMapMarkerController';
 import { GoogleMapCircleController } from './circle/GoogleMapCircleController';
@@ -77,6 +79,7 @@ export class GoogleMapViewController
       if (!isMoving) {
         isMoving = true;
         this.notifyCameraMoveStart(camera);
+        return;
       }
       this.notifyCameraMove(camera);
     };
@@ -103,7 +106,7 @@ export class GoogleMapViewController
       this.notifyMapInitialized();
     };
 
-    this.holder.map.addEventListener('gmp-centerchange', handleCenterChange);
+    this.holder.map.addEventListener('gmp-camerapositionchange', handleCenterChange);
     this.holder.map.addEventListener('gmp-steadychange', handleSteadyChange);
     this.holder.map.addEventListener('gmp-click', handleClick);
     this.holder.map.addEventListener('gmp-load', handleLoad, { once: true });
@@ -169,11 +172,43 @@ export class GoogleMapViewController
       zoom,
       bearing: this.holder.map.heading ?? 0,
       tilt: this.holder.map.tilt ?? 0,
+      // Matches Android: the visible region rides on cameraPosition so that
+      // mapViewState.cameraPosition.visibleRegion works without the controller.
+      visibleRegion: this.getVisibleRegion(),
     });
   }
 
   getBounds(): GeoRectBounds | null {
-    return null;
+    return this.getVisibleRegion()?.bounds ?? null;
+  }
+
+  /**
+   * Projects the four screen corners of the 3D scene view back to geo
+   * coordinates via `fromScreenOffsetSync` (ray/ellipsoid intersection) and
+   * extends a bounds from them. Returns null if any corner points off the
+   * globe (e.g. camera tilted toward the horizon/sky). Mirrors ArcGIS's
+   * `SceneView`-based `getMapCameraPosition()` in the Android SDK — the
+   * closest existing analogue for a 3D/globe camera.
+   */
+  private getVisibleRegion(): VisibleRegion | null {
+    const rect = this.holder.map.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
+    if (!width || !height) return null;
+
+    const nearLeft = this.holder.fromScreenOffsetSync({ x: 0, y: height });
+    const nearRight = this.holder.fromScreenOffsetSync({ x: width, y: height });
+    const farLeft = this.holder.fromScreenOffsetSync({ x: 0, y: 0 });
+    const farRight = this.holder.fromScreenOffsetSync({ x: width, y: 0 });
+    if (!nearLeft || !nearRight || !farLeft || !farRight) return null;
+
+    const bounds = createGeoRectBounds();
+    bounds.extend(nearLeft);
+    bounds.extend(nearRight);
+    bounds.extend(farLeft);
+    bounds.extend(farRight);
+
+    return { bounds, nearLeft, nearRight, farLeft, farRight };
   }
 
   // --- Marker ---

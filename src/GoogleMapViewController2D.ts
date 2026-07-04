@@ -26,6 +26,7 @@ import {
   type PolylineState,
   type RasterLayerCapable,
   type RasterLayerState,
+  type VisibleRegion,
 } from '@mapconductor/js-sdk-core';
 import { latLngToGeoPoint, geoPointToLatLng } from './helpers';
 import { GoogleMapCircleController } from './circle/GoogleMapCircleController';
@@ -170,7 +171,6 @@ export class GoogleMapViewController2D
     const center = this.holder.map.getCenter();
     const zoom = this.holder.map.getZoom();
     if (!center || zoom === undefined) return null;
-    const bounds = this.getBounds();
     return createMapCameraPosition({
       position: latLngToGeoPoint(center),
       zoom,
@@ -178,21 +178,39 @@ export class GoogleMapViewController2D
       tilt: this.holder.map.getTilt() ?? 0,
       // Matches Android: the visible region rides on cameraPosition so that
       // mapViewState.cameraPosition.visibleRegion works without the controller.
-      visibleRegion: bounds
-        ? { bounds, nearLeft: null, nearRight: null, farLeft: null, farRight: null }
-        : null,
+      visibleRegion: this.getVisibleRegion(),
     });
   }
 
   getBounds(): GeoRectBounds | null {
-    const bounds = this.holder.map.getBounds();
-    if (!bounds) return null;
-    const sw = bounds.getSouthWest();
-    const ne = bounds.getNorthEast();
-    return createGeoRectBounds({
-      southWest: latLngToGeoPoint(sw),
-      northEast: latLngToGeoPoint(ne),
-    });
+    return this.getVisibleRegion()?.bounds ?? null;
+  }
+
+  /**
+   * Projects the four screen corners of the map viewport back to geo
+   * coordinates via `fromScreenOffsetSync` and extends a bounds from them,
+   * instead of `map.getBounds()`'s axis-aligned box — this stays correct
+   * when the map is rotated (heading != 0). Mirrors Android's
+   * `GoogleMapViewController.getMapCameraPosition()`.
+   */
+  private getVisibleRegion(): VisibleRegion | null {
+    const width = this.holder.mapView.offsetWidth;
+    const height = this.holder.mapView.offsetHeight;
+    if (!width || !height) return null;
+
+    const nearLeft = this.holder.fromScreenOffsetSync({ x: 0, y: height });
+    const nearRight = this.holder.fromScreenOffsetSync({ x: width, y: height });
+    const farLeft = this.holder.fromScreenOffsetSync({ x: 0, y: 0 });
+    const farRight = this.holder.fromScreenOffsetSync({ x: width, y: 0 });
+    if (!nearLeft || !nearRight || !farLeft || !farRight) return null;
+
+    const bounds = createGeoRectBounds();
+    bounds.extend(nearLeft);
+    bounds.extend(nearRight);
+    bounds.extend(farLeft);
+    bounds.extend(farRight);
+
+    return { bounds, nearLeft, nearRight, farLeft, farRight };
   }
 
   // --- Marker ---
