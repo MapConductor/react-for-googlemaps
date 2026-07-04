@@ -1,6 +1,7 @@
 /// <reference types="google.maps" />
 import {
   MapViewHolderBase,
+  createGeoPoint,
   type GeoPoint,
   type GeoPointInterface,
   type Offset,
@@ -34,8 +35,9 @@ export class GoogleMapViewHolder extends MapViewHolderBase<HTMLElement, google.m
   toScreenOffset(position: GeoPointInterface): Offset | null {
     const rect = this.map.getBoundingClientRect();
     const width = rect.width;
+    const height = rect.height;
 
-    if (width <= 0 || rect.height <= 0) return null;
+    if (width <= 0 || height <= 0) return null;
 
     const center = this.map.center;
     const cameraPosition = this.map.cameraPosition;
@@ -56,13 +58,15 @@ export class GoogleMapViewHolder extends MapViewHolderBase<HTMLElement, google.m
     const targetEcef = this.geoPontToEcef(position);
 
     // camera -> center が視線方向
-    const forward = this.normalize(this.sub(centerEcef, cameraEcef));
+    const vectorDiff = this.sub(centerEcef, cameraEcef);
+    if (this.norm(vectorDiff) === 0) return null;
+    const forward = this.normalize(vectorDiff);
 
     // heading から「画面右」方向を作る。
     // heading=0 なら screen right は東。
     const { east, north } = this.enuBasisAt(cameraPosCenter);
-    const height = degToRad(bearing);
-    let right = this.normalize(this.add(this.mul(east, Math.cos(height)), this.mul(north, -Math.sin(height))));
+    const bearingRad = degToRad(bearing);
+    let right = this.normalize(this.add(this.mul(east, Math.cos(bearingRad)), this.mul(north, -Math.sin(bearingRad))));
 
     // camera up。screen y は下向きなので、後段で符号反転する。
     let up = this.normalize(this.cross(this.mul(forward, -1), right));
@@ -109,7 +113,7 @@ export class GoogleMapViewHolder extends MapViewHolderBase<HTMLElement, google.m
     //   x,
     //   y,
     //   depth: cz,
-    //   
+    //
     // };
   }
 
@@ -117,23 +121,110 @@ export class GoogleMapViewHolder extends MapViewHolderBase<HTMLElement, google.m
     return this.fromScreenOffsetSync(offset);
   }
 
-  fromScreenOffsetSync(_offset: Offset): GeoPoint | null {
-    return null;
-    // const projection = this.map.getProjection();
-    // if (!projection) return null;
-    // const center = this.map.getCenter();
-    // const zoom = this.map.getZoom();
-    // if (!center || zoom === undefined) return null;
+  fromScreenOffsetSync(offset: Offset): GeoPoint | null {
+    const rect = this.map.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
 
-    // const centerPoint = projection.fromLatLngToPoint(center);
-    // if (!centerPoint) return null;
+    if (width <= 0 || height <= 0) return null;
 
-    // const scale = Math.pow(2, zoom);
-    // const worldX = (offset.x - this.mapView.offsetWidth / 2) / scale + centerPoint.x;
-    // const worldY = (offset.y - this.mapView.offsetHeight / 2) / scale + centerPoint.y;
-    // const latLng = projection.fromPointToLatLng(new google.maps.Point(worldX, worldY));
-    // if (!latLng) return null;
-    // return createGeoPoint({ latitude: latLng.lat(), longitude: latLng.lng() });
+    const center = this.map.center;
+    const cameraPosition = this.map.cameraPosition;
+    if (!center || !cameraPosition) return null;
+
+    const bearing = this.map.heading ?? 0;
+    const roll = this.map.roll ?? 0;
+    const verticalFov = this.map.fov ?? 35;
+    const cameraPosCenter = latLngAltToGeoPoint(center);
+
+    const cameraEcef = this.geoPontToEcef(latLngAltToGeoPoint(cameraPosition));
+    const centerEcef = this.geoPontToEcef(cameraPosCenter);
+
+    // toScreenOffset と同じ camera 基底を作る（同じ射影モデルでないと相互変換が破綻する）
+    const vectorDiff = this.sub(centerEcef, cameraEcef);
+    if (this.norm(vectorDiff) === 0) return null;
+    const forward = this.normalize(vectorDiff);
+
+    const { east, north } = this.enuBasisAt(cameraPosCenter);
+    const bearingRad = degToRad(bearing);
+    let right = this.normalize(this.add(this.mul(east, Math.cos(bearingRad)), this.mul(north, -Math.sin(bearingRad))));
+    let up = this.normalize(this.cross(this.mul(forward, -1), right));
+
+    const rollRad = degToRad(roll);
+    right = this.normalize(this.rotateAroundAxis(right, forward, rollRad));
+    up = this.normalize(this.rotateAroundAxis(up, forward, rollRad));
+
+    const fovY = degToRad(verticalFov);
+    const tanY = Math.tan(fovY / 2);
+    const tanX = tanY * (width / height);
+
+    // screen px -> NDC（toScreenOffset の逆写像）
+    const ndcX = (offset.x / width) * 2 - 1;
+    const ndcY = 1 - (offset.y / height) * 2;
+
+    // camera から screen 上の点を通る視線 ray（ECEF）
+    const dir = this.normalize(
+      this.add(
+        this.add(this.mul(right, ndcX * tanX), this.mul(up, ndcY * tanY)),
+        forward,
+      ),
+    );
+
+    // 地形・建物は考慮せず WGS84 楕円体表面（標高 0）との交点を返す
+    const hit = this.intersectEllipsoid(cameraEcef, dir);
+    if (!hit) return null;
+    return this.ecefToGeoPoint(hit);
+  }
+
+  /**
+   * origin から dir 方向の ray と WGS84 楕円体の交点（camera に近い側）。
+   * z 軸を a/b 倍して球に変形してから球との交点を解く。
+   */
+  private intersectEllipsoid(origin: Vec3, dir: Vec3): Vec3 | null {
+    const b = WGS84_A * Math.sqrt(1 - WGS84_E2);
+    const scaleZ = WGS84_A / b;
+
+    const o: Vec3 = [origin[0], origin[1], origin[2] * scaleZ];
+    const d: Vec3 = [dir[0], dir[1], dir[2] * scaleZ];
+
+    const A = this.dot(d, d);
+    const B = 2 * this.dot(o, d);
+    const C = this.dot(o, o) - WGS84_A * WGS84_A;
+
+    const disc = B * B - 4 * A * C;
+    if (disc < 0) return null;
+
+    const sqrtDisc = Math.sqrt(disc);
+    const t1 = (-B - sqrtDisc) / (2 * A);
+    const t2 = (-B + sqrtDisc) / (2 * A);
+    // camera が楕円体外なら t1（手前側）、内側にいる場合は t2 を採用
+    const t = t1 > 0 ? t1 : t2;
+    if (t <= 0) return null;
+
+    return this.add(origin, this.mul(dir, t));
+  }
+
+  private ecefToGeoPoint(p: Vec3): GeoPoint {
+    // Bowring の近似式。表面上の点（標高 ~0）には十分な精度。
+    const [x, y, z] = p;
+    const b = WGS84_A * Math.sqrt(1 - WGS84_E2);
+    const ep2 = (WGS84_A * WGS84_A - b * b) / (b * b);
+
+    const hypXY = Math.hypot(x, y);
+    const theta = Math.atan2(z * WGS84_A, hypXY * b);
+    const sinTheta = Math.sin(theta);
+    const cosTheta = Math.cos(theta);
+
+    const lat = Math.atan2(
+      z + ep2 * b * sinTheta * sinTheta * sinTheta,
+      hypXY - WGS84_E2 * WGS84_A * cosTheta * cosTheta * cosTheta,
+    );
+    const lng = Math.atan2(y, x);
+
+    return createGeoPoint({
+      latitude: (lat * 180) / Math.PI,
+      longitude: (lng * 180) / Math.PI,
+    });
   }
 
   private add(a: Vec3, b: Vec3): Vec3 {

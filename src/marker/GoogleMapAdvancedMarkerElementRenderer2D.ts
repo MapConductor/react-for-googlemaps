@@ -13,16 +13,22 @@ import { loadLibrary } from '../LibraryLoader';
 import { createMarkerContent } from './createMarkerContent';
 import { GoogleMapActualMarker2D } from '../GoogleMapsTypeAlias';
 import { GoogleMapViewHolder2D } from '../GoogleMapViewHolder2D';
+import { GoogleMapMarkerRendererInterface } from './GoogleMapMarkerRendererInterface';
 
 
 
 export class GoogleMapAdvancedMarkerElementRenderer2D extends AbstractMarkerOverlayRenderer<
   GoogleMapViewHolder2D,
   GoogleMapActualMarker2D
-> {
+> implements GoogleMapMarkerRendererInterface<GoogleMapActualMarker2D> {
   constructor(holder: GoogleMapViewHolder2D) {
     super({ holder });
   }
+
+  clickEventName: string | null = 'gmp-click';
+  dragstartEventName: string | null = 'dragstart';
+  dragEventName: string | null = 'drag';
+  dragendEventName: string | null = 'dragend';
 
   async onAdd(data: AddParams[]): Promise<(GoogleMapActualMarker2D | null)[]> {
 

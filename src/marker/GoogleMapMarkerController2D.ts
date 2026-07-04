@@ -17,7 +17,7 @@ import {
   type RasterLayerState,
 } from '@mapconductor/js-sdk-core';
 import { GoogleMapActualMarker2D } from '../GoogleMapsTypeAlias';
-import { GoogleMapAdvancedMarkerElementRenderer2D } from './GoogleMapAdvancedMarkerElementRenderer2D';
+import { GoogleMapMarkerRendererInterface } from './GoogleMapMarkerRendererInterface';
 
 export class GoogleMapMarkerController2D {
   private readonly entities = new Map<string, MarkerEntity<GoogleMapActualMarker2D>>();
@@ -40,7 +40,7 @@ export class GoogleMapMarkerController2D {
   onRasterLayerUpdate: ((state: RasterLayerState | null) => Promise<void>) | null = null;
 
   constructor(
-    private readonly renderer: GoogleMapAdvancedMarkerElementRenderer2D,
+    private readonly renderer: GoogleMapMarkerRendererInterface<GoogleMapActualMarker2D>,
     private readonly tilingOptions: MarkerTilingOptions = MarkerTilingOptions.Default) {
   }
 
@@ -283,25 +283,33 @@ export class GoogleMapMarkerController2D {
 
   private attachListeners(marker: GoogleMapActualMarker2D, state: MarkerState): void {
     google.maps.event.clearInstanceListeners(marker);
-    marker.addListener('click', () => {
-      state.onClick?.(state);
-      this.clickListener?.(state);
-    });
-    marker.addListener('dragstart', () => {
-      this.renderer.syncPositionToState(marker, state);
-      state.onDragStart?.(state);
-      this.dragStartListener?.(state);
-    });
-    marker.addListener('drag', () => {
-      this.renderer.syncPositionToState(marker, state);
-      state.onDrag?.(state);
-      this.dragListener?.(state);
-    });
-    marker.addListener('dragend', () => {
-      this.renderer.syncPositionToState(marker, state);
-      state.onDragEnd?.(state);
-      this.dragEndListener?.(state);
-    });
+    if (this.renderer.clickEventName) {
+      marker.addListener(this.renderer.clickEventName, () => {
+        state.onClick?.(state);
+        this.clickListener?.(state);
+      });
+    }
+    if (this.renderer.dragstartEventName) {
+      marker.addListener(this.renderer.dragstartEventName, () => {
+        this.renderer.syncPositionToState(marker, state);
+        state.onDragStart?.(state);
+        this.dragStartListener?.(state);
+      });
+    }
+    if (this.renderer.dragEventName) {
+      marker.addListener(this.renderer.dragEventName, () => {
+        this.renderer.syncPositionToState(marker, state);
+        state.onDrag?.(state);
+        this.dragListener?.(state);
+      });
+    }
+    if (this.renderer.dragendEventName) {
+      marker.addListener(this.renderer.dragendEventName, () => {
+        this.renderer.syncPositionToState(marker, state);
+        state.onDragEnd?.(state);
+        this.dragEndListener?.(state);
+      });
+    }
   }
 }
 

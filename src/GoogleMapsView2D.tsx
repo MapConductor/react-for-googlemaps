@@ -28,6 +28,7 @@ export function GoogleMapsView2D({
   mapId,
   className,
   style,
+  version,
   onError,
   children,
   markerTilingOptions,
@@ -67,6 +68,7 @@ export function GoogleMapsView2D({
       initCameraPosition: state.cameraPosition,
       mapDesignType: state.mapDesignType.getValue(),
       markerTilingOptions,
+      version,
     };
 
     provider

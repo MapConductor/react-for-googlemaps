@@ -111,7 +111,10 @@ function getRasterLayerController(holder: GoogleMapViewHolder): GoogleMapRasterL
   );
 }
 
-function getMarkerController(holder: GoogleMapViewHolder, config: GoogleMapsConfig): GoogleMapMarkerController {
+function getMarkerController(
+  holder: GoogleMapViewHolder,
+  config: GoogleMapsConfig,
+): GoogleMapMarkerController {
   const markerRenderer = new GoogleMapMarkerRenderer(holder);
   return new GoogleMapMarkerController(markerRenderer, config.markerTilingOptions);
 }

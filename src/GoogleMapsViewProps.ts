@@ -9,6 +9,7 @@ export interface GoogleMapsViewProps extends MapViewBaseProps<GoogleMapViewState
   mapId?: string;
   markerTilingOptions?: MarkerTilingOptions;
   style?: React.CSSProperties;
+  version?: string;
   onError?: (error: Error) => void;
   children?: React.ReactNode;
 }

@@ -23,6 +23,9 @@ export class GoogleMapMarkerController {
   private readonly entities = new Map<string, MarkerEntity<GoogleMapActualMarker>>();
 
   private clickListener: OnMarkerEventHandler | null = null;
+  private dragStartListener: OnMarkerEventHandler | null = null;
+  private dragListener: OnMarkerEventHandler | null = null;
+  private dragEndListener: OnMarkerEventHandler | null = null;
 
   // ── Tile rendering ────────────────────────────────────────────────────────
   private tileRenderer: MarkerTileRenderer<MarkerState> | null = null;
@@ -128,20 +131,21 @@ export class GoogleMapMarkerController {
     return this.entities.has(state.id);
   }
 
+
   setOnClickListener(listener: OnMarkerEventHandler | null): void {
     this.clickListener = listener;
   }
 
-  setOnDragStart(_listener: OnMarkerEventHandler | null): void {
-    
+  setOnDragStart(listener: OnMarkerEventHandler | null): void {
+    this.dragStartListener = listener;
   }
 
-  setOnDrag(_listener: OnMarkerEventHandler | null): void {
-    
+  setOnDrag(listener: OnMarkerEventHandler | null): void {
+    this.dragListener = listener;
   }
 
-  setOnDragEnd(_listener: OnMarkerEventHandler | null): void {
-    
+  setOnDragEnd(listener: OnMarkerEventHandler | null): void {
+    this.dragEndListener = listener;
   }
 
   clear(): void {
@@ -278,27 +282,105 @@ export class GoogleMapMarkerController {
     }
   }
 
-  private attachListeners(marker: GoogleMapActualMarker, _state: MarkerState): void {
+  private attachListeners(marker: GoogleMapActualMarker, state: MarkerState): void {
     google.maps.event.clearInstanceListeners(marker);
-    // marker.addListener('click', () => {
-    //   state.onClick?.(state);
-    //   this.clickListener?.(state);
-    // });
-    // marker.addListener('dragstart', () => {
-    //   this.renderer.syncPositionToState(marker, state);
-    //   state.onDragStart?.(state);
-    //   this.dragStartListener?.(state);
-    // });
-    // marker.addListener('drag', () => {
-    //   this.renderer.syncPositionToState(marker, state);
-    //   state.onDrag?.(state);
-    //   this.dragListener?.(state);
-    // });
-    // marker.addListener('dragend', () => {
-    //   this.renderer.syncPositionToState(marker, state);
-    //   state.onDragEnd?.(state);
-    //   this.dragEndListener?.(state);
-    // });
+    if (!(marker instanceof HTMLElement)) return;
+    const source = (marker as HTMLElement).firstElementChild;
+    const DRAG_THRESHOLD_PX = 5;
+    const CLICK_MAX_MS = 1000;
+    let mousedownStartTime = 0;
+    let downX = 0;
+    let downY = 0;
+    let dragging = false;
+
+    // Pointer position relative to the map container — the coordinate space
+    // that fromScreenOffsetSync() expects.
+    const toMapOffset = (event: MouseEvent) => {
+      const rect = this.renderer.holder.map.getBoundingClientRect();
+      return { x: event.clientX - rect.left, y: event.clientY - rect.top };
+    };
+
+    const onWindowMouseMove = (event: MouseEvent) => {
+      if (!dragging) {
+        // Ignore jitter within the threshold so a sloppy click doesn't become a drag.
+        if (Math.hypot(event.clientX - downX, event.clientY - downY) < DRAG_THRESHOLD_PX) return;
+        dragging = true;
+        state.onDragStart?.(state);
+        this.dragStartListener?.(state);
+      }
+      event.preventDefault();
+      const position = this.renderer.holder.fromScreenOffsetSync(toMapOffset(event));
+      if (position) {
+        state.setPosition(position);
+        state.onDrag?.(state);
+        this.dragListener?.(state);
+      }
+    };
+
+    const onWindowMouseUp = (event: MouseEvent) => {
+      window.removeEventListener('mousemove', onWindowMouseMove, true);
+      window.removeEventListener('mouseup', onWindowMouseUp, true);
+      if (dragging) {
+        dragging = false;
+        event.stopPropagation();
+        state.onDragEnd?.(state);
+        this.dragEndListener?.(state);
+        return;
+      }
+      const moved = Math.hypot(event.clientX - downX, event.clientY - downY) >= DRAG_THRESHOLD_PX;
+      if (!moved && Date.now() - mousedownStartTime < CLICK_MAX_MS) {
+        // Fire a 'fake' click event.
+        event.stopPropagation();
+        this.dispatchClick(state);
+      }
+    };
+
+    source?.addEventListener('mousedown', (event) => {
+      // Keep the map from treating this as a camera pan, and suppress
+      // text selection / native image drag.
+      event.stopPropagation();
+      event.preventDefault();
+      mousedownStartTime = Date.now();
+      downX = (event as MouseEvent).clientX;
+      downY = (event as MouseEvent).clientY;
+      dragging = false;
+      // The icon is small: track the rest of the gesture on window so the
+      // drag survives the pointer outrunning the marker element.
+      if (state.draggable) {
+        window.addEventListener('mousemove', onWindowMouseMove, true);
+      }
+      window.addEventListener('mouseup', onWindowMouseUp, true);
+    });
+    
+    
+    // if (this.renderer.clickEventName) {
+    //   marker.addEventListener(this.renderer.clickEventName, (event: Event) => {
+    //     event.stopPropagation();
+    //     state.onClick?.(state);
+    //     this.clickListener?.(state);
+    //   });
+    // }
+    // if (this.renderer.dragstartEventName) {
+    //   marker.addEventListener(this.renderer.dragstartEventName, () => {
+    //     this.renderer.syncPositionToState(marker, state);
+    //     state.onDragStart?.(state);
+    //     this.dragStartListener?.(state);
+    //   });
+    // }
+    // if (this.renderer.dragEventName) {
+    //   marker.addEventListener(this.renderer.dragEventName, () => {
+    //     this.renderer.syncPositionToState(marker, state);
+    //     state.onDrag?.(state);
+    //     this.dragListener?.(state);
+    //   });
+    // }
+    // if (this.renderer.dragendEventName) {
+    //   marker.addEventListener(this.renderer.dragendEventName, () => {
+    //     this.renderer.syncPositionToState(marker, state);
+    //     state.onDragEnd?.(state);
+    //     this.dragEndListener?.(state);
+    //   });
+    // }
   }
 }
 

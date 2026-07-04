@@ -11,11 +11,18 @@ import { createMarkerEntity } from '@mapconductor/js-sdk-core';
 import { latLngToGeoPoint, geoPointToLatLng } from '../helpers';
 import { GoogleMapActualMarker2D } from '../GoogleMapsTypeAlias';
 import { GoogleMapViewHolder2D } from '../GoogleMapViewHolder2D';
+import { GoogleMapMarkerRendererInterface } from './GoogleMapMarkerRendererInterface';
 
 export class GoogleMapMarkerRenderer2D extends AbstractMarkerOverlayRenderer<
   GoogleMapViewHolder2D,
   GoogleMapActualMarker2D
-> {
+> implements GoogleMapMarkerRendererInterface<GoogleMapActualMarker2D> {
+
+  clickEventName: string | null = 'click';
+  dragstartEventName: string | null = 'dragstart';
+  dragEventName: string | null = 'drag';
+  dragendEventName: string | null = 'dragend';
+
   constructor(holder: GoogleMapViewHolder2D) {
     super({ holder });
   }

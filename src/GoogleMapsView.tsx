@@ -6,7 +6,7 @@ import {
   InfoBubbleOverlay,
   type InfoBubbleEntry,
 } from '@mapconductor/js-sdk-react';
-import type { MapCameraPosition, GeoPoint } from '@mapconductor/js-sdk-core';
+import type { MapCameraPosition, GeoPoint, OverlayCollector } from '@mapconductor/js-sdk-core';
 import type { GoogleMapViewController } from './GoogleMapViewController';
 import { GoogleMapsViewProps } from './GoogleMapsViewProps';
 import { GoogleMapsProvider } from './GoogleMapsProvider';
@@ -18,18 +18,19 @@ import { GoogleMapsConfig } from './GoogleMapsConfig';
 export function GoogleMapsView({
   state,
   apiKey,
+  mapId,
+  className,
+  style,
+  version,
+  markerTilingOptions,
+  onError,
   onMapLoaded,
   onMapClick,
   onMapLongClick,
   onCameraMoveStart,
   onCameraMove,
   onCameraMoveEnd,
-  mapId,
-  className,
-  style,
-  onError,
   children,
-  markerTilingOptions,
 }: GoogleMapsViewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [provider] = useState(() => new GoogleMapsProvider());
@@ -71,6 +72,7 @@ export function GoogleMapsView({
       initCameraPosition: state.cameraPosition,
       mapDesignType: mapDesignType,
       markerTilingOptions,
+      version,
     };
 
     provider
@@ -121,6 +123,35 @@ export function GoogleMapsView({
           setBubbleEntries(Array.from(map.values()));
         });
         bridgeUnsubs.current.push(bubbleUnsub);
+
+        // Route per-state changes (e.g. setPosition during a drag) to the
+        // targeted update*() methods. Mirrors MapLibreView / Android's
+        // MapViewBase.kt DisposableEffect(controller) block; without this,
+        // MarkerState.setPosition() never reaches the marker controller.
+        const c = ctrl as unknown as Record<string, (s: never) => unknown>;
+        const setupUpdateHandler = <S extends { id: string }>(
+          collector: OverlayCollector<S>,
+          hasMethod: string,
+          updateMethod: string,
+          onUpdated?: () => void,
+        ) => {
+          collector.setUpdateHandler((state) => {
+            if ((c[hasMethod] as (s: S) => boolean)?.(state)) {
+              void (c[updateMethod] as (s: S) => Promise<void>)?.(state);
+              onUpdated?.();
+            }
+          });
+          bridgeUnsubs.current.push(() => collector.setUpdateHandler(null));
+        };
+
+        // The marker handler also bumps cameraTick so open InfoBubbles
+        // re-project while their marker is being dragged.
+        setupUpdateHandler(scope.markerCollector, 'hasMarker', 'updateMarker', () => setCameraTick(t => t + 1));
+        setupUpdateHandler(scope.circleCollector, 'hasCircle', 'updateCircle');
+        setupUpdateHandler(scope.polylineCollector, 'hasPolyline', 'updatePolyline');
+        setupUpdateHandler(scope.polygonCollector, 'hasPolygon', 'updatePolygon');
+        setupUpdateHandler(scope.groundImageCollector, 'hasGroundImage', 'updateGroundImage');
+        setupUpdateHandler(scope.rasterLayerCollector, 'hasRasterLayer', 'updateRasterLayer');
 
         setIsReady(true);
       })
