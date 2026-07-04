@@ -25,6 +25,7 @@ export class GoogleMapMarkerRenderer2D extends AbstractMarkerOverlayRenderer<
 
   constructor(holder: GoogleMapViewHolder2D) {
     super({ holder });
+    this.supportsAnimationOverlay = true;
   }
 
   async onAdd(data: AddParams[]): Promise<(GoogleMapActualMarker2D | null)[]> {
@@ -88,6 +89,10 @@ export class GoogleMapMarkerRenderer2D extends AbstractMarkerOverlayRenderer<
 
   setMarkerPosition(entity: MarkerEntity<GoogleMapActualMarker2D>, position: GeoPoint): void {
     (entity.marker as google.maps.Marker)?.setPosition(geoPointToLatLng(position));
+  }
+
+  override setMarkerVisible(entity: MarkerEntity<GoogleMapActualMarker2D>, visible: boolean): void {
+    (entity.marker as google.maps.Marker)?.setVisible(visible);
   }
 
   syncPositionToState(marker: GoogleMapActualMarker2D, state: MarkerState): void {

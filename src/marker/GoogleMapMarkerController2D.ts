@@ -11,6 +11,7 @@ import {
   type AddParams,
   type ChangeParams,
   type GeoPoint,
+  type MarkerAnimationOverlayHost,
   type MarkerEntity,
   type MarkerState,
   type OnMarkerEventHandler,
@@ -26,6 +27,8 @@ export class GoogleMapMarkerController2D {
   private dragStartListener: OnMarkerEventHandler | null = null;
   private dragListener: OnMarkerEventHandler | null = null;
   private dragEndListener: OnMarkerEventHandler | null = null;
+  private animateStartListener: OnMarkerEventHandler | null = null;
+  private animateEndListener: OnMarkerEventHandler | null = null;
 
   // ── Tile rendering ────────────────────────────────────────────────────────
   private tileRenderer: MarkerTileRenderer<MarkerState> | null = null;
@@ -42,6 +45,8 @@ export class GoogleMapMarkerController2D {
   constructor(
     private readonly renderer: GoogleMapMarkerRendererInterface<GoogleMapActualMarker2D>,
     private readonly tilingOptions: MarkerTilingOptions = MarkerTilingOptions.Default) {
+    this.renderer.animateStartListener = (state) => this.dispatchAnimateStart(state);
+    this.renderer.animateEndListener = (state) => this.dispatchAnimateEnd(state);
   }
 
   composition(data: MarkerState[]): void {
@@ -108,7 +113,13 @@ export class GoogleMapMarkerController2D {
     }
 
     void this.processAdd(toAdd);
-    void this.processChange(toChange);
+    void this.processChange(toChange).then(() => {
+      for (const { current } of toChange) {
+        if (current.state.getAnimation() == null) continue;
+        const entity = this.entities.get(current.state.id);
+        if (entity) void this.renderer.onAnimate(entity);
+      }
+    });
     void this.renderer.onPostProcess();
   }
 
@@ -116,11 +127,17 @@ export class GoogleMapMarkerController2D {
     const bitmapIcon = state.icon?.toBitmapIcon() ?? createDefaultIcon().toBitmapIcon();
     const existing = this.entities.get(state.id);
     if (existing) {
+      const prevAnimation = existing.state.getAnimation();
       void this.processChange([{
         current: createMarkerEntity({ marker: existing.marker, state }),
         prev: existing,
         bitmapIcon,
-      }]);
+      }]).then(() => {
+        if (prevAnimation !== state.getAnimation() && state.getAnimation() != null) {
+          const entity = this.entities.get(state.id);
+          if (entity) void this.renderer.onAnimate(entity);
+        }
+      });
     } else {
       void this.processAdd([{ state, bitmapIcon }]);
     }
@@ -145,6 +162,28 @@ export class GoogleMapMarkerController2D {
 
   setOnDragEnd(listener: OnMarkerEventHandler | null): void {
     this.dragEndListener = listener;
+  }
+
+  setOnAnimateStart(listener: OnMarkerEventHandler | null): void {
+    this.animateStartListener = listener;
+  }
+
+  setOnAnimateEnd(listener: OnMarkerEventHandler | null): void {
+    this.animateEndListener = listener;
+  }
+
+  setMarkerAnimationOverlayHost(host: MarkerAnimationOverlayHost | null): void {
+    this.renderer.animationOverlayHost = host;
+  }
+
+  private dispatchAnimateStart(state: MarkerState): void {
+    state.onAnimateStart?.(state);
+    this.animateStartListener?.(state);
+  }
+
+  private dispatchAnimateEnd(state: MarkerState): void {
+    state.onAnimateEnd?.(state);
+    this.animateEndListener?.(state);
   }
 
   clear(): void {
@@ -266,6 +305,9 @@ export class GoogleMapMarkerController2D {
       const entity = createMarkerEntity({ marker, state, isRendered: true });
       this.entities.set(state.id, entity);
       this.attachListeners(marker, state);
+      if (state.getAnimation() != null) {
+        void this.renderer.onAnimate(entity);
+      }
     }
   }
 

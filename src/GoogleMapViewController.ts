@@ -12,6 +12,7 @@ import {
   type MapCameraPosition,
   type OnMapInitializedHandler,
   type MapViewControllerInterface,
+  type MarkerAnimationOverlayHost,
   type MarkerCapable,
   type MarkerState,
   type OnCircleEventHandler,
@@ -205,9 +206,17 @@ export class GoogleMapViewController
     this.markerController.setOnDragEnd(listener);
   }
 
-  setOnMarkerAnimateStart(_listener: OnMarkerEventHandler | null): void {}
+  setOnMarkerAnimateStart(listener: OnMarkerEventHandler | null): void {
+    this.markerController.setOnAnimateStart(listener);
+  }
 
-  setOnMarkerAnimateEnd(_listener: OnMarkerEventHandler | null): void {}
+  setOnMarkerAnimateEnd(listener: OnMarkerEventHandler | null): void {
+    this.markerController.setOnAnimateEnd(listener);
+  }
+
+  setMarkerAnimationOverlayHost(host: MarkerAnimationOverlayHost | null): void {
+    this.markerController.setMarkerAnimationOverlayHost(host);
+  }
 
   // --- Circle ---
 

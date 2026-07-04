@@ -23,6 +23,7 @@ export class GoogleMapAdvancedMarkerElementRenderer2D extends AbstractMarkerOver
 > implements GoogleMapMarkerRendererInterface<GoogleMapActualMarker2D> {
   constructor(holder: GoogleMapViewHolder2D) {
     super({ holder });
+    this.supportsAnimationOverlay = true;
   }
 
   clickEventName: string | null = 'gmp-click';
@@ -79,6 +80,12 @@ export class GoogleMapAdvancedMarkerElementRenderer2D extends AbstractMarkerOver
   ): void {
     if (!entity.marker) return;
     (entity.marker as google.maps.marker.AdvancedMarkerElement).position = geoPointToLatLng(position);
+  }
+
+  override setMarkerVisible(entity: MarkerEntity<GoogleMapActualMarker2D>, visible: boolean): void {
+    const marker = entity.marker as google.maps.marker.AdvancedMarkerElement | null;
+    if (!marker) return;
+    marker.map = visible ? this.holder.map : null;
   }
 
   syncPositionToState(
