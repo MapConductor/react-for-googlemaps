@@ -1,5 +1,5 @@
 {
-  "name": "@mapconductor/google-maps",
+  "name": "@mapconductor/js-sdk-react-for-googlemaps",
   "version": "0.1.0",
   "description": "Google Maps provider for MapConductor React SDK",
   "main": "./dist/index.js",
@@ -30,13 +30,13 @@
   "author": "MapConductor",
   "license": "MIT",
   "peerDependencies": {
-    "@mapconductor/core": "^0.1.0",
+    "@mapconductor/js-sdk-core": "^0.1.0",
     "react": "^19.2.0"
   },
   "dependencies": {
     "@googlemaps/js-api-loader": "^2.1.1",
-    "@mapconductor/core": "workspace:*",
-    "@mapconductor/react": "workspace:*"
+    "@mapconductor/js-sdk-core": "workspace:*",
+    "@mapconductor/js-sdk-react": "workspace:*"
   },
   "devDependencies": {
     "@types/google.maps": "^3.65.2",

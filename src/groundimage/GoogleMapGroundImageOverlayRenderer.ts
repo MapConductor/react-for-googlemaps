@@ -3,7 +3,7 @@ import {
   AbstractGroundImageOverlayRenderer,
   type GroundImageEntity,
   type GroundImageState,
-} from '@mapconductor/core';
+} from '@mapconductor/js-sdk-core';
 // import { latLngBoundsLiteralFromGeoRect } from '../helpers';
 import { GoogleMapViewHolder } from '../GoogleMapViewHolder';
 

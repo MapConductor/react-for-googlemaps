@@ -6,7 +6,7 @@ import {
   type GeoPoint,
   type MarkerEntity,
   MarkerState,
-} from '@mapconductor/core';
+} from '@mapconductor/js-sdk-core';
 import { GoogleMapActualMarker } from '../GoogleMapsTypeAlias';
 import { GoogleMapViewHolder } from '../GoogleMapViewHolder';
 

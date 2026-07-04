@@ -25,7 +25,7 @@ import {
   type PolylineState,
   type RasterLayerCapable,
   type RasterLayerState,
-} from '@mapconductor/core';
+} from '@mapconductor/js-sdk-core';
 import { GoogleMapMarkerController } from './marker/GoogleMapMarkerController';
 import { GoogleMapCircleController } from './circle/GoogleMapCircleController';
 import { GoogleMapPolylineController } from './polyline/GoogleMapPolylineController';

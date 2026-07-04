@@ -4,7 +4,7 @@ import {
   type OnPolylineEventHandler,
   type PolylineEvent,
   type PolylineState,
-} from '@mapconductor/core';
+} from '@mapconductor/js-sdk-core';
 import { mouseEventToGeoPoint } from '../helpers';
 import { GoogleMapPolylineOverlayRenderer } from './GoogleMapPolylineOverlayRenderer';
 import { GoogleMapPolylineOverlayRenderer2D } from './GoogleMapPolylineOverlayRenderer2D';

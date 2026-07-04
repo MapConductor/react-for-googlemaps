@@ -9,7 +9,7 @@ import {
   MapCameraPosition as MapCameraPositionNS,
   MapPaddings,
   createRandomId,
-} from '@mapconductor/core';
+} from '@mapconductor/js-sdk-core';
 import { GoogleMapDesign, type GoogleMapDesignType } from './GoogleMapDesign';
 import type { GoogleMapViewHolder } from './GoogleMapViewHolder';
 

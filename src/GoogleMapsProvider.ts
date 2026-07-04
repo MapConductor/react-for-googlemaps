@@ -1,5 +1,5 @@
 import { APIOptions, setOptions } from '@googlemaps/js-api-loader';
-import { MapProvider, type MapViewControllerInterface } from '@mapconductor/core';
+import { MapProvider, type MapViewControllerInterface } from '@mapconductor/js-sdk-core';
 import { GoogleMapViewController } from './GoogleMapViewController';
 import { GoogleMapViewHolder } from './GoogleMapViewHolder';
 import { GoogleMapCircleController } from './circle/GoogleMapCircleController';

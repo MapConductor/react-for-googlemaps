@@ -1,5 +1,5 @@
 /// <reference types="google.maps" />
-import { type BitmapIcon } from '@mapconductor/core';
+import { type BitmapIcon } from '@mapconductor/js-sdk-core';
 
 /**
  * BitmapIcon の anchor を AdvancedMarkerElement の content 要素に反映する。

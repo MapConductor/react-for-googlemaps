@@ -1,4 +1,4 @@
-import type { MapDesignTypeInterface } from '@mapconductor/core';
+import type { MapDesignTypeInterface } from '@mapconductor/js-sdk-core';
 
 export type GoogleMapDesignType = MapDesignTypeInterface<string>;
 

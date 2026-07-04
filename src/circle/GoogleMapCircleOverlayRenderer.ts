@@ -3,7 +3,7 @@ import {
   AbstractCircleOverlayRenderer,
   type CircleEntity,
   type CircleState,
-} from '@mapconductor/core';
+} from '@mapconductor/js-sdk-core';
 import { GoogleMapViewHolder } from '../GoogleMapViewHolder';
 
 export class GoogleMapCircleOverlayRenderer extends AbstractCircleOverlayRenderer<

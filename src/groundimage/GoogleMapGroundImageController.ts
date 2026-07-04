@@ -4,7 +4,7 @@ import {
   type GroundImageEvent,
   type GroundImageState,
   type OnGroundImageEventHandler,
-} from '@mapconductor/core';
+} from '@mapconductor/js-sdk-core';
 import { mouseEventToGeoPoint } from '../helpers';
 import { GoogleMapGroundImageOverlayRenderer } from './GoogleMapGroundImageOverlayRenderer';
 import { GoogleMapGroundImageOverlayRenderer2D } from './GoogleMapGroundImageOverlayRenderer2D';

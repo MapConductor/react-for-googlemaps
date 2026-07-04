@@ -4,7 +4,7 @@ import {
   type GeoPoint,
   type GeoPointInterface,
   type Offset,
-} from '@mapconductor/core';
+} from '@mapconductor/js-sdk-core';
 import { latLngAltToGeoPoint } from './helpers';
 import { ZoomAltitudeConverter } from './zoom';
 

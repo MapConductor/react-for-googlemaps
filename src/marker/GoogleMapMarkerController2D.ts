@@ -15,7 +15,7 @@ import {
   type MarkerState,
   type OnMarkerEventHandler,
   type RasterLayerState,
-} from '@mapconductor/core';
+} from '@mapconductor/js-sdk-core';
 import { GoogleMapActualMarker2D } from '../GoogleMapsTypeAlias';
 import { GoogleMapAdvancedMarkerElementRenderer2D } from './GoogleMapAdvancedMarkerElementRenderer2D';
 

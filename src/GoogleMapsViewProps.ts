@@ -1,5 +1,5 @@
 import React from "react";
-import { MapViewBaseProps, MarkerTilingOptions } from "@mapconductor/core";
+import { MapViewBaseProps, MarkerTilingOptions } from "@mapconductor/js-sdk-core";
 import { GoogleMapViewState } from "./GoogleMapViewState";
 
 export interface GoogleMapsViewProps extends MapViewBaseProps<GoogleMapViewState> {

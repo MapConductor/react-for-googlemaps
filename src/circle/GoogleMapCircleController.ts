@@ -4,7 +4,7 @@ import {
   type CircleEvent,
   type CircleState,
   type OnCircleEventHandler,
-} from '@mapconductor/core';
+} from '@mapconductor/js-sdk-core';
 import { mouseEventToGeoPoint } from '../helpers';
 import { GoogleMapCircleOverlayRenderer } from './GoogleMapCircleOverlayRenderer';
 import { GoogleMapCircleOverlayRenderer2D } from './GoogleMapCircleOverlayRenderer2D';

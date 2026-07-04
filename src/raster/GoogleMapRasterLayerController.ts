@@ -1,5 +1,5 @@
 /// <reference types="google.maps" />
-import { type RasterLayerState } from '@mapconductor/core';
+import { type RasterLayerState } from '@mapconductor/js-sdk-core';
 import { GoogleMapRasterLayerOverlayRenderer } from './GoogleMapRasterLayerOverlayRenderer';
 import { GoogleMapRasterLayerOverlayRenderer2D } from './GoogleMapRasterLayerOverlayRenderer2D';
 

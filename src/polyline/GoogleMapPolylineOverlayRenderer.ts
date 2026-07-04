@@ -3,7 +3,7 @@ import {
   AbstractPolylineOverlayRenderer,
   type PolylineEntity,
   type PolylineState,
-} from '@mapconductor/core';
+} from '@mapconductor/js-sdk-core';
 import { GoogleMapViewHolder } from '../GoogleMapViewHolder';
 
 export class GoogleMapPolylineOverlayRenderer extends AbstractPolylineOverlayRenderer<

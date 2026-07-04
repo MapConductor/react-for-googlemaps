@@ -25,7 +25,7 @@ import {
   type PolylineState,
   type RasterLayerCapable,
   type RasterLayerState,
-} from '@mapconductor/core';
+} from '@mapconductor/js-sdk-core';
 import { latLngToGeoPoint, geoPointToLatLng } from './helpers';
 import { GoogleMapCircleController } from './circle/GoogleMapCircleController';
 import { GoogleMapPolylineController } from './polyline/GoogleMapPolylineController';

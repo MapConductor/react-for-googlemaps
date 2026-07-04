@@ -6,8 +6,8 @@ import {
   type GeoPoint,
   type MarkerEntity,
   MarkerState,
-} from '@mapconductor/core';
-import { createMarkerEntity } from '@mapconductor/core';
+} from '@mapconductor/js-sdk-core';
+import { createMarkerEntity } from '@mapconductor/js-sdk-core';
 import { latLngToGeoPoint, geoPointToLatLng } from '../helpers';
 import { loadLibrary } from '../LibraryLoader';
 import { createMarkerContent } from './createMarkerContent';

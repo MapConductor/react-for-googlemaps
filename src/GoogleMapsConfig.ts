@@ -1,4 +1,4 @@
-import { MapConfig, MarkerTilingOptions } from "@mapconductor/core";
+import { MapConfig, MarkerTilingOptions } from "@mapconductor/js-sdk-core";
 
 export interface GoogleMapsConfig2D extends GoogleMapsConfigBase {
   mapDesignType?: string;

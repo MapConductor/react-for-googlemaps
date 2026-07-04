@@ -1,5 +1,5 @@
 import { setOptions } from '@googlemaps/js-api-loader';
-import { MapProvider, type MapViewControllerInterface } from '@mapconductor/core';
+import { MapProvider, type MapViewControllerInterface } from '@mapconductor/js-sdk-core';
 import { geoPointToLatLngAltitude } from './GeoPoint';
 import { GoogleMapCircleController } from './circle/GoogleMapCircleController';
 import { GoogleMapGroundImageController } from './groundimage/GoogleMapGroundImageController';

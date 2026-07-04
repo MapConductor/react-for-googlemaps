@@ -3,7 +3,7 @@ import {
   AbstractPolylineOverlayRenderer,
   type PolylineEntity,
   type PolylineState,
-} from '@mapconductor/core';
+} from '@mapconductor/js-sdk-core';
 import { geoPointToLatLng } from '../helpers';
 import { GoogleMapViewHolder2D } from '../GoogleMapViewHolder2D';
 

@@ -3,7 +3,7 @@ import {
   AbstractPolygonOverlayRenderer,
   type PolygonEntity,
   type PolygonState,
-} from '@mapconductor/core';
+} from '@mapconductor/js-sdk-core';
 import { GoogleMapViewHolder } from '../GoogleMapViewHolder';
 
 export class GoogleMapPolygonOverlayRenderer extends AbstractPolygonOverlayRenderer<

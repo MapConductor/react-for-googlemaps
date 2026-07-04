@@ -1,5 +1,5 @@
 /// <reference types="google.maps" />
-import { LocalTileServer, TileScheme, type RasterLayerState } from '@mapconductor/core';
+import { LocalTileServer, TileScheme, type RasterLayerState } from '@mapconductor/js-sdk-core';
 import { GoogleMapViewHolder2D } from '../GoogleMapViewHolder2D';
 
 const EMPTY_TILE_DATA_URL =

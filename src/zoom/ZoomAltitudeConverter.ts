@@ -1,4 +1,4 @@
-import { AbstractZoomAltitudeConverter, MapCameraPosition } from '@mapconductor/core';
+import { AbstractZoomAltitudeConverter, MapCameraPosition } from '@mapconductor/js-sdk-core';
 
 export class ZoomAltitudeConverter extends AbstractZoomAltitudeConverter {
     private cosLatitudeFactor(latitude: number): number {

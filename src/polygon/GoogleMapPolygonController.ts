@@ -4,7 +4,7 @@ import {
   type OnPolygonEventHandler,
   type PolygonEvent,
   type PolygonState,
-} from '@mapconductor/core';
+} from '@mapconductor/js-sdk-core';
 import { mouseEventToGeoPoint } from '../helpers';
 import { GoogleMapPolygonOverlayRenderer } from './GoogleMapPolygonOverlayRenderer';
 import { GoogleMapPolygonOverlayRenderer2D } from './GoogleMapPolygonOverlayRenderer2D';

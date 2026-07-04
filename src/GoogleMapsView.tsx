@@ -5,8 +5,8 @@ import {
   MapViewScopeProvider,
   InfoBubbleOverlay,
   type InfoBubbleEntry,
-} from '@mapconductor/react';
-import type { MapCameraPosition, GeoPoint } from '@mapconductor/core';
+} from '@mapconductor/js-sdk-react';
+import type { MapCameraPosition, GeoPoint } from '@mapconductor/js-sdk-core';
 import type { GoogleMapViewController } from './GoogleMapViewController';
 import { GoogleMapsViewProps } from './GoogleMapsViewProps';
 import { GoogleMapsProvider } from './GoogleMapsProvider';

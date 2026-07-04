@@ -1,5 +1,5 @@
 /// <reference types="google.maps" />
-import { createGeoPoint, type GeoPoint, type GeoRectBounds } from '@mapconductor/core';
+import { createGeoPoint, type GeoPoint, type GeoRectBounds } from '@mapconductor/js-sdk-core';
 
 
 export function geoPointToLatLng(point: GeoPoint): google.maps.LatLngLiteral {
