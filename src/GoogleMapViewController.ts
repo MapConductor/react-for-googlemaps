@@ -133,11 +133,15 @@ export class GoogleMapViewController
     const cameraOptions = this.holder.zoomConverter.mapCameraPositionToCameraOptions(position);
     if (!cameraOptions) return Promise.resolve(false);
 
-    await this.holder.map.flyCameraTo({
+    this.holder.map.flyCameraTo({
       endCamera: cameraOptions,
       durationMillis: options?.duration ?? 1000,
     });
-    return true;
+    return new Promise((resolve) => {
+      this.holder.map.addEventListener('gmp-animationend', () => resolve(true), {
+        once: true,
+      });
+    })
   }
 
   fitBounds(_bounds: GeoRectBounds, _options?: CameraOptions): Promise<boolean> {
