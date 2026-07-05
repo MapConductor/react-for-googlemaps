@@ -4,50 +4,54 @@ import {
   type PolylineEntity,
   type PolylineState,
 } from '@mapconductor/js-sdk-core';
+import { GoogleMapActualPolyline } from '../GoogleMapsTypeAlias';
 import { GoogleMapViewHolder } from '../GoogleMapViewHolder';
+import { loadLibrary } from '../LibraryLoader';
+import { buildPolylinePath } from '../overlay3d';
 
 export class GoogleMapPolylineOverlayRenderer extends AbstractPolylineOverlayRenderer<
   GoogleMapViewHolder,
-  google.maps.Polyline
+  GoogleMapActualPolyline
 > {
   constructor(holder: GoogleMapViewHolder) {
     super(holder);
   }
 
-  async createPolyline(_state: PolylineState): Promise<google.maps.Polyline | null> {
-    return null;
-    // return new google.maps.Polyline({
-    //   path: state.points.map(latLngFromGeoPoint),
-    //   strokeColor: state.strokeColor,
-    //   strokeWeight: state.strokeWidth,
-    //   geodesic: state.geodesic,
-    //   zIndex: state.zIndex,
-    //   clickable: true,
-    //   map: this.holder.map,
-    // });
+  async createPolyline(state: PolylineState): Promise<GoogleMapActualPolyline | null> {
+    const { Polyline3DInteractiveElement, AltitudeMode } =
+      await loadLibrary<google.maps.Maps3DLibrary>('maps3d');
+    const polyline = new Polyline3DInteractiveElement({
+      path: buildPolylinePath(state),
+      strokeColor: state.strokeColor,
+      strokeWidth: state.strokeWidth,
+      geodesic: state.geodesic,
+      zIndex: state.zIndex,
+      altitudeMode: AltitudeMode.CLAMP_TO_GROUND,
+    });
+    this.holder.map.append(polyline);
+    return polyline;
   }
 
   async updatePolylineProperties({
     polyline,
+    current,
   }: {
-    polyline: google.maps.Polyline;
-    current: PolylineEntity<google.maps.Polyline>;
-    prev: PolylineEntity<google.maps.Polyline>;
-  }): Promise<google.maps.Polyline | null> {
-    // polyline.setOptions({
-    //   path: current.state.points.map(latLngFromGeoPoint),
-    //   strokeColor: current.state.strokeColor,
-    //   strokeWeight: current.state.strokeWidth,
-    //   geodesic: current.state.geodesic,
-    //   zIndex: current.state.zIndex,
-    //   clickable: true,
-    //   map: this.holder.map,
-    // });
+    polyline: GoogleMapActualPolyline;
+    current: PolylineEntity<GoogleMapActualPolyline>;
+    prev: PolylineEntity<GoogleMapActualPolyline>;
+  }): Promise<GoogleMapActualPolyline | null> {
+    if (!(polyline instanceof HTMLElement)) return polyline;
+    polyline.path = buildPolylinePath(current.state);
+    polyline.strokeColor = current.state.strokeColor;
+    polyline.strokeWidth = current.state.strokeWidth;
+    polyline.geodesic = current.state.geodesic;
+    polyline.zIndex = current.state.zIndex;
     return polyline;
   }
 
-  async removePolyline(entity: PolylineEntity<google.maps.Polyline>): Promise<void> {
-    google.maps.event.clearInstanceListeners(entity.polyline);
-    entity.polyline.setMap(null);
+  async removePolyline(entity: PolylineEntity<GoogleMapActualPolyline>): Promise<void> {
+    if (entity.polyline instanceof HTMLElement) {
+      entity.polyline.remove();
+    }
   }
 }

@@ -4,59 +4,60 @@ import {
   type PolygonEntity,
   type PolygonState,
 } from '@mapconductor/js-sdk-core';
+import { GoogleMapActualPolygon } from '../GoogleMapsTypeAlias';
 import { GoogleMapViewHolder } from '../GoogleMapViewHolder';
+import { loadLibrary } from '../LibraryLoader';
+import { buildPolygonInnerPaths, buildPolygonPath } from '../overlay3d';
 
 export class GoogleMapPolygonOverlayRenderer extends AbstractPolygonOverlayRenderer<
   GoogleMapViewHolder,
-  google.maps.Polygon
+  GoogleMapActualPolygon
 > {
   constructor(holder: GoogleMapViewHolder) {
     super(holder);
   }
 
-  async createPolygon(_state: PolygonState): Promise<google.maps.Polygon | null> {
-    return null;
-    // return new google.maps.Polygon({
-    //   paths: this.buildPaths(state),
-    //   strokeColor: state.strokeColor,
-    //   strokeWeight: state.strokeWidth,
-    //   fillColor: state.fillColor,
-    //   geodesic: state.geodesic,
-    //   zIndex: state.zIndex,
-    //   clickable: true,
-    //   map: this.holder.map,
-    // });
+  async createPolygon(state: PolygonState): Promise<GoogleMapActualPolygon | null> {
+    const { Polygon3DElement, AltitudeMode } =
+      await loadLibrary<google.maps.Maps3DLibrary>('maps3d');
+    const innerPaths = buildPolygonInnerPaths(state);
+    const polygon = new Polygon3DElement({
+      path: buildPolygonPath(state.points, state.geodesic),
+      ...(innerPaths.length > 0 ? { innerPaths } : {}),
+      strokeColor: state.strokeColor,
+      strokeWidth: state.strokeWidth,
+      fillColor: state.fillColor,
+      geodesic: state.geodesic,
+      zIndex: state.zIndex,
+      altitudeMode: AltitudeMode.CLAMP_TO_GROUND,
+    });
+    this.holder.map.append(polygon);
+    return polygon;
   }
 
   async updatePolygonProperties({
     polygon,
+    current,
   }: {
-    polygon: google.maps.Polygon;
-    current: PolygonEntity<google.maps.Polygon>;
-    prev: PolygonEntity<google.maps.Polygon>;
-  }): Promise<google.maps.Polygon | null> {
-    // polygon.setOptions({
-    //   paths: this.buildPaths(current.state),
-    //   strokeColor: current.state.strokeColor,
-    //   strokeWeight: current.state.strokeWidth,
-    //   fillColor: current.state.fillColor,
-    //   geodesic: current.state.geodesic,
-    //   zIndex: current.state.zIndex,
-    //   clickable: true,
-    //   map: this.holder.map,
-    // });
+    polygon: GoogleMapActualPolygon;
+    current: PolygonEntity<GoogleMapActualPolygon>;
+    prev: PolygonEntity<GoogleMapActualPolygon>;
+  }): Promise<GoogleMapActualPolygon | null> {
+    if (!(polygon instanceof HTMLElement)) return polygon;
+    polygon.path = buildPolygonPath(current.state.points, current.state.geodesic);
+    const innerPaths = buildPolygonInnerPaths(current.state);
+    polygon.innerPaths = innerPaths.length > 0 ? innerPaths : null;
+    polygon.strokeColor = current.state.strokeColor;
+    polygon.strokeWidth = current.state.strokeWidth;
+    polygon.fillColor = current.state.fillColor;
+    polygon.geodesic = current.state.geodesic;
+    polygon.zIndex = current.state.zIndex;
     return polygon;
   }
 
-  async removePolygon(entity: PolygonEntity<google.maps.Polygon>): Promise<void> {
-    google.maps.event.clearInstanceListeners(entity.polygon);
-    entity.polygon.setMap(null);
+  async removePolygon(entity: PolygonEntity<GoogleMapActualPolygon>): Promise<void> {
+    if (entity.polygon instanceof HTMLElement) {
+      entity.polygon.remove();
+    }
   }
-
-  // private buildPaths(state: PolygonState): google.maps.LatLngLiteral[][] {
-  //   return [
-  //     state.points.map(latLngFromGeoPoint),
-  //     ...state.holes.map((hole) => hole.map(latLngFromGeoPoint)),
-  //   ];
-  // }
 }

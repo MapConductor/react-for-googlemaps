@@ -4,52 +4,56 @@ import {
   type CircleEntity,
   type CircleState,
 } from '@mapconductor/js-sdk-core';
+import { GoogleMapActualCircle } from '../GoogleMapsTypeAlias';
 import { GoogleMapViewHolder } from '../GoogleMapViewHolder';
+import { loadLibrary } from '../LibraryLoader';
+import { buildCirclePath, calculateCircleZIndex } from '../overlay3d';
 
 export class GoogleMapCircleOverlayRenderer extends AbstractCircleOverlayRenderer<
   GoogleMapViewHolder,
-  google.maps.Circle
+  GoogleMapActualCircle
 > {
   constructor(holder: GoogleMapViewHolder) {
     super(holder);
   }
 
-  async createCircle(_state: CircleState): Promise<google.maps.Circle | null> {
-    // return new google.maps.Circle({
-    //   center: latLngFromGeoPoint(state.center),
-    //   radius: state.radiusMeters,
-    //   strokeColor: state.strokeColor,
-    //   strokeWeight: state.strokeWidth,
-    //   fillColor: state.fillColor,
-    //   zIndex: state.zIndex,
-    //   clickable: state.clickable,
-    //   map: this.holder.map,
-    // });
-    return null;
+  async createCircle(state: CircleState): Promise<GoogleMapActualCircle | null> {
+    const { Polygon3DInteractiveElement, AltitudeMode } =
+      await loadLibrary<google.maps.Maps3DLibrary>('maps3d');
+    const circle = new Polygon3DInteractiveElement({
+      path: buildCirclePath(state),
+      strokeColor: state.strokeColor,
+      strokeWidth: state.strokeWidth,
+      fillColor: state.fillColor,
+      geodesic: state.geodesic,
+      zIndex: state.zIndex ?? calculateCircleZIndex(state.center),
+      altitudeMode: AltitudeMode.CLAMP_TO_GROUND,
+    });
+    this.holder.map.append(circle);
+    return circle;
   }
 
   async updateCircleProperties({
     circle,
+    current,
   }: {
-    circle: google.maps.Circle;
-    current: CircleEntity<google.maps.Circle>;
-    prev: CircleEntity<google.maps.Circle>;
-  }): Promise<google.maps.Circle | null> {
-    // circle.setOptions({
-    //   center: latLngFromGeoPoint(current.state.center),
-    //   radius: current.state.radiusMeters,
-    //   strokeColor: current.state.strokeColor,
-    //   strokeWeight: current.state.strokeWidth,
-    //   fillColor: current.state.fillColor,
-    //   zIndex: current.state.zIndex,
-    //   clickable: current.state.clickable,
-    //   map: this.holder.map,
-    // });
+    circle: GoogleMapActualCircle;
+    current: CircleEntity<GoogleMapActualCircle>;
+    prev: CircleEntity<GoogleMapActualCircle>;
+  }): Promise<GoogleMapActualCircle | null> {
+    if (!(circle instanceof HTMLElement)) return circle;
+    circle.path = buildCirclePath(current.state);
+    circle.strokeColor = current.state.strokeColor;
+    circle.strokeWidth = current.state.strokeWidth;
+    circle.fillColor = current.state.fillColor;
+    circle.geodesic = current.state.geodesic;
+    circle.zIndex = current.state.zIndex ?? calculateCircleZIndex(current.state.center);
     return circle;
   }
 
-  async removeCircle(entity: CircleEntity<google.maps.Circle>): Promise<void> {
-    google.maps.event.clearInstanceListeners(entity.circle);
-    entity.circle.setMap(null);
+  async removeCircle(entity: CircleEntity<GoogleMapActualCircle>): Promise<void> {
+    if (entity.circle instanceof HTMLElement) {
+      entity.circle.remove();
+    }
   }
 }
