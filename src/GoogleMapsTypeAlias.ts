@@ -7,4 +7,4 @@ export type GoogleMapActualCircle =
 export type GoogleMapActualPolyline =
   google.maps.Polyline | google.maps.maps3d.Polyline3DInteractiveElement;
 export type GoogleMapActualPolygon =
-  google.maps.Polygon | google.maps.maps3d.Polygon3DElement;
+  google.maps.Polygon | google.maps.maps3d.Polygon3DInteractiveElement;

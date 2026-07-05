@@ -18,10 +18,10 @@ export class GoogleMapPolygonOverlayRenderer extends AbstractPolygonOverlayRende
   }
 
   async createPolygon(state: PolygonState): Promise<GoogleMapActualPolygon | null> {
-    const { Polygon3DElement, AltitudeMode } =
+    const { Polygon3DInteractiveElement, AltitudeMode } =
       await loadLibrary<google.maps.Maps3DLibrary>('maps3d');
     const innerPaths = buildPolygonInnerPaths(state);
-    const polygon = new Polygon3DElement({
+    const polygon = new Polygon3DInteractiveElement({
       path: buildPolygonPath(state.points, state.geodesic),
       ...(innerPaths.length > 0 ? { innerPaths } : {}),
       strokeColor: state.strokeColor,
