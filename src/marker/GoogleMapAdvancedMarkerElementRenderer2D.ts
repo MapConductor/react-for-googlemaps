@@ -42,7 +42,7 @@ export class GoogleMapAdvancedMarkerElementRenderer2D extends AbstractMarkerOver
         content: createMarkerContent(bitmapIcon),
         gmpClickable: state.clickable,
         gmpDraggable: state.draggable,
-        zIndex: state.zIndex,
+        zIndex: Math.max(0, state.zIndex),
       }),
     );
   }
@@ -57,7 +57,7 @@ export class GoogleMapAdvancedMarkerElementRenderer2D extends AbstractMarkerOver
       marker.content = createMarkerContent(bitmapIcon);
       marker.gmpClickable = current.state.clickable;
       marker.gmpDraggable = current.state.draggable;
-      marker.zIndex = current.state.zIndex;
+      marker.zIndex = Math.max(0, current.state.zIndex);
       return marker;
     });
   }

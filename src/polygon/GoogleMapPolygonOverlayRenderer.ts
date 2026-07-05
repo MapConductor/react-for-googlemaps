@@ -44,15 +44,21 @@ export class GoogleMapPolygonOverlayRenderer extends AbstractPolygonOverlayRende
   async updatePolygonProperties({
     polygon,
     current,
+    prev,
   }: {
     polygon: GoogleMapActualPolygon;
     current: PolygonEntity<GoogleMapActualPolygon>;
     prev: PolygonEntity<GoogleMapActualPolygon>;
   }): Promise<GoogleMapActualPolygon | null> {
     if (!(polygon instanceof HTMLElement)) return polygon;
-    polygon.path = this.buildPath(current.state.points, current.state.geodesic);
     const innerPaths = this.buildInnerPaths(current.state);
-    polygon.innerPaths = innerPaths.length > 0 ? innerPaths : null;
+    if (innerPaths.length === 0 && prev.state.holes.length > 0) {
+      await this.removePolygon(prev);
+      return this.createPolygon(current.state);
+    }
+
+    polygon.path = this.buildPath(current.state.points, current.state.geodesic);
+    // if (innerPaths.length > 0) polygon.innerPaths = innerPaths;
     polygon.strokeColor = current.state.strokeColor;
     polygon.strokeWidth = current.state.strokeWidth;
     polygon.fillColor = current.state.fillColor;

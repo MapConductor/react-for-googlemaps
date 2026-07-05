@@ -21,7 +21,7 @@ const FNV_OFFSET_BASIS = 0xcbf29ce484222325n;
 const FNV_PRIME = 0x100000001b3n;
 
 export function calculateCircleZIndex(center: GeoPoint): number {
-  return ((-center.latitude * 1_000_000 - center.longitude) | 0);
+  return Math.max(0, (-center.latitude * 1_000_000 - center.longitude) | 0);
 }
 
 export function toLatLngAltitudePath(points: GeoPoint[]): google.maps.LatLngAltitudeLiteral[] {
