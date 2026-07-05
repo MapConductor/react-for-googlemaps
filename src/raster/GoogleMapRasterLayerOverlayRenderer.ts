@@ -13,6 +13,16 @@ function parseLocalTileTemplate(template: string): { routeId: string; tileSize: 
   return { routeId: url.hostname, tileSize };
 }
 
+function normalizeTileX(x: number, zoom: number): number {
+  const scale = 1 << zoom;
+  return ((x % scale) + scale) % scale;
+}
+
+function isTileYInRange(y: number, zoom: number): boolean {
+  const scale = 1 << zoom;
+  return y >= 0 && y < scale;
+}
+
 export class GoogleMapRasterLayerOverlayRenderer {
   constructor(readonly holder: GoogleMapViewHolder) {}
 
@@ -50,12 +60,16 @@ export class GoogleMapRasterLayerOverlayRenderer {
         const tileSize = source.tileSize ?? 256;
         return new google.maps.ImageMapType({
           getTileUrl: (coord, zoom) => {
+            if (!isTileYInRange(coord.y, zoom)) return EMPTY_TILE_DATA_URL;
+            const scale = 1 << zoom;
+            const x = normalizeTileX(coord.x, zoom);
             const y =
-              source.scheme === TileScheme.TMS ? (1 << zoom) - 1 - coord.y : coord.y;
+              source.scheme === TileScheme.TMS ? scale - 1 - coord.y : coord.y;
+            const negativeY = scale - 1 - coord.y;
             return source.template
-              .replace(/\{x\}/g, String(coord.x))
+              .replace(/\{x\}/g, String(x))
               .replace(/\{y\}/g, String(y))
-              .replace(/\{-y\}/g, String(y))
+              .replace(/\{-y\}/g, String(negativeY))
               .replace(/\{z\}/g, String(zoom));
           },
           maxZoom: source.maxZoom ?? undefined,

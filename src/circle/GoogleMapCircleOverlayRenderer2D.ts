@@ -4,6 +4,7 @@ import {
   type CircleEntity,
   type CircleState,
 } from '@mapconductor/js-sdk-core';
+import { toGoogleMapsFillStyle } from '../color';
 import { geoPointToLatLng } from '../helpers';
 import { GoogleMapViewHolder2D } from '../GoogleMapViewHolder2D';
 
@@ -16,12 +17,14 @@ export class GoogleMapCircleOverlayRenderer2D extends AbstractCircleOverlayRende
   }
 
   async createCircle(state: CircleState): Promise<google.maps.Circle | null> {
+    const fill = toGoogleMapsFillStyle(state.fillColor);
     return new google.maps.Circle({
       center: geoPointToLatLng(state.center),
       radius: state.radiusMeters,
       strokeColor: state.strokeColor,
       strokeWeight: state.strokeWidth,
-      fillColor: state.fillColor,
+      fillColor: fill.color,
+      fillOpacity: fill.opacity,
       zIndex: state.zIndex,
       clickable: state.clickable,
       map: this.holder.map,
@@ -36,12 +39,14 @@ export class GoogleMapCircleOverlayRenderer2D extends AbstractCircleOverlayRende
     current: CircleEntity<google.maps.Circle>;
     prev: CircleEntity<google.maps.Circle>;
   }): Promise<google.maps.Circle | null> {
+    const fill = toGoogleMapsFillStyle(current.state.fillColor);
     circle.setOptions({
       center: geoPointToLatLng(current.state.center),
       radius: current.state.radiusMeters,
       strokeColor: current.state.strokeColor,
       strokeWeight: current.state.strokeWidth,
-      fillColor: current.state.fillColor,
+      fillColor: fill.color,
+      fillOpacity: fill.opacity,
       zIndex: current.state.zIndex,
       clickable: current.state.clickable,
       map: this.holder.map,
