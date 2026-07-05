@@ -7,29 +7,35 @@ import {
 import { GoogleMapActualPolygon } from '../GoogleMapsTypeAlias';
 import { GoogleMapViewHolder } from '../GoogleMapViewHolder';
 import { loadLibrary } from '../LibraryLoader';
-import { buildPolygonInnerPaths, buildPolygonPath } from '../overlay3d';
+import {
+  LatLngAltitudeInterpolationCache,
+  adaptiveMaxSegmentLengthMeters,
+  buildPolygonPath,
+  interpolationCacheKey,
+} from '../overlay3d';
 
 export class GoogleMapPolygonOverlayRenderer extends AbstractPolygonOverlayRenderer<
   GoogleMapViewHolder,
   GoogleMapActualPolygon
 > {
+  private readonly interpolationCache = new LatLngAltitudeInterpolationCache(64);
+
   constructor(holder: GoogleMapViewHolder) {
     super(holder);
   }
 
   async createPolygon(state: PolygonState): Promise<GoogleMapActualPolygon | null> {
-    const { Polygon3DInteractiveElement, AltitudeMode } =
+    const { Polygon3DInteractiveElement } =
       await loadLibrary<google.maps.Maps3DLibrary>('maps3d');
-    const innerPaths = buildPolygonInnerPaths(state);
+    const innerPaths = this.buildInnerPaths(state);
     const polygon = new Polygon3DInteractiveElement({
-      path: buildPolygonPath(state.points, state.geodesic),
+      path: this.buildPath(state.points, state.geodesic),
       ...(innerPaths.length > 0 ? { innerPaths } : {}),
       strokeColor: state.strokeColor,
       strokeWidth: state.strokeWidth,
       fillColor: state.fillColor,
-      geodesic: state.geodesic,
+      geodesic: false,
       zIndex: state.zIndex,
-      altitudeMode: AltitudeMode.CLAMP_TO_GROUND,
     });
     this.holder.map.append(polygon);
     return polygon;
@@ -44,13 +50,13 @@ export class GoogleMapPolygonOverlayRenderer extends AbstractPolygonOverlayRende
     prev: PolygonEntity<GoogleMapActualPolygon>;
   }): Promise<GoogleMapActualPolygon | null> {
     if (!(polygon instanceof HTMLElement)) return polygon;
-    polygon.path = buildPolygonPath(current.state.points, current.state.geodesic);
-    const innerPaths = buildPolygonInnerPaths(current.state);
+    polygon.path = this.buildPath(current.state.points, current.state.geodesic);
+    const innerPaths = this.buildInnerPaths(current.state);
     polygon.innerPaths = innerPaths.length > 0 ? innerPaths : null;
     polygon.strokeColor = current.state.strokeColor;
     polygon.strokeWidth = current.state.strokeWidth;
     polygon.fillColor = current.state.fillColor;
-    polygon.geodesic = current.state.geodesic;
+    polygon.geodesic = false;
     polygon.zIndex = current.state.zIndex;
     return polygon;
   }
@@ -59,5 +65,36 @@ export class GoogleMapPolygonOverlayRenderer extends AbstractPolygonOverlayRende
     if (entity.polygon instanceof HTMLElement) {
       entity.polygon.remove();
     }
+  }
+
+  private buildPath(points: PolygonState['points'], geodesic: boolean): google.maps.LatLngAltitudeLiteral[] {
+    if (!geodesic) return buildPolygonPath(points, false);
+
+    const maxSegmentLengthMeters = this.maxSegmentLengthMeters();
+    const key = interpolationCacheKey(points, maxSegmentLengthMeters);
+    const cached = this.interpolationCache.get(key);
+    if (cached) return cached;
+
+    const path = buildPolygonPath(points, true, maxSegmentLengthMeters);
+    this.interpolationCache.put(key, path);
+    return path;
+  }
+
+  private buildInnerPaths(state: PolygonState): google.maps.LatLngAltitudeLiteral[][] {
+    return state.holes
+      .map((hole) => this.buildPath(hole, state.geodesic))
+      .filter((hole) => hole.length >= 3);
+  }
+
+  private maxSegmentLengthMeters(): number {
+    const center = this.holder.map.center;
+    const range = this.holder.map.range;
+    if (!center || range == null) return 10000.0;
+
+    const zoom = this.holder.zoomConverter.distanceToZoomLevel({
+      distance: range,
+      latitude: center.lat,
+    });
+    return adaptiveMaxSegmentLengthMeters({ zoom, latitude: center.lat });
   }
 }
