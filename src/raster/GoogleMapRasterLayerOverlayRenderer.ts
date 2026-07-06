@@ -13,6 +13,24 @@ function parseLocalTileTemplate(template: string): { routeId: string; tileSize: 
   return { routeId: url.hostname, tileSize };
 }
 
+function normalizeTileX(x: number, zoom: number): number {
+  const scale = 1 << zoom;
+  return ((x % scale) + scale) % scale;
+}
+
+function isTileYInRange(y: number, zoom: number): boolean {
+  const scale = 1 << zoom;
+  return y >= 0 && y < scale;
+}
+
+function tileZoomForGoogleTileSize(zoom: number, tileSize: number): number {
+  // Google Maps keeps `zoom` as the display zoom, while tile coordinates are
+  // based on the configured ImageMapType tile size.
+  const offset = Math.log2(tileSize / 256);
+  if (!Number.isFinite(offset) || !Number.isInteger(offset)) return zoom;
+  return Math.max(0, zoom - offset);
+}
+
 export class GoogleMapRasterLayerOverlayRenderer {
   constructor(readonly holder: GoogleMapViewHolder) {}
 
@@ -50,13 +68,18 @@ export class GoogleMapRasterLayerOverlayRenderer {
         const tileSize = source.tileSize ?? 256;
         return new google.maps.ImageMapType({
           getTileUrl: (coord, zoom) => {
+            const tileZoom = tileZoomForGoogleTileSize(zoom, tileSize);
+            if (!isTileYInRange(coord.y, tileZoom)) return EMPTY_TILE_DATA_URL;
+            const scale = 1 << tileZoom;
+            const x = normalizeTileX(coord.x, tileZoom);
             const y =
-              source.scheme === TileScheme.TMS ? (1 << zoom) - 1 - coord.y : coord.y;
+              source.scheme === TileScheme.TMS ? scale - 1 - coord.y : coord.y;
+            const negativeY = scale - 1 - coord.y;
             return source.template
-              .replace(/\{x\}/g, String(coord.x))
+              .replace(/\{x\}/g, String(x))
               .replace(/\{y\}/g, String(y))
-              .replace(/\{-y\}/g, String(y))
-              .replace(/\{z\}/g, String(zoom));
+              .replace(/\{-y\}/g, String(negativeY))
+              .replace(/\{z\}/g, String(tileZoom));
           },
           maxZoom: source.maxZoom ?? undefined,
           minZoom: source.minZoom ?? undefined,
@@ -87,12 +110,15 @@ export class GoogleMapRasterLayerOverlayRenderer {
     opacity: number;
   }): google.maps.ImageMapType {
     return new google.maps.ImageMapType({
-      getTileUrl: (coord, zoom) =>
-        LocalTileServer.startServer().handleFetchDataUrl(routeId, {
-          x: coord.x,
+      getTileUrl: (coord, zoom) => {
+        const tileZoom = tileZoomForGoogleTileSize(zoom, tileSize);
+        if (!isTileYInRange(coord.y, tileZoom)) return EMPTY_TILE_DATA_URL;
+        return LocalTileServer.startServer().handleFetchDataUrl(routeId, {
+          x: normalizeTileX(coord.x, tileZoom),
           y: coord.y,
-          z: zoom,
-        }) ?? EMPTY_TILE_DATA_URL,
+          z: tileZoom,
+        }) ?? EMPTY_TILE_DATA_URL;
+      },
       maxZoom: 22,
       minZoom: 0,
       opacity,

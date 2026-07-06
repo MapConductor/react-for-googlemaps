@@ -29,11 +29,11 @@ export class GoogleMapsProvider extends MapProvider {
     const version = config.mapDesignType?.toUpperCase() === 'ROADMAP' ? 'alpha' : config.version;
     const options: APIOptions = {
         v: version,
-        libraries: config.libraries
+        libraries: Array.from(new Set(config.libraries)),
       };
 
     // Initialize Google Maps API
-    console.log(`maps3d: ${hasLibrary('maps3d')}, maps: ${hasLibrary('maps')}`);
+    // console.log(`maps3d: ${hasLibrary('maps3d')}, maps: ${hasLibrary('maps')}`);
     if (!hasLibrary('maps3d') && !hasLibrary('maps')) {
       options.key = config.apiKey;
       setOptions(options);

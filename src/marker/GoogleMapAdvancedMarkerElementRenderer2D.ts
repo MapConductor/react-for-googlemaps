@@ -23,6 +23,7 @@ export class GoogleMapAdvancedMarkerElementRenderer2D extends AbstractMarkerOver
 > implements GoogleMapMarkerRendererInterface<GoogleMapActualMarker2D> {
   constructor(holder: GoogleMapViewHolder2D) {
     super({ holder });
+    this.supportsAnimationOverlay = true;
   }
 
   clickEventName: string | null = 'gmp-click';
@@ -41,7 +42,7 @@ export class GoogleMapAdvancedMarkerElementRenderer2D extends AbstractMarkerOver
         content: createMarkerContent(bitmapIcon),
         gmpClickable: state.clickable,
         gmpDraggable: state.draggable,
-        zIndex: state.zIndex,
+        zIndex: Math.max(0, state.zIndex),
       }),
     );
   }
@@ -56,7 +57,7 @@ export class GoogleMapAdvancedMarkerElementRenderer2D extends AbstractMarkerOver
       marker.content = createMarkerContent(bitmapIcon);
       marker.gmpClickable = current.state.clickable;
       marker.gmpDraggable = current.state.draggable;
-      marker.zIndex = current.state.zIndex;
+      marker.zIndex = Math.max(0, current.state.zIndex);
       return marker;
     });
   }
@@ -79,6 +80,12 @@ export class GoogleMapAdvancedMarkerElementRenderer2D extends AbstractMarkerOver
   ): void {
     if (!entity.marker) return;
     (entity.marker as google.maps.marker.AdvancedMarkerElement).position = geoPointToLatLng(position);
+  }
+
+  override setMarkerVisible(entity: MarkerEntity<GoogleMapActualMarker2D>, visible: boolean): void {
+    const marker = entity.marker as google.maps.marker.AdvancedMarkerElement | null;
+    if (!marker) return;
+    marker.map = visible ? this.holder.map : null;
   }
 
   syncPositionToState(

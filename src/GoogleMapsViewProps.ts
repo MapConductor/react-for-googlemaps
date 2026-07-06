@@ -12,4 +12,5 @@ export interface GoogleMapsViewProps extends MapViewBaseProps<GoogleMapViewState
   version?: string;
   onError?: (error: Error) => void;
   children?: React.ReactNode;
+  libraries?: string;
 }

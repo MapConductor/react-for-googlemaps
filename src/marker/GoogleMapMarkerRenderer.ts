@@ -21,6 +21,7 @@ export class GoogleMapMarkerRenderer extends AbstractMarkerOverlayRenderer<
     holder: GoogleMapViewHolder,
   ) {
     super({ holder });
+    this.supportsAnimationOverlay = true;
   }
   clickEventName: string | null = 'gmp-click';
   dragstartEventName: string | null = null;
@@ -98,6 +99,11 @@ export class GoogleMapMarkerRenderer extends AbstractMarkerOverlayRenderer<
       lng: position.longitude,
       altitude: position.altitude || 0,
     };
+  }
+
+  override setMarkerVisible(entity: MarkerEntity<GoogleMapActualMarker>, visible: boolean): void {
+    if (!entity.marker) return;
+    entity.marker.style.display = visible ? '' : 'none';
   }
 
   syncPositionToState(marker: GoogleMapActualMarker, state: MarkerState): void {

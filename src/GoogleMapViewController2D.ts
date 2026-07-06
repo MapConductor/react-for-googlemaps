@@ -12,6 +12,7 @@ import {
   type MapCameraPosition,
   type OnMapInitializedHandler,
   type MapViewControllerInterface,
+  type MarkerAnimationOverlayHost,
   type MarkerCapable,
   type MarkerState,
   type OnCircleEventHandler,
@@ -25,6 +26,7 @@ import {
   type PolylineState,
   type RasterLayerCapable,
   type RasterLayerState,
+  type VisibleRegion,
 } from '@mapconductor/js-sdk-core';
 import { latLngToGeoPoint, geoPointToLatLng } from './helpers';
 import { GoogleMapCircleController } from './circle/GoogleMapCircleController';
@@ -174,18 +176,41 @@ export class GoogleMapViewController2D
       zoom,
       bearing: this.holder.map.getHeading() ?? 0,
       tilt: this.holder.map.getTilt() ?? 0,
+      // Matches Android: the visible region rides on cameraPosition so that
+      // mapViewState.cameraPosition.visibleRegion works without the controller.
+      visibleRegion: this.getVisibleRegion(),
     });
   }
 
   getBounds(): GeoRectBounds | null {
-    const bounds = this.holder.map.getBounds();
-    if (!bounds) return null;
-    const sw = bounds.getSouthWest();
-    const ne = bounds.getNorthEast();
-    return createGeoRectBounds({
-      southWest: latLngToGeoPoint(sw),
-      northEast: latLngToGeoPoint(ne),
-    });
+    return this.getVisibleRegion()?.bounds ?? null;
+  }
+
+  /**
+   * Projects the four screen corners of the map viewport back to geo
+   * coordinates via `fromScreenOffsetSync` and extends a bounds from them,
+   * instead of `map.getBounds()`'s axis-aligned box — this stays correct
+   * when the map is rotated (heading != 0). Mirrors Android's
+   * `GoogleMapViewController.getMapCameraPosition()`.
+   */
+  private getVisibleRegion(): VisibleRegion | null {
+    const width = this.holder.mapView.offsetWidth;
+    const height = this.holder.mapView.offsetHeight;
+    if (!width || !height) return null;
+
+    const nearLeft = this.holder.fromScreenOffsetSync({ x: 0, y: height });
+    const nearRight = this.holder.fromScreenOffsetSync({ x: width, y: height });
+    const farLeft = this.holder.fromScreenOffsetSync({ x: 0, y: 0 });
+    const farRight = this.holder.fromScreenOffsetSync({ x: width, y: 0 });
+    if (!nearLeft || !nearRight || !farLeft || !farRight) return null;
+
+    const bounds = createGeoRectBounds();
+    bounds.extend(nearLeft);
+    bounds.extend(nearRight);
+    bounds.extend(farLeft);
+    bounds.extend(farRight);
+
+    return { bounds, nearLeft, nearRight, farLeft, farRight };
   }
 
   // --- Marker ---
@@ -218,9 +243,17 @@ export class GoogleMapViewController2D
     this.markerController.setOnDragEnd(listener);
   }
 
-  setOnMarkerAnimateStart(_listener: OnMarkerEventHandler | null): void {}
+  setOnMarkerAnimateStart(listener: OnMarkerEventHandler | null): void {
+    this.markerController.setOnAnimateStart(listener);
+  }
 
-  setOnMarkerAnimateEnd(_listener: OnMarkerEventHandler | null): void {}
+  setOnMarkerAnimateEnd(listener: OnMarkerEventHandler | null): void {
+    this.markerController.setOnAnimateEnd(listener);
+  }
+
+  setMarkerAnimationOverlayHost(host: MarkerAnimationOverlayHost | null): void {
+    this.markerController.setMarkerAnimationOverlayHost(host);
+  }
 
   // --- Circle ---
 

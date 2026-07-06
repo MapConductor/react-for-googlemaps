@@ -4,9 +4,15 @@ import {
   MapViewScope,
   MapViewScopeProvider,
   InfoBubbleOverlay,
+  MarkerAnimationLayer,
   type InfoBubbleEntry,
 } from '@mapconductor/js-sdk-react';
-import type { MapCameraPosition, GeoPoint, OverlayCollector } from '@mapconductor/js-sdk-core';
+import type {
+  MapCameraPosition,
+  GeoPoint,
+  OverlayCollector,
+  MarkerAnimationOverlayEntry,
+} from '@mapconductor/js-sdk-core';
 import type { GoogleMapViewController } from './GoogleMapViewController';
 import { GoogleMapsViewProps } from './GoogleMapsViewProps';
 import { GoogleMapsProvider } from './GoogleMapsProvider';
@@ -23,6 +29,7 @@ export function GoogleMapsView({
   style,
   version,
   markerTilingOptions,
+  libraries,
   onError,
   onMapLoaded,
   onMapClick,
@@ -40,6 +47,7 @@ export function GoogleMapsView({
   const bridgeUnsubs = useRef<(() => void)[]>([]);
   const typedControllerRef = useRef<GoogleMapViewController | null>(null);
   const [bubbleEntries, setBubbleEntries] = useState<InfoBubbleEntry[]>([]);
+  const [animationEntries, setAnimationEntries] = useState<MarkerAnimationOverlayEntry[]>([]);
   const [cameraTick, setCameraTick] = useState(0);
 
   // Keep latest callbacks in refs to avoid stale closures without re-running the effect
@@ -64,6 +72,7 @@ export function GoogleMapsView({
     }
 
     let cancelled = false;
+    const libraryList = libraries?.split(',') || [];
 
     const config: GoogleMapsConfig = {
       container: containerRef.current,
@@ -73,6 +82,7 @@ export function GoogleMapsView({
       mapDesignType: mapDesignType,
       markerTilingOptions,
       version,
+      libraries: libraryList,
     };
 
     provider
@@ -123,6 +133,14 @@ export function GoogleMapsView({
           setBubbleEntries(Array.from(map.values()));
         });
         bridgeUnsubs.current.push(bubbleUnsub);
+
+        // Route Drop/Bounce animations to the screen-space overlay instead of
+        // interpolating geo coordinates. Mirrors Android's
+        // setMarkerAnimationOverlayHost wiring in MapViewBase.kt.
+        typedControllerRef.current.setMarkerAnimationOverlayHost(scope.markerAnimationStore.start);
+        bridgeUnsubs.current.push(() => typedControllerRef.current?.setMarkerAnimationOverlayHost(null));
+        const animationUnsub = scope.markerAnimationStore.subscribe(setAnimationEntries);
+        bridgeUnsubs.current.push(animationUnsub);
 
         // Route per-state changes (e.g. setPosition during a drag) to the
         // targeted update*() methods. Mirrors MapLibreView / Android's
@@ -191,6 +209,12 @@ export function GoogleMapsView({
           className={className}
           style={{ width: '100%', height: '100%' }}
         />
+        {animationEntries.length > 0 && typedControllerRef.current && (
+          <MarkerAnimationLayer
+            entries={animationEntries}
+            resolveScreenOffset={(entry) => typedControllerRef.current!.holder.toScreenOffset(entry.state.position)}
+          />
+        )}
         {bubbleEntries.length > 0 && typedControllerRef.current && (
           <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', overflow: 'hidden' }}>
             {bubbleEntries.map(entry => {
