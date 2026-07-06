@@ -35,7 +35,7 @@ export class GoogleMapsProvider2D extends MapProvider {
     }
     setOptions({
       v: config.version,
-      libraries: config.libraries
+        libraries: Array.from(new Set(config.libraries)),
     });
 
     const { Map } = await loadLibrary<google.maps.MapsLibrary>('maps');

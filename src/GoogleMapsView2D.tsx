@@ -30,9 +30,10 @@ export function GoogleMapsView2D({
   className,
   style,
   version,
+  libraries,
+  markerTilingOptions,
   onError,
   children,
-  markerTilingOptions,
 }: GoogleMapsViewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [provider] = useState(() => new GoogleMapsProvider2D());
@@ -62,6 +63,7 @@ export function GoogleMapsView2D({
   useEffect(() => {
     if (!containerRef.current) return;
     let cancelled = false;
+    const libraryList = libraries?.split(',') || [];
 
     const config: GoogleMapsConfig2D = {
       container: containerRef.current,
@@ -71,6 +73,7 @@ export function GoogleMapsView2D({
       mapDesignType: state.mapDesignType.getValue(),
       markerTilingOptions,
       version,
+      libraries: libraryList,
     };
 
     provider

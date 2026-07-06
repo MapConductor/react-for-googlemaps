@@ -29,6 +29,7 @@ export function GoogleMapsView({
   style,
   version,
   markerTilingOptions,
+  libraries,
   onError,
   onMapLoaded,
   onMapClick,
@@ -71,6 +72,7 @@ export function GoogleMapsView({
     }
 
     let cancelled = false;
+    const libraryList = libraries?.split(',') || [];
 
     const config: GoogleMapsConfig = {
       container: containerRef.current,
@@ -80,6 +82,7 @@ export function GoogleMapsView({
       mapDesignType: mapDesignType,
       markerTilingOptions,
       version,
+      libraries: libraryList,
     };
 
     provider

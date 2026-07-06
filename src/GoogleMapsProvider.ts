@@ -29,7 +29,7 @@ export class GoogleMapsProvider extends MapProvider {
     const version = config.mapDesignType?.toUpperCase() === 'ROADMAP' ? 'alpha' : config.version;
     const options: APIOptions = {
         v: version,
-        libraries: config.libraries
+        libraries: Array.from(new Set(config.libraries)),
       };
 
     // Initialize Google Maps API
