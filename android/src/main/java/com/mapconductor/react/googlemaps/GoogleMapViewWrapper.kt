@@ -58,6 +58,7 @@ class GoogleMapViewWrapper(context: Context) :
     private var markerStates by mutableStateOf<List<MarkerState>>(emptyList())
     private var infoBubblePositions: List<InfoBubblePosition> = emptyList()
     private var latestCameraPosition: MapCameraPosition? = null
+    private var requestedCameraPosition: MapCameraPosition? = null
 
     init {
         ResourceProvider.init(context)
@@ -117,7 +118,9 @@ class GoogleMapViewWrapper(context: Context) :
     }
 
     fun setCameraPosition(cameraPosition: ReadableMap?) {
-        mapViewState.moveCameraTo(MapCameraPosition.fromReadableMap(cameraPosition), null)
+        val position = MapCameraPosition.fromReadableMap(cameraPosition)
+        requestedCameraPosition = position
+        mapViewState.moveCameraTo(position, null)
     }
 
     fun setMapDesignType(mapDesignType: String?) {
@@ -126,14 +129,18 @@ class GoogleMapViewWrapper(context: Context) :
     }
 
     fun moveCamera(cameraPosition: ReadableMap?) {
-        mapViewState.moveCameraTo(MapCameraPosition.fromReadableMap(cameraPosition), null)
+        val position = MapCameraPosition.fromReadableMap(cameraPosition)
+        requestedCameraPosition = position
+        mapViewState.moveCameraTo(position, null)
     }
 
     fun animateCamera(
         cameraPosition: ReadableMap?,
         durationMillis: Int,
     ) {
-        mapViewState.moveCameraTo(MapCameraPosition.fromReadableMap(cameraPosition), durationMillis.toLong())
+        val position = MapCameraPosition.fromReadableMap(cameraPosition)
+        requestedCameraPosition = position
+        mapViewState.moveCameraTo(position, durationMillis.toLong())
     }
 
     fun fitBounds(
@@ -207,8 +214,19 @@ class GoogleMapViewWrapper(context: Context) :
         eventName: String,
         camera: MapCameraPosition,
     ) {
-        latestCameraPosition = camera
-        emit(eventName, Arguments.createMap().apply { putMap("cameraPosition", camera.toWritableMap()) })
+        val logicalCamera = restoreRequestedNegativeTiltCamera(camera)
+        latestCameraPosition = logicalCamera
+        emit(eventName, Arguments.createMap().apply { putMap("cameraPosition", logicalCamera.toWritableMap()) })
+    }
+
+    private fun restoreRequestedNegativeTiltCamera(camera: MapCameraPosition): MapCameraPosition {
+        val requested = requestedCameraPosition ?: return camera
+        if (requested.tilt >= 0.0) return camera
+
+        return camera.copy(
+            position = requested.position,
+            tilt = requested.tilt,
+        )
     }
 
     private fun emitPointEvent(
