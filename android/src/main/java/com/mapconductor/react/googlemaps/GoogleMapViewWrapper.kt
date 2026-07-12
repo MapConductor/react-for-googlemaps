@@ -20,7 +20,9 @@ import com.mapconductor.core.ResourceProvider
 import com.mapconductor.core.features.GeoPoint
 import com.mapconductor.core.map.MapCameraPosition
 import com.mapconductor.core.marker.MarkerAnimation
+import com.mapconductor.core.marker.MarkerIconInterface
 import com.mapconductor.core.marker.MarkerState
+import com.mapconductor.core.marker.MarkerTilingOptions
 import com.mapconductor.googlemaps.GoogleMapView
 import com.mapconductor.googlemaps.GoogleMapViewState
 import com.mapconductor.googlemaps.circle.GoogleMapCircleControllerInterface
@@ -32,16 +34,35 @@ import com.mapconductor.googlemaps.raster.GoogleMapRasterLayerControllerInterfac
 import com.mapconductor.react.googlemaps.marker.ReactNativeMarkerIcon
 import com.mapconductor.react.googlemaps.marker.fromReadableMap
 import com.mapconductor.react.googlemaps.marker.toMarkerIcon
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.UUID
+import java.util.concurrent.Executors
 import com.mapconductor.googlemaps.GoogleMapDesign as ComposeGoogleMapDesign
 
 class GoogleMapViewWrapper(context: Context) :
     FrameLayout(context) {
 
+    companion object {
+        // Shared across all wrapper instances, one background thread. ReadableArray/ReadableMap
+        // parsing and marker-icon decoding (JNI + bitmap I/O) happen here instead of the UI
+        // thread, so a large compositionMarkers() batch (e.g. 20k+ markers) doesn't freeze the
+        // map screen while it loads. Single-threaded so that commits from overlapping
+        // compositionMarkers/updateMarker calls on the same view are applied to `markerStates`
+        // in the order React Native issued them.
+        private val markerIngestDispatcher: CoroutineDispatcher =
+            Executors.newSingleThreadExecutor { r ->
+                Thread(r, "GoogleMapMarkerIngest").apply { isDaemon = true }
+            }.asCoroutineDispatcher()
+    }
+
     private val mainCoroutine: CoroutineScope = CoroutineScope(Dispatchers.Main)
+    private val markerCoroutine: CoroutineScope = CoroutineScope(markerIngestDispatcher)
 
     private val composeView = ComposeView(context)
     private val mapViewState = GoogleMapViewState(
@@ -56,6 +77,7 @@ class GoogleMapViewWrapper(context: Context) :
     private var groundImageController: GoogleMapGroundImageControllerInterface? = null
     private var rasterLayerController: GoogleMapRasterLayerControllerInterface? = null
     private var markerStates by mutableStateOf<List<MarkerState>>(emptyList())
+    private var markerTilingOptions by mutableStateOf(MarkerTilingOptions.Default)
     private var infoBubblePositions: List<InfoBubblePosition> = emptyList()
     private var latestCameraPosition: MapCameraPosition? = null
     private var requestedCameraPosition: MapCameraPosition? = null
@@ -75,6 +97,7 @@ class GoogleMapViewWrapper(context: Context) :
             GoogleMapView(
                 state = mapViewState,
                 modifier = Modifier.fillMaxSize(),
+                markerTiling = markerTilingOptions,
                 onMapLoaded = {
                     mapViewState.getControllers()?.entries?.forEach { (key, value) ->
                         when(key) {
@@ -161,35 +184,54 @@ class GoogleMapViewWrapper(context: Context) :
         emitInfoBubbleScreenPositions()
     }
 
-    fun clearOverlays() {}
-
-    fun compositionMarkers(markers: ReadableArray?) {
-        markerStates = markerStatesFromReadableArray(markers, context, markerStates.associateBy { it.id })
-            .onEach(::attachMarkerCallbacks)
-        emitMarkerScreenPositions()
-        emitInfoBubbleScreenPositions()
+    fun setMarkerTilingOptions(options: ReadableMap?) {
+        markerTilingOptions = markerTilingOptionsFromReadableMap(options)
     }
 
-    fun updateMarker(marker: ReadableMap?) {
-        val id = marker?.getStringOrNull("id") ?: return
-        val existing = markerStates.firstOrNull { it.id == id }
-        if (existing == null) {
-            markerStateFromReadableMap(marker, context)?.let { state ->
-                attachMarkerCallbacks(state)
-                markerStates = markerStates + state
+    fun clearOverlays() {}
+
+    fun compositionMarkers(payload: ReadableMap?) {
+        val previousStates = markerStates.associateBy { it.id }
+        markerCoroutine.launch {
+            val nextStates =
+                markerStatesFromBatchReadableMap(payload, context, previousStates)
+                    .onEach(::attachMarkerCallbacks)
+            withContext(Dispatchers.Main) {
+                markerStates = nextStates
                 emitMarkerScreenPositions()
                 emitInfoBubbleScreenPositions()
             }
-            return
         }
-
-        existing.applyReadableMap(marker, context)
-        attachMarkerCallbacks(existing)
-        emitMarkerScreenPositions()
-        emitInfoBubbleScreenPositions()
     }
 
-    fun onDropViewInstance() {}
+    fun updateMarker(marker: ReadableMap?) {
+        val previousStates = markerStates
+        markerCoroutine.launch {
+            val id = marker?.getStringOrNull("id") ?: return@launch
+            val existing = previousStates.firstOrNull { it.id == id }
+            if (existing == null) {
+                val state = markerStateFromReadableMap(marker, context) ?: return@launch
+                attachMarkerCallbacks(state)
+                withContext(Dispatchers.Main) {
+                    markerStates = markerStates + state
+                    emitMarkerScreenPositions()
+                    emitInfoBubbleScreenPositions()
+                }
+                return@launch
+            }
+
+            existing.applyReadableMap(marker, context)
+            attachMarkerCallbacks(existing)
+            withContext(Dispatchers.Main) {
+                emitMarkerScreenPositions()
+                emitInfoBubbleScreenPositions()
+            }
+        }
+    }
+
+    fun onDropViewInstance() {
+        markerCoroutine.cancel()
+    }
 
     override fun onLayout(
         changed: Boolean,
@@ -238,6 +280,13 @@ class GoogleMapViewWrapper(context: Context) :
 
     private fun emitMarkerScreenPositions() {
         mainCoroutine.launch {
+            if (markerStates.size >= markerTilingOptions.minMarkerCount) {
+                emit(
+                    "topMarkerScreenPositions",
+                    Arguments.createMap().apply { putArray("positions", Arguments.createArray()) },
+                )
+                return@launch
+            }
             val density = ResourceProvider.getDensity()
             val holder = mapViewState.getMapViewHolder() ?: return@launch
             val projection = screenProjection()
@@ -303,27 +352,93 @@ class GoogleMapViewWrapper(context: Context) :
     }
 }
 
+private fun markerTilingOptionsFromReadableMap(map: ReadableMap?): MarkerTilingOptions {
+    if (map == null) return MarkerTilingOptions.Default
+    return MarkerTilingOptions.Default.copy(
+        enabled = map.getBooleanOrNull("enabled") ?: MarkerTilingOptions.Default.enabled,
+        debugTileOverlay = map.getBooleanOrNull("debugTileOverlay")
+            ?: MarkerTilingOptions.Default.debugTileOverlay,
+        minMarkerCount = map.getIntOrNull("minMarkerCount") ?: MarkerTilingOptions.Default.minMarkerCount,
+        cacheSize = map.getIntOrNull("cacheSize") ?: MarkerTilingOptions.Default.cacheSize,
+    )
+}
+
 private data class InfoBubblePosition(
     val id: String,
     val point: GeoPoint,
 )
 
-private fun markerStatesFromReadableArray(
-    array: ReadableArray?,
+/**
+ * Decodes the compressed compositionMarkers() batch payload: structure-of-arrays with an icon
+ * dictionary (see `encodeMarkerBatch` on the JS side), instead of one ReadableMap per marker.
+ * This avoids ~7 hasKey/isNull/getX JNI calls per marker field that per-marker maps needed, and
+ * avoids re-decoding an identical icon definition once per marker.
+ */
+private fun markerStatesFromBatchReadableMap(
+    payload: ReadableMap?,
     context: Context,
     previousStates: Map<String, MarkerState> = emptyMap(),
 ): List<MarkerState> {
-    if (array == null) return emptyList()
+    if (payload == null) return emptyList()
+    val ids = payload.getArray("ids") ?: return emptyList()
+    val positions = payload.getArray("positions") ?: return emptyList()
+    val clickableArr = payload.getArray("clickable")
+    val draggableArr = payload.getArray("draggable")
+    val zIndexArr = payload.getArray("zIndex")
+    val iconIndexArr = payload.getArray("iconIndex")
+    val animationArr = payload.getArray("animation")
+    val iconDict = payload.getArray("icons")
+    val icons: List<MarkerIconInterface?> =
+        if (iconDict == null) {
+            emptyList()
+        } else {
+            (0 until iconDict.size()).map { index ->
+                ReactNativeMarkerIcon.fromReadableMap(iconDict.getMap(index))?.toMarkerIcon(context)
+            }
+        }
+
     return buildList {
-        for (index in 0 until array.size()) {
-            val marker = array.getMap(index) ?: continue
-            val id = marker.getStringOrNull("id")
-            val existing = id?.let(previousStates::get)
+        for (index in 0 until ids.size()) {
+            val id = ids.getString(index) ?: continue
+            val position =
+                GeoPoint(
+                    latitude = positions.getDouble(index * 3),
+                    longitude = positions.getDouble(index * 3 + 1),
+                    altitude = positions.getDouble(index * 3 + 2),
+                )
+            val clickable = clickableArr?.getBoolean(index) ?: true
+            val draggable = draggableArr?.getBoolean(index) ?: false
+            val zIndex = zIndexArr?.getDouble(index)?.toInt()
+            val iconIdx = iconIndexArr?.getInt(index) ?: -1
+            val icon = icons.getOrNull(iconIdx)
+            val animation =
+                if (animationArr != null && !animationArr.isNull(index)) {
+                    runCatching { MarkerAnimation.valueOf(animationArr.getString(index) ?: "") }.getOrNull()
+                } else {
+                    null
+                }
+
+            val existing = previousStates[id]
             if (existing != null) {
-                existing.applyReadableMap(marker, context)
+                existing.position = position
+                existing.clickable = clickable
+                existing.draggable = draggable
+                existing.zIndex = zIndex
+                existing.icon = icon
+                animation?.let(existing::animate)
                 add(existing)
             } else {
-                markerStateFromReadableMap(marker, context)?.let(::add)
+                add(
+                    MarkerState(
+                        id = id,
+                        position = position,
+                        clickable = clickable,
+                        draggable = draggable,
+                        zIndex = zIndex,
+                        icon = icon,
+                        animation = animation,
+                    ),
+                )
             }
         }
     }
@@ -380,6 +495,12 @@ private fun ReadableMap.getStringOrNull(key: String): String? =
 
 private fun ReadableMap.getMapOrNull(key: String): ReadableMap? =
     if (hasKey(key) && !isNull(key)) getMap(key) else null
+
+private fun ReadableMap.getBooleanOrNull(key: String): Boolean? =
+    if (hasKey(key) && !isNull(key)) getBoolean(key) else null
+
+private fun ReadableMap.getIntOrNull(key: String): Int? =
+    if (hasKey(key) && !isNull(key)) getInt(key) else null
 
 private class GoogleMapViewWrapperEvent(
     surfaceId: Int,

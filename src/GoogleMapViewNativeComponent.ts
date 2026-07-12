@@ -1,9 +1,16 @@
 import type { HostComponent, ViewProps } from 'react-native';
 import { codegenNativeComponent } from 'react-native';
-import type { GeoPoint, MapCameraPosition } from '@mapconductor/js-sdk-core';
+import type { GeoPoint, MapCameraPosition, MarkerTilingOptions } from '@mapconductor/js-sdk-core';
 
 export interface NativeGoogleMapViewEvent<T> {
   nativeEvent: T;
+}
+
+export interface NativeMarkerTilingOptions {
+  enabled: boolean;
+  debugTileOverlay: boolean;
+  minMarkerCount: number;
+  cacheSize: number;
 }
 
 export interface NativeGoogleMapViewProps extends ViewProps {
@@ -18,6 +25,7 @@ export interface NativeGoogleMapViewProps extends ViewProps {
     tilt: number;
   };
   mapDesignType?: string;
+  markerTilingOptions?: NativeMarkerTilingOptions;
   infoBubblePositions?: Array<{
     id: string;
     latitude: number;
@@ -52,6 +60,18 @@ export interface NativeGoogleMapViewProps extends ViewProps {
       positions: Array<{ id: string; x: number; y: number }>;
     }>
   ) => void;
+}
+
+export function toNativeMarkerTilingOptions(
+  markerTilingOptions: MarkerTilingOptions | undefined
+): NativeMarkerTilingOptions | undefined {
+  if (!markerTilingOptions) return undefined;
+  return {
+    enabled: markerTilingOptions.enabled,
+    debugTileOverlay: markerTilingOptions.debugTileOverlay,
+    minMarkerCount: markerTilingOptions.minMarkerCount,
+    cacheSize: markerTilingOptions.cacheSize,
+  };
 }
 
 export function toNativeCameraPosition(cameraPosition: MapCameraPosition | undefined) {

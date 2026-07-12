@@ -14,7 +14,10 @@ import {
 } from '@mapconductor/js-sdk-react/native';
 import type { GoogleMapViewState } from './GoogleMapViewState';
 import { GoogleMapViewController } from './GoogleMapViewController.native';
-import NativeGoogleMapView, { toNativeCameraPosition } from './GoogleMapViewNativeComponent';
+import NativeGoogleMapView, {
+  toNativeCameraPosition,
+  toNativeMarkerTilingOptions,
+} from './GoogleMapViewNativeComponent';
 
 export interface GoogleMapViewProps extends Omit<MapViewBaseProps<GoogleMapViewState>, 'state'> {
   state?: GoogleMapViewState;
@@ -34,6 +37,7 @@ export function GoogleMapView({
   onCameraMoveStart,
   onCameraMove,
   onCameraMoveEnd,
+  markerTilingOptions,
   children,
 }: GoogleMapViewProps) {
   const nativeRef = useRef<React.ComponentRef<typeof NativeGoogleMapView> | null>(null);
@@ -116,6 +120,7 @@ export function GoogleMapView({
           style={StyleSheet.absoluteFill}
           cameraPosition={toNativeCameraPosition(initialCameraPositionRef.current)}
           mapDesignType={state?.mapDesignType.id}
+          markerTilingOptions={toNativeMarkerTilingOptions(markerTilingOptions)}
           infoBubblePositions={infoBubblePositions}
           onCameraMoveStart={(event) => {
             const camera = MapCameraPosition.from(event.nativeEvent.cameraPosition);

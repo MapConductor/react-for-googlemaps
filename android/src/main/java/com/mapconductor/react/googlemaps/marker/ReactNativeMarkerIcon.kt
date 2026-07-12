@@ -30,7 +30,33 @@ data class ReactNativeMarkerIcon(
     val labelTextSize: Float = 18f,
     val labelStrokeColor: Color = Color.White,
 ) {
-    companion object
+    companion object {
+        private val bitmapCache = mutableMapOf<String, Bitmap>()
+
+        // Keyed by structural equality (all ReactNativeMarkerIcon fields), so marker sets that
+        // share one JS-side icon instance (e.g. thousands of markers with the same icon) resolve
+        // to a single MarkerIconInterface instance instead of re-wrapping the bitmap per marker.
+        private val iconCache = mutableMapOf<ReactNativeMarkerIcon, MarkerIconInterface>()
+
+        fun loadCachedBitmap(
+            context: Context,
+            icon: ReactNativeMarkerIcon,
+        ): Bitmap? =
+            synchronized(bitmapCache) {
+                bitmapCache[icon.uri]?.let { return@synchronized it }
+                icon.decodeBitmap(context)?.also { bitmapCache[icon.uri] = it }
+            }
+
+        fun getCachedIcon(icon: ReactNativeMarkerIcon): MarkerIconInterface? =
+            synchronized(iconCache) { iconCache[icon] }
+
+        fun putCachedIcon(
+            icon: ReactNativeMarkerIcon,
+            resolved: MarkerIconInterface,
+        ) {
+            synchronized(iconCache) { iconCache[icon] = resolved }
+        }
+    }
 }
 
 fun ReactNativeMarkerIcon.Companion.fromReadableMap(map: ReadableMap?): ReactNativeMarkerIcon? {
@@ -59,33 +85,42 @@ fun ReactNativeMarkerIcon.Companion.fromReadableMap(map: ReadableMap?): ReactNat
 private const val DEFAULT_ICON_SIZE = 48f
 
 fun ReactNativeMarkerIcon.toMarkerIcon(context: Context): MarkerIconInterface? {
+    ReactNativeMarkerIcon.getCachedIcon(this)?.let { return it }
+
     val bitmap = loadBitmap(context) ?: return null
-    if (type == "imageDefault") {
-        return DrawableDefaultIcon(
-            backgroundDrawable = BitmapDrawable(context.resources, bitmap),
-            strokeColor = strokeColor,
-            strokeWidth = strokeWidth.dp,
-            scale = scale,
-            label = label,
-            labelTextColor = labelTextColor,
-            labelTextSize = labelTextSize.sp,
-            labelStrokeColor = labelStrokeColor,
-            infoAnchor = infoAnchor,
-            iconSize = iconSize.dp,
-            debug = debug,
-        )
-    }
-    return ImageIcon(
-        image = BitmapDrawable(context.resources, bitmap),
-        iconSize = iconSize.dp,
-        scale = scale,
-        anchor = anchor,
-        infoAnchor = infoAnchor,
-        debug = debug,
-    )
+    val result =
+        if (type == "imageDefault") {
+            DrawableDefaultIcon(
+                backgroundDrawable = BitmapDrawable(context.resources, bitmap),
+                strokeColor = strokeColor,
+                strokeWidth = strokeWidth.dp,
+                scale = scale,
+                label = label,
+                labelTextColor = labelTextColor,
+                labelTextSize = labelTextSize.sp,
+                labelStrokeColor = labelStrokeColor,
+                infoAnchor = infoAnchor,
+                iconSize = iconSize.dp,
+                debug = debug,
+            )
+        } else {
+            ImageIcon(
+                image = BitmapDrawable(context.resources, bitmap),
+                iconSize = iconSize.dp,
+                scale = scale,
+                anchor = anchor,
+                infoAnchor = infoAnchor,
+                debug = debug,
+            )
+        }
+    ReactNativeMarkerIcon.putCachedIcon(this, result)
+    return result
 }
 
 private fun ReactNativeMarkerIcon.loadBitmap(context: Context): Bitmap? =
+    ReactNativeMarkerIcon.loadCachedBitmap(context, this)
+
+private fun ReactNativeMarkerIcon.decodeBitmap(context: Context): Bitmap? =
     when {
         uri.startsWith("data:image") -> {
             val base64 = uri.substringAfter("base64,", missingDelimiterValue = "")

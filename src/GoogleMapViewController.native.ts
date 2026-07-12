@@ -12,7 +12,7 @@ import {
   type MapViewControllerInterface,
   type OnMarkerEventHandler,
 } from '@mapconductor/js-sdk-core';
-import { markerIconToNative } from '@mapconductor/js-sdk-react/native';
+import { encodeMarkerBatch, markerIconToNative } from '@mapconductor/js-sdk-react/native';
 import { GoogleMapMapViewHolder } from './GoogleMapMapViewHolder.native';
 import type { GoogleMapViewRef } from './GoogleMapTypeAlias.native';
 
@@ -69,7 +69,7 @@ export class GoogleMapViewController
   async compositionMarkers(data: MarkerState[]): Promise<void> {
     this.markerStates.clear();
     data.forEach((state) => this.markerStates.set(state.id, state));
-    this.dispatchCommand('compositionMarkers', [data.map(markerStateToNative)]);
+    this.dispatchCommand('compositionMarkers', [encodeMarkerBatch(data)]);
   }
 
   async updateMarker(state: MarkerState): Promise<void> {
