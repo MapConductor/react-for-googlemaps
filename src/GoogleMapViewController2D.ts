@@ -35,7 +35,7 @@ import { GoogleMapPolygonController } from './polygon/GoogleMapPolygonController
 import { GoogleMapGroundImageController } from './groundimage/GoogleMapGroundImageController';
 import { GoogleMapRasterLayerController } from './raster/GoogleMapRasterLayerController';
 import { GoogleMapViewHolder2D } from './GoogleMapViewHolder2D';
-import { GoogleMapActualMap2D } from './GoogleMapsTypeAlias';
+import { GoogleMapActualMap2D } from './GoogleMapTypeAlias';
 import { GoogleMapMarkerController2D } from './marker/GoogleMapMarkerController2D';
 
 export class GoogleMapViewController2D
@@ -53,7 +53,7 @@ export class GoogleMapViewController2D
   private initialized = false;
 
   constructor(
-    readonly holder: GoogleMapViewHolder2D, 
+    readonly holder: GoogleMapViewHolder2D,
     private readonly markerController: GoogleMapMarkerController2D,
     private readonly circleController: GoogleMapCircleController,
     private readonly polylineController: GoogleMapPolylineController,

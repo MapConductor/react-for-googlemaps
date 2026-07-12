@@ -14,16 +14,16 @@ import { GoogleMapGroundImageOverlayRenderer } from './groundimage/GoogleMapGrou
 import { GoogleMapPolygonOverlayRenderer } from './polygon/GoogleMapPolygonOverlayRenderer';
 import { GoogleMapPolylineOverlayRenderer } from './polyline/GoogleMapPolylineOverlayRenderer';
 import { GoogleMapCircleOverlayRenderer } from './circle/GoogleMapCircleOverlayRenderer';
-import { GoogleMapsConfig } from './GoogleMapsConfig';
+import { GoogleMapConfig } from './GoogleMapConfig';
 import { GoogleMapMarkerRenderer } from './marker/GoogleMapMarkerRenderer';
 import { ZoomAltitudeConverter } from './zoom';
 
 /**
  * Google Maps provider implementation
  */
-export class GoogleMapsProvider extends MapProvider {
-  
-  async initialize(config: GoogleMapsConfig): Promise<MapViewControllerInterface> {
+export class GoogleMapProvider extends MapProvider {
+
+  async initialize(config: GoogleMapConfig): Promise<MapViewControllerInterface> {
 
 
     const version = config.mapDesignType?.toUpperCase() === 'ROADMAP' ? 'alpha' : config.version;
@@ -118,7 +118,7 @@ function getRasterLayerController(holder: GoogleMapViewHolder): GoogleMapRasterL
 
 function getMarkerController(
   holder: GoogleMapViewHolder,
-  config: GoogleMapsConfig,
+  config: GoogleMapConfig,
 ): GoogleMapMarkerController {
   const markerRenderer = new GoogleMapMarkerRenderer(holder);
   return new GoogleMapMarkerController(markerRenderer, config.markerTilingOptions);

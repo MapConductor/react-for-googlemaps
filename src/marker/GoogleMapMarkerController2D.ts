@@ -17,7 +17,7 @@ import {
   type OnMarkerEventHandler,
   type RasterLayerState,
 } from '@mapconductor/js-sdk-core';
-import { GoogleMapActualMarker2D } from '../GoogleMapsTypeAlias';
+import { GoogleMapActualMarker2D } from '../GoogleMapTypeAlias';
 import { GoogleMapMarkerRendererInterface } from './GoogleMapMarkerRendererInterface';
 
 export class GoogleMapMarkerController2D {

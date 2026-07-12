@@ -8,7 +8,7 @@ import {
   type OnCircleEventHandler,
 } from '@mapconductor/js-sdk-core';
 import { mouseEventToGeoPoint } from '../helpers';
-import { GoogleMapActualCircle } from '../GoogleMapsTypeAlias';
+import { GoogleMapActualCircle } from '../GoogleMapTypeAlias';
 import { GoogleMapCircleOverlayRenderer } from './GoogleMapCircleOverlayRenderer';
 import { GoogleMapCircleOverlayRenderer2D } from './GoogleMapCircleOverlayRenderer2D';
 

@@ -11,7 +11,6 @@ import {
   createRandomId,
 } from '@mapconductor/js-sdk-core';
 import { GoogleMapDesign, type GoogleMapDesignType } from './GoogleMapDesign';
-import type { GoogleMapViewHolder } from './GoogleMapViewHolder';
 
 export interface GoogleMapViewStateInterface
   extends MapViewStateInterface<GoogleMapDesignType> {}
@@ -31,7 +30,7 @@ export class GoogleMapViewState extends MapViewState<GoogleMapDesignType>
   private _mapDesignType: GoogleMapDesignType;
   private _controller: MapViewControllerInterface | null = null;
   private _padding: MapPaddings = MapPaddings.Zeros;
-  private _holder: GoogleMapViewHolder | null = null;
+  private _holder: MapViewHolder<unknown, unknown> | null = null;
   private _cameraPositionChangeListener: ((camera: MapCameraPosition) => void) | null = null;
 
   constructor({
@@ -89,7 +88,7 @@ export class GoogleMapViewState extends MapViewState<GoogleMapDesignType>
     return this._holder;
   }
 
-  // Called by GoogleMapsView when controller is initialized
+  // Called by GoogleMapView when controller is initialized
   setController(ctrl: MapViewControllerInterface | null): void {
     this._controller = ctrl;
     if (ctrl) ctrl.moveCamera(this._cameraPosition);
@@ -99,12 +98,12 @@ export class GoogleMapViewState extends MapViewState<GoogleMapDesignType>
     this._padding = paddings;
   }
 
-  // Called by GoogleMapsView when map view holder is available
-  setMapViewHolder(holder: GoogleMapViewHolder | null): void {
+  // Called by GoogleMapView when map view holder is available
+  setMapViewHolder(holder: MapViewHolder<unknown, unknown> | null): void {
     this._holder = holder;
   }
 
-  // Called by GoogleMapsView when camera position changes
+  // Called by GoogleMapView when camera position changes
   updateCameraPosition(camera: MapCameraPosition): void {
     this._cameraPosition = camera;
     this._cameraPositionChangeListener?.(camera);

@@ -4,7 +4,7 @@ import {
   type CircleEntity,
   type CircleState,
 } from '@mapconductor/js-sdk-core';
-import { GoogleMapActualCircle } from '../GoogleMapsTypeAlias';
+import { GoogleMapActualCircle } from '../GoogleMapTypeAlias';
 import { GoogleMapViewHolder } from '../GoogleMapViewHolder';
 import { loadLibrary } from '../LibraryLoader';
 import { buildCirclePath, calculateCircleZIndex } from '../overlay3d';

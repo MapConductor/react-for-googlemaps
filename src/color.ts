@@ -1,4 +1,4 @@
-export interface GoogleMapsFillStyle {
+export interface GoogleMapFillStyle {
   color: string;
   opacity: number;
 }
@@ -18,7 +18,7 @@ function alphaToOpacity(value: string): number {
   return clampOpacity(parseFloat(value));
 }
 
-export function toGoogleMapsFillStyle(fillColor: string): GoogleMapsFillStyle {
+export function toGoogleMapFillStyle(fillColor: string): GoogleMapFillStyle {
   const rgba = RGBA_RE.exec(fillColor);
   if (rgba) {
     return {

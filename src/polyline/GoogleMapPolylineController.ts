@@ -8,7 +8,7 @@ import {
   type PolylineState,
 } from '@mapconductor/js-sdk-core';
 import { mouseEventToGeoPoint } from '../helpers';
-import { GoogleMapActualPolyline } from '../GoogleMapsTypeAlias';
+import { GoogleMapActualPolyline } from '../GoogleMapTypeAlias';
 import { GoogleMapPolylineOverlayRenderer } from './GoogleMapPolylineOverlayRenderer';
 import { GoogleMapPolylineOverlayRenderer2D } from './GoogleMapPolylineOverlayRenderer2D';
 

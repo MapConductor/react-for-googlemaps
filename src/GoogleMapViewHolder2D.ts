@@ -6,7 +6,7 @@ import {
   type GeoPointInterface,
   type Offset,
 } from '@mapconductor/js-sdk-core';
-import { GoogleMapActualMap2D } from './GoogleMapsTypeAlias';
+import { GoogleMapActualMap2D } from './GoogleMapTypeAlias';
 
 export class GoogleMapViewHolder2D extends MapViewHolderBase<HTMLElement, GoogleMapActualMap2D> {
   constructor(

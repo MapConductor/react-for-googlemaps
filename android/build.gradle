@@ -1,0 +1,82 @@
+buildscript {
+  repositories {
+    google()
+    mavenCentral()
+    mavenLocal()
+  }
+  dependencies {
+    classpath "com.android.tools.build:gradle:9.2.1"
+    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:2.0.21"
+    classpath "org.jetbrains.kotlin:compose-compiler-gradle-plugin:2.0.21"
+  }
+}
+
+apply plugin: "com.android.library"
+apply plugin: "org.jetbrains.kotlin.android"
+apply plugin: "org.jetbrains.kotlin.plugin.compose"
+
+def loadGoogleMapsApiKey = {
+  def properties = new Properties()
+  [
+    rootProject.file("local.properties"),
+    project.file("local.properties"),
+  ].findAll { it.exists() }.each { file ->
+    file.withInputStream { properties.load(it) }
+  }
+
+  return properties.getProperty("GOOGLE_MAPS_API_KEY")
+    ?: rootProject.findProperty("GOOGLE_MAPS_API_KEY")
+    ?: project.findProperty("GOOGLE_MAPS_API_KEY")
+    ?: System.getenv("GOOGLE_MAPS_API_KEY")
+    ?: ""
+}
+
+def googleMapsApiKey = loadGoogleMapsApiKey()
+
+rootProject.subprojects { subproject ->
+  subproject.plugins.withId("com.android.application") {
+    subproject.android.defaultConfig {
+      def placeholders = manifestPlaceholders
+      def existingGoogleMapsApiKey = placeholders["googleMapsApiKey"]
+      if (existingGoogleMapsApiKey == null || existingGoogleMapsApiKey.toString().isEmpty()) {
+        placeholders["googleMapsApiKey"] = googleMapsApiKey
+      }
+    }
+  }
+}
+
+android {
+  namespace "com.mapconductor.react.googlemaps"
+
+  compileSdk = rootProject.ext.has("compileSdkVersion") ? rootProject.ext.compileSdkVersion : 35
+
+  defaultConfig {
+    minSdk = rootProject.ext.has("minSdkVersion") ? rootProject.ext.minSdkVersion : 24
+  }
+
+  buildFeatures {
+    compose true
+  }
+
+  sourceSets {
+    main {
+      java.srcDirs += ["src/main/java"]
+    }
+  }
+}
+
+repositories {
+  mavenLocal()
+  google()
+  mavenCentral()
+}
+
+dependencies {
+  implementation "com.facebook.react:react-android"
+  implementation platform("androidx.compose:compose-bom:2025.02.00")
+  implementation "androidx.compose.ui:ui"
+  implementation "androidx.compose.foundation:foundation"
+  api("com.mapconductor:core:1.2.0")
+  api("com.mapconductor:compose:1.2.0")
+  api("com.mapconductor:for-googlemaps:1.2.0")
+}

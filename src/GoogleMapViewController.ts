@@ -36,7 +36,7 @@ import { GoogleMapPolygonController } from './polygon/GoogleMapPolygonController
 import { GoogleMapGroundImageController } from './groundimage/GoogleMapGroundImageController';
 import { GoogleMapRasterLayerController } from './raster/GoogleMapRasterLayerController';
 import { GoogleMapViewHolder } from './GoogleMapViewHolder';
-import { GoogleMapActualMap } from './GoogleMapsTypeAlias';
+import { GoogleMapActualMap } from './GoogleMapTypeAlias';
 import { latLngAltToGeoPoint } from './helpers';
 
 export class GoogleMapViewController
@@ -54,7 +54,7 @@ export class GoogleMapViewController
   private initialized = false;
 
   constructor(
-    readonly holder: GoogleMapViewHolder, 
+    readonly holder: GoogleMapViewHolder,
     private readonly markerController: GoogleMapMarkerController,
     private readonly circleController: GoogleMapCircleController,
     private readonly polylineController: GoogleMapPolylineController,

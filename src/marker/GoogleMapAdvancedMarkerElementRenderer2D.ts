@@ -11,7 +11,7 @@ import { createMarkerEntity } from '@mapconductor/js-sdk-core';
 import { latLngToGeoPoint, geoPointToLatLng } from '../helpers';
 import { loadLibrary } from '../LibraryLoader';
 import { createMarkerContent } from './createMarkerContent';
-import { GoogleMapActualMarker2D } from '../GoogleMapsTypeAlias';
+import { GoogleMapActualMarker2D } from '../GoogleMapTypeAlias';
 import { GoogleMapViewHolder2D } from '../GoogleMapViewHolder2D';
 import { GoogleMapMarkerRendererInterface } from './GoogleMapMarkerRendererInterface';
 

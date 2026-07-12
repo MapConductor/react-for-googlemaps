@@ -8,7 +8,7 @@ import {
   type MarkerEntity,
   MarkerState,
 } from '@mapconductor/js-sdk-core';
-import { GoogleMapActualMarker } from '../GoogleMapsTypeAlias';
+import { GoogleMapActualMarker } from '../GoogleMapTypeAlias';
 import { GoogleMapViewHolder } from '../GoogleMapViewHolder';
 import { loadLibrary } from '../LibraryLoader';
 import { GoogleMapMarkerRendererInterface } from './GoogleMapMarkerRendererInterface';
@@ -30,7 +30,7 @@ export class GoogleMapMarkerRenderer extends AbstractMarkerOverlayRenderer<
 
   async onAdd(data: AddParams[]): Promise<(GoogleMapActualMarker | null)[]> {
     const { MarkerElement } = await loadLibrary<google.maps.Maps3DLibrary>('maps3d');
-    
+
     const markers = await Promise.all(data.map(async ({bitmapIcon, state }) => {
 
       const icon: HTMLImageElement = await new Promise(
@@ -55,7 +55,7 @@ export class GoogleMapMarkerRenderer extends AbstractMarkerOverlayRenderer<
         },
         anchorLeft: `${(bitmapIcon.anchor.x) * -100}%`,
         anchorTop: `${(bitmapIcon.anchor.y) * -100}%`,
-        
+
       //   clickable: state.clickable,
       //   draggable: state.draggable,
       //   zIndex: state.zIndex,

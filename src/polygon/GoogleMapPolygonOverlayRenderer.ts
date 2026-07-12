@@ -4,7 +4,7 @@ import {
   type PolygonEntity,
   type PolygonState,
 } from '@mapconductor/js-sdk-core';
-import { GoogleMapActualPolygon } from '../GoogleMapsTypeAlias';
+import { GoogleMapActualPolygon } from '../GoogleMapTypeAlias';
 import { GoogleMapViewHolder } from '../GoogleMapViewHolder';
 import { loadLibrary } from '../LibraryLoader';
 import {

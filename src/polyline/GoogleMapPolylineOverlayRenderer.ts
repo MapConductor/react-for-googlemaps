@@ -4,7 +4,7 @@ import {
   type PolylineEntity,
   type PolylineState,
 } from '@mapconductor/js-sdk-core';
-import { GoogleMapActualPolyline } from '../GoogleMapsTypeAlias';
+import { GoogleMapActualPolyline } from '../GoogleMapTypeAlias';
 import { GoogleMapViewHolder } from '../GoogleMapViewHolder';
 import { loadLibrary } from '../LibraryLoader';
 import { buildPolylinePath } from '../overlay3d';

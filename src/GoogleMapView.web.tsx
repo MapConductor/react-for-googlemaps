@@ -7,41 +7,45 @@ import {
   MarkerAnimationLayer,
   type InfoBubbleEntry,
 } from '@mapconductor/js-sdk-react';
-import type { MapCameraPosition, GeoPoint, MarkerAnimationOverlayEntry } from '@mapconductor/js-sdk-core';
-import type { GoogleMapViewController2D } from './GoogleMapViewController2D';
-import { GoogleMapsViewProps } from '.';
-import { GoogleMapsProvider2D } from './GoogleMapsProvider2D';
-import { GoogleMapsConfig2D } from './GoogleMapsConfig';
-
+import type {
+  MapCameraPosition,
+  GeoPoint,
+  OverlayCollector,
+  MarkerAnimationOverlayEntry,
+} from '@mapconductor/js-sdk-core';
+import type { GoogleMapViewController } from './GoogleMapViewController';
+import { GoogleMapViewProps } from './GoogleMapViewProps';
+import { GoogleMapProvider } from './GoogleMapProvider';
+import { GoogleMapConfig } from './GoogleMapConfig';
 
 /**
  * Google Maps React component
  */
-export function GoogleMapsView2D({
+export function GoogleMapView({
   state,
   apiKey,
+  mapId,
+  className,
+  style,
+  version,
+  markerTilingOptions,
+  libraries,
+  onError,
   onMapLoaded,
   onMapClick,
   onMapLongClick,
   onCameraMoveStart,
   onCameraMove,
   onCameraMoveEnd,
-  mapId,
-  className,
-  style,
-  version,
-  libraries,
-  markerTilingOptions,
-  onError,
   children,
-}: GoogleMapsViewProps) {
+}: GoogleMapViewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [provider] = useState(() => new GoogleMapsProvider2D());
+  const [provider] = useState(() => new GoogleMapProvider());
   const [scope] = useState(() => new MapViewScope());
   const [controller, setController] = useState<any>(null);
   const [isReady, setIsReady] = useState(false);
   const bridgeUnsubs = useRef<(() => void)[]>([]);
-  const typedControllerRef = useRef<GoogleMapViewController2D | null>(null);
+  const typedControllerRef = useRef<GoogleMapViewController | null>(null);
   const [bubbleEntries, setBubbleEntries] = useState<InfoBubbleEntry[]>([]);
   const [animationEntries, setAnimationEntries] = useState<MarkerAnimationOverlayEntry[]>([]);
   const [cameraTick, setCameraTick] = useState(0);
@@ -62,15 +66,20 @@ export function GoogleMapsView2D({
 
   useEffect(() => {
     if (!containerRef.current) return;
+    const mapDesignType = state.mapDesignType.getValue().toUpperCase();
+    if (mapDesignType !== 'ROADMAP' && mapDesignType !== 'HYBRID' && mapDesignType !== 'SATELLITE') {
+      throw new Error(`Map3D supports only following mapDesignTypes: ROADMAP, HYBRID, and SATELLITE.`);
+    }
+
     let cancelled = false;
     const libraryList = libraries?.split(',') || [];
 
-    const config: GoogleMapsConfig2D = {
+    const config: GoogleMapConfig = {
       container: containerRef.current,
       apiKey,
       mapId,
       initCameraPosition: state.cameraPosition,
-      mapDesignType: state.mapDesignType.getValue(),
+      mapDesignType: mapDesignType,
       markerTilingOptions,
       version,
       libraries: libraryList,
@@ -86,7 +95,7 @@ export function GoogleMapsView2D({
           setCameraTick(t => t + 1);
         });
         setController(ctrl);
-        typedControllerRef.current = ctrl as GoogleMapViewController2D;
+        typedControllerRef.current = ctrl as GoogleMapViewController;
 
         ctrl.setCameraMoveStartListener((camera: MapCameraPosition) => {
           state.updateCameraPosition(camera);
@@ -132,6 +141,35 @@ export function GoogleMapsView2D({
         bridgeUnsubs.current.push(() => typedControllerRef.current?.setMarkerAnimationOverlayHost(null));
         const animationUnsub = scope.markerAnimationStore.subscribe(setAnimationEntries);
         bridgeUnsubs.current.push(animationUnsub);
+
+        // Route per-state changes (e.g. setPosition during a drag) to the
+        // targeted update*() methods. Mirrors MapLibreView / Android's
+        // MapViewBase.kt DisposableEffect(controller) block; without this,
+        // MarkerState.setPosition() never reaches the marker controller.
+        const c = ctrl as unknown as Record<string, (s: never) => unknown>;
+        const setupUpdateHandler = <S extends { id: string }>(
+          collector: OverlayCollector<S>,
+          hasMethod: string,
+          updateMethod: string,
+          onUpdated?: () => void,
+        ) => {
+          collector.setUpdateHandler((state) => {
+            if ((c[hasMethod] as (s: S) => boolean)?.(state)) {
+              void (c[updateMethod] as (s: S) => Promise<void>)?.(state);
+              onUpdated?.();
+            }
+          });
+          bridgeUnsubs.current.push(() => collector.setUpdateHandler(null));
+        };
+
+        // The marker handler also bumps cameraTick so open InfoBubbles
+        // re-project while their marker is being dragged.
+        setupUpdateHandler(scope.markerCollector, 'hasMarker', 'updateMarker', () => setCameraTick(t => t + 1));
+        setupUpdateHandler(scope.circleCollector, 'hasCircle', 'updateCircle');
+        setupUpdateHandler(scope.polylineCollector, 'hasPolyline', 'updatePolyline');
+        setupUpdateHandler(scope.polygonCollector, 'hasPolygon', 'updatePolygon');
+        setupUpdateHandler(scope.groundImageCollector, 'hasGroundImage', 'updateGroundImage');
+        setupUpdateHandler(scope.rasterLayerCollector, 'hasRasterLayer', 'updateRasterLayer');
 
         setIsReady(true);
       })

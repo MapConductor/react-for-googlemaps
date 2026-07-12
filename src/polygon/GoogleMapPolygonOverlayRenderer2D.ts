@@ -4,7 +4,7 @@ import {
   type PolygonEntity,
   type PolygonState,
 } from '@mapconductor/js-sdk-core';
-import { toGoogleMapsFillStyle } from '../color';
+import { toGoogleMapFillStyle } from '../color';
 import { geoPointToLatLng } from '../helpers';
 import { GoogleMapViewHolder2D } from '../GoogleMapViewHolder2D';
 
@@ -17,7 +17,7 @@ export class GoogleMapPolygonOverlayRenderer2D extends AbstractPolygonOverlayRen
   }
 
   async createPolygon(state: PolygonState): Promise<google.maps.Polygon | null> {
-    const fill = toGoogleMapsFillStyle(state.fillColor);
+    const fill = toGoogleMapFillStyle(state.fillColor);
     return new google.maps.Polygon({
       paths: this.buildPaths(state),
       strokeColor: state.strokeColor,
@@ -39,7 +39,7 @@ export class GoogleMapPolygonOverlayRenderer2D extends AbstractPolygonOverlayRen
     current: PolygonEntity<google.maps.Polygon>;
     prev: PolygonEntity<google.maps.Polygon>;
   }): Promise<google.maps.Polygon | null> {
-    const fill = toGoogleMapsFillStyle(current.state.fillColor);
+    const fill = toGoogleMapFillStyle(current.state.fillColor);
     polygon.setOptions({
       paths: this.buildPaths(current.state),
       strokeColor: current.state.strokeColor,

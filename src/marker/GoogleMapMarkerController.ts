@@ -17,7 +17,7 @@ import {
   type OnMarkerEventHandler,
   type RasterLayerState,
 } from '@mapconductor/js-sdk-core';
-import { GoogleMapActualMarker } from '../GoogleMapsTypeAlias';
+import { GoogleMapActualMarker } from '../GoogleMapTypeAlias';
 import { GoogleMapMarkerRenderer } from './GoogleMapMarkerRenderer';
 
 export class GoogleMapMarkerController {
@@ -393,8 +393,8 @@ export class GoogleMapMarkerController {
       }
       window.addEventListener('mouseup', onWindowMouseUp, true);
     });
-    
-    
+
+
     // if (this.renderer.clickEventName) {
     //   marker.addEventListener(this.renderer.clickEventName, (event: Event) => {
     //     event.stopPropagation();

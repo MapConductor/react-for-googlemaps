@@ -9,7 +9,7 @@ import { GoogleMapPolygonController } from './polygon/GoogleMapPolygonController
 import { GoogleMapPolylineController } from './polyline/GoogleMapPolylineController';
 import { GoogleMapRasterLayerController } from './raster/GoogleMapRasterLayerController';
 import { hasLibrary, loadLibrary } from './LibraryLoader';
-import { GoogleMapsConfig2D } from './GoogleMapsConfig';
+import { GoogleMapConfig2D } from './GoogleMapConfig';
 import { GoogleMapViewHolder2D } from './GoogleMapViewHolder2D';
 import { GoogleMapGroundImageOverlayRenderer2D } from './groundimage/GoogleMapGroundImageOverlayRenderer2D';
 import { GoogleMapPolygonOverlayRenderer2D } from './polygon/GoogleMapPolygonOverlayRenderer2D';
@@ -22,9 +22,9 @@ import { GoogleMapViewController2D } from './GoogleMapViewController2D';
 /**
  * Google Maps provider implementation
  */
-export class GoogleMapsProvider2D extends MapProvider {
-  
-  async initialize(config: GoogleMapsConfig2D): Promise<MapViewControllerInterface> {
+export class GoogleMapProvider2D extends MapProvider {
+
+  async initialize(config: GoogleMapConfig2D): Promise<MapViewControllerInterface> {
 
 
     // Initialize Google Maps API
@@ -102,7 +102,7 @@ function getRasterLayerController(holder: GoogleMapViewHolder2D): GoogleMapRaste
   );
 }
 
-function getMarkerController(holder: GoogleMapViewHolder2D, config: GoogleMapsConfig2D): GoogleMapMarkerController2D {
+function getMarkerController(holder: GoogleMapViewHolder2D, config: GoogleMapConfig2D): GoogleMapMarkerController2D {
   const markerRenderer = config.mapId ? new GoogleMapAdvancedMarkerElementRenderer2D(holder) : new GoogleMapMarkerRenderer2D(holder);
   return new GoogleMapMarkerController2D(markerRenderer, config.markerTilingOptions);
 }

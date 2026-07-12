@@ -8,7 +8,7 @@ import {
   type PolygonState,
 } from '@mapconductor/js-sdk-core';
 import { mouseEventToGeoPoint } from '../helpers';
-import { GoogleMapActualPolygon } from '../GoogleMapsTypeAlias';
+import { GoogleMapActualPolygon } from '../GoogleMapTypeAlias';
 import { GoogleMapPolygonOverlayRenderer } from './GoogleMapPolygonOverlayRenderer';
 import { GoogleMapPolygonOverlayRenderer2D } from './GoogleMapPolygonOverlayRenderer2D';
 
