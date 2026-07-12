@@ -30,14 +30,6 @@ fun MapCameraPosition.toWritableMap(): WritableMap =
         visibleRegion?.let { putMap("visibleRegion", it.toWritableMap()) }
     }
 
-fun CameraPosition.toMapCameraPosition(): MapCameraPosition =
-    MapCameraPosition(
-        position = GeoPoint(target.latitude, target.longitude),
-        zoom = zoom.toDouble(),
-        bearing = bearing.toDouble(),
-        tilt = tilt.toDouble(),
-    )
-
 fun MapCameraPosition.Companion.fromReadableMap(map: ReadableMap?): MapCameraPosition {
     val positionMap = when {
         map == null -> null
