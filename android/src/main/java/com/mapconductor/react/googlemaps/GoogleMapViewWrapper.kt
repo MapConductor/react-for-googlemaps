@@ -57,6 +57,7 @@ class GoogleMapViewWrapper(context: Context) :
     private var rasterLayerController: GoogleMapRasterLayerControllerInterface? = null
     private var markerStates by mutableStateOf<List<MarkerState>>(emptyList())
     private var infoBubblePositions: List<InfoBubblePosition> = emptyList()
+    private var latestCameraPosition: MapCameraPosition? = null
 
     init {
         ResourceProvider.init(context)
@@ -206,6 +207,7 @@ class GoogleMapViewWrapper(context: Context) :
         eventName: String,
         camera: MapCameraPosition,
     ) {
+        latestCameraPosition = camera
         emit(eventName, Arguments.createMap().apply { putMap("cameraPosition", camera.toWritableMap()) })
     }
 
@@ -220,10 +222,14 @@ class GoogleMapViewWrapper(context: Context) :
         mainCoroutine.launch {
             val density = ResourceProvider.getDensity()
             val holder = mapViewState.getMapViewHolder() ?: return@launch
+            val projection = screenProjection()
             val array =
                 Arguments.createArray().apply {
                     markerStates.forEach { marker ->
-                        val offset = holder.toScreenOffset(marker.position) ?: return@forEach
+                        val offset =
+                            projection?.toScreenOffset(marker.position)
+                                ?: holder.toScreenOffset(marker.position)
+                                ?: return@forEach
                         pushMap(
                             Arguments.createMap().apply {
                                 putString("markerId", marker.id)
@@ -241,10 +247,14 @@ class GoogleMapViewWrapper(context: Context) :
         mainCoroutine.launch {
             val density = ResourceProvider.getDensity()
             val holder = mapViewState.getMapViewHolder() ?: return@launch
+            val projection = screenProjection()
             val array =
                 Arguments.createArray().apply {
                     infoBubblePositions.forEach { position ->
-                        val offset = holder.toScreenOffset(position.point) ?: return@forEach
+                        val offset =
+                            projection?.toScreenOffset(position.point)
+                                ?: holder.toScreenOffset(position.point)
+                                ?: return@forEach
                         pushMap(
                             Arguments.createMap().apply {
                                 putString("id", position.id)
@@ -256,6 +266,12 @@ class GoogleMapViewWrapper(context: Context) :
                 }
             emit("topInfoBubbleScreenPositions", Arguments.createMap().apply { putArray("positions", array) })
         }
+    }
+
+    private fun screenProjection(): Wms84Projection? {
+        val camera = latestCameraPosition ?: mapViewState.cameraPosition
+        if (camera.visibleRegion == null) return null
+        return Wms84Projection(camera, composeView.width, composeView.height)
     }
 
     private fun emit(
