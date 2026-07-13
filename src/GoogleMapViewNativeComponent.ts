@@ -1,6 +1,7 @@
 import type { HostComponent, ViewProps } from 'react-native';
 import { codegenNativeComponent } from 'react-native';
 import type { GeoPoint, MapCameraPosition, MarkerTilingOptions } from '@mapconductor/js-sdk-core';
+import type { NativeMapExtensionEvent } from '@mapconductor/js-sdk-react/native';
 
 export interface NativeGoogleMapViewEvent<T> {
   nativeEvent: T;
@@ -59,6 +60,9 @@ export interface NativeGoogleMapViewProps extends ViewProps {
     event: NativeGoogleMapViewEvent<{
       positions: Array<{ id: string; x: number; y: number }>;
     }>
+  ) => void;
+  onNativeMapExtensionEvent?: (
+    event: NativeGoogleMapViewEvent<NativeMapExtensionEvent>
   ) => void;
 }
 

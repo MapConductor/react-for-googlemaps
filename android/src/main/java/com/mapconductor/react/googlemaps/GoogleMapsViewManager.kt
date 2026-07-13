@@ -57,6 +57,16 @@ class GoogleMapsViewManager : ViewGroupManager<GoogleMapViewWrapper>() {
             "clearOverlays" -> root.clearOverlays()
             "compositionMarkers" -> root.compositionMarkers(args?.getMap(0))
             "updateMarker" -> root.updateMarker(args?.getMap(0))
+            "compositionRasterLayers" -> root.compositionRasterLayers(args?.getArray(0))
+            "updateRasterLayer" -> root.updateRasterLayer(args?.getMap(0))
+            "upsertNativeMapExtension" ->
+                root.upsertNativeMapExtension(
+                    extensionId = args?.getString(0) ?: return,
+                    type = args.getString(1) ?: return,
+                    payload = args.getMap(2),
+                )
+            "removeNativeMapExtension" ->
+                root.removeNativeMapExtension(args?.getString(0) ?: return)
         }
     }
 
@@ -79,6 +89,7 @@ class GoogleMapsViewManager : ViewGroupManager<GoogleMapViewWrapper>() {
             "topMarkerDragEnd" to mapOf("registrationName" to "onMarkerDragEnd"),
             "topMarkerScreenPositions" to mapOf("registrationName" to "onMarkerScreenPositions"),
             "topInfoBubbleScreenPositions" to mapOf("registrationName" to "onInfoBubbleScreenPositions"),
+            "topNativeMapExtensionEvent" to mapOf("registrationName" to "onNativeMapExtensionEvent"),
         )
 
     companion object {

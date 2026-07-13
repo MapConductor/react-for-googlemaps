@@ -4,6 +4,7 @@ import { GeoPoint, MapCameraPosition } from '@mapconductor/js-sdk-core';
 import type { MarkerTilingOptions } from '@mapconductor/js-sdk-core';
 import {
   InfoBubbleLayer,
+  MapContext,
   MapViewScope,
   MapViewScopeProvider,
   type InfoBubblePositionRequest,
@@ -57,6 +58,7 @@ export function GoogleMapView({
     () => new Map()
   );
   const [infoBubblePositions, setInfoBubblePositions] = useState<InfoBubblePositionRequest[]>([]);
+  const [isReady, setIsReady] = useState(false);
   const [infoBubbleScreenPositions, setInfoBubbleScreenPositions] =
     useState<InfoBubbleScreenPositionMap>(() => new Map());
 
@@ -70,9 +72,15 @@ export function GoogleMapView({
         void controller.updateMarker(marker);
       }
     });
+    scope.rasterLayerCollector.setUpdateHandler((rasterLayer) => {
+      if (controller.hasRasterLayer(rasterLayer)) {
+        void controller.updateRasterLayer(rasterLayer);
+      }
+    });
 
     return () => {
       scope.markerCollector.setUpdateHandler(null);
+      scope.rasterLayerCollector.setUpdateHandler(null);
     };
   }, [controller, scope]);
 
@@ -113,7 +121,8 @@ export function GoogleMapView({
   }, [controller, state]);
 
   return (
-    <MapViewScopeProvider scope={scope}>
+    <MapContext.Provider value={{ controller, isReady }}>
+      <MapViewScopeProvider scope={scope}>
       <View style={style ?? styles.container}>
         <NativeGoogleMapView
           ref={nativeRef}
@@ -140,7 +149,10 @@ export function GoogleMapView({
           onMapLongClick={(event) =>
             controller?.onNativeMapLongClick(GeoPoint.from(event.nativeEvent.point))
           }
-          onMapLoaded={() => controller?.onNativeMapLoaded()}
+          onMapLoaded={() => {
+            setIsReady(true);
+            controller?.onNativeMapLoaded();
+          }}
           onMarkerClick={(event) => controller?.onNativeMarkerClick(event.nativeEvent.markerId)}
           onMarkerDragStart={(event) =>
             controller?.onNativeMarkerDragStart(
@@ -180,6 +192,9 @@ export function GoogleMapView({
               )
             );
           }}
+          onNativeMapExtensionEvent={(event) =>
+            controller?.onNativeMapExtensionEvent(event.nativeEvent)
+          }
         />
         <InfoBubbleLayer
           scope={scope}
@@ -189,7 +204,8 @@ export function GoogleMapView({
         />
         {children}
       </View>
-    </MapViewScopeProvider>
+      </MapViewScopeProvider>
+    </MapContext.Provider>
   );
 }
 

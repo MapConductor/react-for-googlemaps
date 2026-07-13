@@ -16,6 +16,7 @@ import com.facebook.react.bridge.WritableMap
 import com.facebook.react.uimanager.UIManagerHelper
 import com.facebook.react.uimanager.events.Event
 import com.mapconductor.compose.marker.Markers
+import com.mapconductor.react.extensions.NativeMapExtensionHostState
 import com.mapconductor.core.ResourceProvider
 import com.mapconductor.core.features.GeoPoint
 import com.mapconductor.core.map.MapCameraPosition
@@ -34,6 +35,8 @@ import com.mapconductor.googlemaps.raster.GoogleMapRasterLayerControllerInterfac
 import com.mapconductor.react.googlemaps.marker.ReactNativeMarkerIcon
 import com.mapconductor.react.googlemaps.marker.fromReadableMap
 import com.mapconductor.react.googlemaps.marker.toMarkerIcon
+import com.mapconductor.react.raster.rasterLayerStateFromReadableMap
+import com.mapconductor.react.raster.rasterLayerStatesFromReadableArray
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -76,11 +79,23 @@ class GoogleMapViewWrapper(context: Context) :
     private var polylgonController: GoogleMapPolygonControllerInterface? = null
     private var groundImageController: GoogleMapGroundImageControllerInterface? = null
     private var rasterLayerController: GoogleMapRasterLayerControllerInterface? = null
+    private var rasterLayerStates: Map<String, com.mapconductor.core.raster.RasterLayerState> = emptyMap()
     private var markerStates by mutableStateOf<List<MarkerState>>(emptyList())
     private var markerTilingOptions by mutableStateOf(MarkerTilingOptions.Default)
     private var infoBubblePositions: List<InfoBubblePosition> = emptyList()
     private var latestCameraPosition: MapCameraPosition? = null
     private var requestedCameraPosition: MapCameraPosition? = null
+    private val nativeMapExtensionHost =
+        NativeMapExtensionHostState(context) { extensionId, eventName, payload ->
+            emit(
+                "topNativeMapExtensionEvent",
+                Arguments.createMap().apply {
+                    putString("extensionId", extensionId)
+                    putString("eventName", eventName)
+                    putMap("payload", payload)
+                },
+            )
+        }
 
     init {
         ResourceProvider.init(context)
@@ -106,7 +121,12 @@ class GoogleMapViewWrapper(context: Context) :
                             "polyline" -> polylineController = value as GoogleMapPolylineControllerInterface?
                             "polygon" -> polylgonController = value as GoogleMapPolygonControllerInterface?
                             "ground_image" -> groundImageController = value as GoogleMapGroundImageControllerInterface?
-                            "raster_layer" -> rasterLayerController = value as GoogleMapRasterLayerControllerInterface?
+                            "raster_layer" -> {
+                                rasterLayerController = value as GoogleMapRasterLayerControllerInterface?
+                                mainCoroutine.launch {
+                                    rasterLayerController?.add(rasterLayerStates.values.toList())
+                                }
+                            }
                         }
                     }
                     emit("topMapLoaded", Arguments.createMap())
@@ -136,6 +156,7 @@ class GoogleMapViewWrapper(context: Context) :
                 },
             ) {
                 Markers(states = markerStates)
+                with(nativeMapExtensionHost) { RenderExtensions() }
             }
         }
     }
@@ -229,8 +250,39 @@ class GoogleMapViewWrapper(context: Context) :
         }
     }
 
+    fun compositionRasterLayers(layers: ReadableArray?) {
+        val states = rasterLayerStatesFromReadableArray(layers)
+        rasterLayerStates = states.associateBy { it.id }
+        mainCoroutine.launch {
+            rasterLayerController?.clear()
+            rasterLayerController?.add(states)
+        }
+    }
+
+    fun updateRasterLayer(layer: ReadableMap?) {
+        val state = rasterLayerStateFromReadableMap(layer) ?: return
+        rasterLayerStates = rasterLayerStates + (state.id to state)
+        mainCoroutine.launch {
+            rasterLayerController?.update(state)
+        }
+    }
+
+    fun upsertNativeMapExtension(
+        extensionId: String,
+        type: String,
+        payload: ReadableMap?,
+    ) {
+        nativeMapExtensionHost.upsert(extensionId, type, payload)
+    }
+
+    fun removeNativeMapExtension(extensionId: String) {
+        nativeMapExtensionHost.remove(extensionId)
+    }
+
     fun onDropViewInstance() {
+        nativeMapExtensionHost.clear()
         markerCoroutine.cancel()
+        mainCoroutine.cancel()
     }
 
     override fun onLayout(
