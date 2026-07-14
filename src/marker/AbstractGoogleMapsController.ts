@@ -1,16 +1,13 @@
 import {
-  createDefaultIcon,
-  createMarkerEntity,
+  AbstractMarkerController,
   createRasterLayerState,
   LocalTileServer,
   MARKER_HIT_RADIUS_MOUSE_PX,
+  MarkerManager,
   MarkerTileRenderer,
   MarkerTilingOptions,
   RasterLayerSource,
-  type AddParams,
-  type ChangeParams,
   type GeoPoint,
-  type MarkerAnimationOverlayHost,
   type MarkerEntity,
   type MarkerState,
   type OnMarkerEventHandler,
@@ -21,130 +18,51 @@ import { GoogleMapMarkerRendererInterface } from './GoogleMapMarkerRendererInter
 export abstract class AbstractGoogleMapsController<
   ActualMarker,
   Renderer extends GoogleMapMarkerRendererInterface<ActualMarker> = GoogleMapMarkerRendererInterface<ActualMarker>,
-> {
-  private readonly entities = new Map<string, MarkerEntity<ActualMarker>>();
-
-  private clickListener: OnMarkerEventHandler | null = null;
-  private dragStartListener: OnMarkerEventHandler | null = null;
-  private dragListener: OnMarkerEventHandler | null = null;
-  private dragEndListener: OnMarkerEventHandler | null = null;
-  private animateStartListener: OnMarkerEventHandler | null = null;
-  private animateEndListener: OnMarkerEventHandler | null = null;
+> extends AbstractMarkerController<ActualMarker> {
+  declare readonly renderer: Renderer;
 
   private tileRenderer: MarkerTileRenderer<MarkerState> | null = null;
   private tileRouteId: string | null = null;
   private tileVersion = 0;
   // Bumped on every syncTiledOverlay()/removeTileOverlay() call. syncTiledOverlay
-  // awaits SW round-trips, so a later call (or clear()/destroy()) can finish first;
-  // an earlier call resuming afterward must not clobber the newer result.
+  // awaits SW round-trips, so an earlier call must not overwrite a newer result.
   private tileGeneration = 0;
 
   /** Called by GoogleMapViewController when RasterLayerState changes. */
   onRasterLayerUpdate: ((state: RasterLayerState | null) => Promise<void>) | null = null;
 
   constructor(
-    protected readonly renderer: Renderer,
+    renderer: Renderer,
     private readonly tilingOptions: MarkerTilingOptions = MarkerTilingOptions.Default,
   ) {
-    this.renderer.animateStartListener = (state) => this.dispatchAnimateStart(state);
-    this.renderer.animateEndListener = (state) => this.dispatchAnimateEnd(state);
-  }
-
-  composition(data: MarkerState[]): void {
-    const tilingEnabled =
-      this.tilingOptions.enabled &&
-      data.length >= this.tilingOptions.minMarkerCount;
-    const newIds = new Set(data.map((state) => state.id));
-
-    const toRemove: MarkerEntity<ActualMarker>[] = [];
-    for (const [id, entity] of this.entities) {
-      if (!newIds.has(id)) {
-        toRemove.push(entity);
-        this.entities.delete(id);
-      }
-    }
-    const rendererRemove = toRemove.filter((entity) => entity.marker !== null);
-    if (rendererRemove.length > 0) {
-      void this.renderer.onRemove(rendererRemove);
-    }
-
-    const toAdd: AddParams[] = [];
-    const toChange: ChangeParams<ActualMarker>[] = [];
-    let hasTiled = false;
-
-    for (const state of data) {
-      const wantsTile =
-        tilingEnabled && !state.draggable && state.getAnimation() == null;
-      const bitmapIcon = state.icon?.toBitmapIcon() ?? createDefaultIcon().toBitmapIcon();
-      const existing = this.entities.get(state.id);
-
-      if (wantsTile) {
-        hasTiled = true;
-        if (existing && existing.marker !== null) {
-          void this.renderer.onRemove([existing]);
-        }
-        this.entities.set(
-          state.id,
-          createMarkerEntity<ActualMarker>({
-            marker: null,
-            state,
-            isRendered: true,
-            visible: true,
-          }),
-        );
-      } else if (existing?.marker === null) {
-        toAdd.push({ state, bitmapIcon });
-      } else if (existing) {
-        toChange.push({
-          current: createMarkerEntity({ marker: existing.marker, state }),
-          prev: existing,
-          bitmapIcon,
-        });
-      } else {
-        toAdd.push({ state, bitmapIcon });
-      }
-    }
-
-    if (hasTiled) {
-      void this.syncTiledOverlay();
-    } else {
-      void this.removeTileOverlay();
-    }
-
-    void this.processAdd(toAdd);
-    void this.processChange(toChange).then(() => {
-      for (const { current } of toChange) {
-        if (current.state.getAnimation() == null) continue;
-        const entity = this.entities.get(current.state.id);
-        if (entity) void this.renderer.onAnimate(entity);
-      }
+    super({
+      markerManager: MarkerManager.defaultManager<ActualMarker>(
+        null,
+        tilingOptions.minMarkerCount,
+      ),
+      renderer,
     });
-    void this.renderer.onPostProcess();
   }
 
-  update(state: MarkerState): void {
-    const bitmapIcon = state.icon?.toBitmapIcon() ?? createDefaultIcon().toBitmapIcon();
-    const existing = this.entities.get(state.id);
-    if (existing) {
-      const prevAnimation = existing.state.getAnimation();
-      void this.processChange([{
-        current: createMarkerEntity({ marker: existing.marker, state }),
-        prev: existing,
-        bitmapIcon,
-      }]).then(() => {
-        if (prevAnimation !== state.getAnimation() && state.getAnimation() != null) {
-          const entity = this.entities.get(state.id);
-          if (entity) void this.renderer.onAnimate(entity);
-        }
-      });
-    } else {
-      void this.processAdd([{ state, bitmapIcon }]);
-    }
-    void this.renderer.onPostProcess();
+  async composition(data: MarkerState[]): Promise<void> {
+    await this.add(data);
   }
 
   has(state: MarkerState): boolean {
-    return this.entities.has(state.id);
+    return this.markerManager.hasEntity(state.id);
+  }
+
+  override find(position: GeoPoint): MarkerEntity<ActualMarker> | null {
+    return this.markerManager.findNearest(position);
+  }
+
+  findTiled(position: GeoPoint, zoom: number): MarkerEntity<ActualMarker> | null {
+    const found = this.tileRenderer?.findNearest(
+      position,
+      MARKER_HIT_RADIUS_MOUSE_PX,
+      zoom,
+    );
+    return found ? this.markerManager.getEntity(found.id) : null;
   }
 
   setOnClickListener(listener: OnMarkerEventHandler | null): void {
@@ -171,60 +89,36 @@ export abstract class AbstractGoogleMapsController<
     this.animateEndListener = listener;
   }
 
-  setMarkerAnimationOverlayHost(host: MarkerAnimationOverlayHost | null): void {
-    this.renderer.animationOverlayHost = host;
+  override async clear(): Promise<void> {
+    await super.clear();
+    await this.removeTileOverlay();
   }
 
-  clear(): void {
-    const all = [...this.entities.values()];
-    this.entities.clear();
-    const rendered = all.filter((entity) => entity.marker !== null);
-    if (rendered.length > 0) void this.renderer.onRemove(rendered);
-    void this.removeTileOverlay();
+  protected override shouldTile(state: MarkerState, totalCount: number): boolean {
+    return (
+      this.tilingOptions.enabled &&
+      totalCount >= this.tilingOptions.minMarkerCount &&
+      !state.draggable &&
+      state.getAnimation() == null
+    );
   }
 
-  findTiled(position: GeoPoint, zoom: number): MarkerEntity<ActualMarker> | null {
-    if (!this.tileRenderer) return null;
-    const found = this.tileRenderer.findNearest(position, MARKER_HIT_RADIUS_MOUSE_PX, zoom);
-    if (!found) return null;
-    return this.entities.get(found.id) ?? null;
+  protected override async onTiledMarkersChanged(): Promise<void> {
+    await this.syncTiledOverlay();
   }
 
-  dispatchClick(state: MarkerState): void {
-    state.onClick?.(state);
-    this.clickListener?.(state);
-  }
-
-  protected dispatchDragStart(state: MarkerState): void {
-    state.onDragStart?.(state);
-    this.dragStartListener?.(state);
-  }
-
-  protected dispatchDrag(state: MarkerState): void {
-    state.onDrag?.(state);
-    this.dragListener?.(state);
-  }
-
-  protected dispatchDragEnd(state: MarkerState): void {
-    state.onDragEnd?.(state);
-    this.dragEndListener?.(state);
+  protected override onMarkerAdded(entity: MarkerEntity<ActualMarker>): void {
+    if (entity.marker) {
+      this.attachListeners(entity.marker, entity.state);
+    }
   }
 
   protected abstract attachListeners(marker: ActualMarker, state: MarkerState): void;
 
-  private dispatchAnimateStart(state: MarkerState): void {
-    state.onAnimateStart?.(state);
-    this.animateStartListener?.(state);
-  }
-
-  private dispatchAnimateEnd(state: MarkerState): void {
-    state.onAnimateEnd?.(state);
-    this.animateEndListener?.(state);
-  }
-
   private async syncTiledOverlay(): Promise<void> {
     const generation = ++this.tileGeneration;
-    const tiledStates = [...this.entities.values()]
+    const tiledStates = this.markerManager
+      .allEntities()
       .filter((entity) => entity.marker === null)
       .map((entity) => entity.state);
 
@@ -289,34 +183,6 @@ export abstract class AbstractGoogleMapsController<
     this.tileRenderer = null;
     this.tileRouteId = null;
     await this.onRasterLayerUpdate?.(null);
-  }
-
-  private async processAdd(params: AddParams[]): Promise<void> {
-    if (params.length === 0) return;
-    const markers = await this.renderer.onAdd(params);
-    for (let i = 0; i < params.length; i++) {
-      const marker = markers[i];
-      if (!marker) continue;
-      const { state } = params[i];
-      const entity = createMarkerEntity({ marker, state, isRendered: true });
-      this.entities.set(state.id, entity);
-      this.attachListeners(marker, state);
-      if (state.getAnimation() != null) {
-        void this.renderer.onAnimate(entity);
-      }
-    }
-  }
-
-  private async processChange(params: ChangeParams<ActualMarker>[]): Promise<void> {
-    if (params.length === 0) return;
-    const markers = await this.renderer.onChange(params);
-    for (let i = 0; i < params.length; i++) {
-      const marker = markers[i];
-      if (!marker) continue;
-      const { state } = params[i].current;
-      const entity = createMarkerEntity({ marker, state, isRendered: true });
-      this.entities.set(state.id, entity);
-    }
   }
 }
 

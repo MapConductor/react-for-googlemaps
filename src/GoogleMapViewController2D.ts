@@ -216,11 +216,11 @@ export class GoogleMapViewController2D
   // --- Marker ---
 
   async compositionMarkers(data: MarkerState[]): Promise<void> {
-    this.markerController.composition(data);
+    await this.markerController.composition(data);
   }
 
   async updateMarker(state: MarkerState): Promise<void> {
-    this.markerController.update(state);
+    await this.markerController.update(state);
   }
 
   hasMarker(state: MarkerState): boolean {
