@@ -53,6 +53,7 @@ import com.mapconductor.react.extensions.NativeMapExtensionHostState
 import com.mapconductor.react.googlemaps.marker.ReactNativeMarkerIcon
 import com.mapconductor.react.googlemaps.marker.fromReadableMap
 import com.mapconductor.react.googlemaps.marker.toMarkerIcon
+import com.mapconductor.react.marker.MarkerScaleBridge
 import com.mapconductor.react.raster.rasterLayerStateFromReadableMap
 import com.mapconductor.react.raster.rasterLayerStatesFromReadableArray
 import kotlinx.coroutines.CancellationException
@@ -259,7 +260,8 @@ class GoogleMapViewWrapper(context: Context) :
     }
 
     fun setMarkerTilingOptions(options: ReadableMap?) {
-        markerTilingOptions = markerTilingOptionsFromReadableMap(options)
+        markerTilingOptions = markerTilingOptionsFromReadableMap(options, viewId = id)
+        MarkerScaleBridge.invalidate(id)
     }
 
     private fun configureController(controller: GoogleMapViewController) {
@@ -440,6 +442,7 @@ class GoogleMapViewWrapper(context: Context) :
     fun onDropViewInstance() {
         markerTrace("wrapper drop")
         initialized = false
+        MarkerScaleBridge.invalidate(id)
         nativeMapExtensionHost.clear()
         extensionComposeView.disposeComposition()
         // Null the field before destroying: a marker-coroutine job that reads mapController
@@ -698,14 +701,25 @@ private fun RenderNativeExtensions(
 
 private const val MARKER_TRACE_TAG = "MCMarkerTrace"
 
-private fun markerTilingOptionsFromReadableMap(map: ReadableMap?): MarkerTilingOptions {
+private fun markerTilingOptionsFromReadableMap(map: ReadableMap?, viewId: Int): MarkerTilingOptions {
     if (map == null) return MarkerTilingOptions.Default
+    val hasIconScaleCallback = map.getBooleanOrNull("hasIconScaleCallback") ?: false
+    android.util.Log.d(
+        "MarkerScaleBridge",
+        "GoogleMaps markerTilingOptionsFromReadableMap viewId=$viewId hasIconScaleCallback=$hasIconScaleCallback map=$map",
+    )
     return MarkerTilingOptions.Default.copy(
         enabled = map.getBooleanOrNull("enabled") ?: MarkerTilingOptions.Default.enabled,
         debugTileOverlay = map.getBooleanOrNull("debugTileOverlay")
             ?: MarkerTilingOptions.Default.debugTileOverlay,
         minMarkerCount = map.getIntOrNull("minMarkerCount") ?: MarkerTilingOptions.Default.minMarkerCount,
         cacheSize = map.getIntOrNull("cacheSize") ?: MarkerTilingOptions.Default.cacheSize,
+        iconScaleCallback =
+            if (hasIconScaleCallback) {
+                { state: MarkerState, zoom: Int -> MarkerScaleBridge.requestScale(viewId, state.id, zoom) }
+            } else {
+                null
+            },
     )
 }
 

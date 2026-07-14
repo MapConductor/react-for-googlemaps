@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { findNodeHandle, StyleSheet, View } from 'react-native';
 import { GeoPoint, MapCameraPosition } from '@mapconductor/js-sdk-core';
 import type { MarkerTilingOptions } from '@mapconductor/js-sdk-core';
 import {
@@ -7,6 +7,8 @@ import {
   MapContext,
   MapViewScope,
   MapViewScopeProvider,
+  registerIconScaleCallback,
+  unregisterIconScaleCallback,
   type InfoBubblePositionRequest,
   type InfoBubbleScreenPositionMap,
   type MapViewBaseProps,
@@ -63,6 +65,17 @@ export function GoogleMapView({
     useState<InfoBubbleScreenPositionMap>(() => new Map());
 
   useCollectAndRenderOverlays(registry, controller);
+
+  useEffect(() => {
+    const iconScaleCallback = markerTilingOptions?.iconScaleCallback;
+    if (!iconScaleCallback) return;
+    const viewId = findNodeHandle(nativeRef.current);
+    if (viewId == null) return;
+    registerIconScaleCallback(viewId, iconScaleCallback, (markerId) =>
+      scope.markerCollector.get(markerId)
+    );
+    return () => unregisterIconScaleCallback(viewId);
+  }, [markerTilingOptions?.iconScaleCallback, scope]);
 
   useEffect(() => {
     if (!controller) return undefined;

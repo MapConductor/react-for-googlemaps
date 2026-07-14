@@ -12,6 +12,12 @@ export interface NativeMarkerTilingOptions {
   debugTileOverlay: boolean;
   minMarkerCount: number;
   cacheSize: number;
+  /**
+   * A JS function can't cross the RN bridge, so this only signals that
+   * `iconScaleCallback` is set; the native wrapper resolves the actual
+   * per-marker scale by calling back into JS via MarkerScaleBridge (JSI).
+   */
+  hasIconScaleCallback: boolean;
 }
 
 export interface NativeGoogleMapViewProps extends ViewProps {
@@ -78,6 +84,7 @@ export function toNativeMarkerTilingOptions(
     debugTileOverlay: markerTilingOptions.debugTileOverlay,
     minMarkerCount: markerTilingOptions.minMarkerCount,
     cacheSize: markerTilingOptions.cacheSize,
+    hasIconScaleCallback: markerTilingOptions.iconScaleCallback != null,
   };
 }
 
