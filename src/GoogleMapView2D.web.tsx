@@ -7,7 +7,12 @@ import {
   MarkerAnimationLayer,
   type InfoBubbleEntry,
 } from '@mapconductor/js-sdk-react';
-import type { MapCameraPosition, GeoPoint, MarkerAnimationOverlayEntry } from '@mapconductor/js-sdk-core';
+import type {
+  MapCameraPosition,
+  GeoPoint,
+  OverlayCollector,
+  MarkerAnimationOverlayEntry,
+} from '@mapconductor/js-sdk-core';
 import type { GoogleMapViewController2D } from './GoogleMapViewController2D';
 import { GoogleMapViewProps } from '.';
 import { GoogleMapProvider2D } from './GoogleMapProvider2D';
@@ -132,6 +137,32 @@ export function GoogleMapView2D({
         bridgeUnsubs.current.push(() => typedControllerRef.current?.setMarkerAnimationOverlayHost(null));
         const animationUnsub = scope.markerAnimationStore.subscribe(setAnimationEntries);
         bridgeUnsubs.current.push(animationUnsub);
+
+        // Route per-state changes (including MarkerState.animate()) to the
+        // targeted update*() methods. Keep this wiring aligned with the 3D
+        // Google Maps view so mutable overlay state behaves the same in 2D.
+        const c = ctrl as unknown as Record<string, (s: never) => unknown>;
+        const setupUpdateHandler = <S extends { id: string }>(
+          collector: OverlayCollector<S>,
+          hasMethod: string,
+          updateMethod: string,
+          onUpdated?: () => void,
+        ) => {
+          collector.setUpdateHandler((state) => {
+            if ((c[hasMethod] as (s: S) => boolean)?.(state)) {
+              void (c[updateMethod] as (s: S) => Promise<void>)?.(state);
+              onUpdated?.();
+            }
+          });
+          bridgeUnsubs.current.push(() => collector.setUpdateHandler(null));
+        };
+
+        setupUpdateHandler(scope.markerCollector, 'hasMarker', 'updateMarker', () => setCameraTick(t => t + 1));
+        setupUpdateHandler(scope.circleCollector, 'hasCircle', 'updateCircle');
+        setupUpdateHandler(scope.polylineCollector, 'hasPolyline', 'updatePolyline');
+        setupUpdateHandler(scope.polygonCollector, 'hasPolygon', 'updatePolygon');
+        setupUpdateHandler(scope.groundImageCollector, 'hasGroundImage', 'updateGroundImage');
+        setupUpdateHandler(scope.rasterLayerCollector, 'hasRasterLayer', 'updateRasterLayer');
 
         setIsReady(true);
       })
