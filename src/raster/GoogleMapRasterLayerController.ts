@@ -1,60 +1,58 @@
 /// <reference types="google.maps" />
-import { type RasterLayerState } from '@mapconductor/js-sdk-core';
+import {
+  RasterLayerController,
+  RasterLayerManager,
+  type RasterLayerState,
+} from '@mapconductor/js-sdk-core';
 import { GoogleMapRasterLayerOverlayRenderer } from './GoogleMapRasterLayerOverlayRenderer';
 import { GoogleMapRasterLayerOverlayRenderer2D } from './GoogleMapRasterLayerOverlayRenderer2D';
 
-export class GoogleMapRasterLayerController {
-  private readonly rasterLayers = new Map<string, google.maps.ImageMapType>();
-  private readonly internalLayerIds = new Set<string>();
+type GoogleMapRasterLayerRenderer =
+  | GoogleMapRasterLayerOverlayRenderer
+  | GoogleMapRasterLayerOverlayRenderer2D;
 
-  constructor(readonly renderer: GoogleMapRasterLayerOverlayRenderer | GoogleMapRasterLayerOverlayRenderer2D) {
+export class GoogleMapRasterLayerController extends RasterLayerController<google.maps.ImageMapType> {
+  declare readonly renderer: GoogleMapRasterLayerRenderer;
+
+  constructor(renderer: GoogleMapRasterLayerRenderer) {
+    super({
+      rasterLayerManager: new RasterLayerManager<google.maps.ImageMapType>(),
+      renderer,
+    });
   }
 
-  composition(data: RasterLayerState[]): void {
-    const newIds = new Set(data.map((s) => s.id));
-    for (const id of [...this.rasterLayers.keys()]) {
-      if (this.internalLayerIds.has(id)) continue;
-      if (!newIds.has(id)) this.removeById(id);
+  async composition(data: RasterLayerState[]): Promise<void> {
+    await this.add(data);
+    this.removeInvisibleEntities(data);
+  }
+
+  override async update(state: RasterLayerState): Promise<void> {
+    await super.update(state);
+    if (!state.visible) {
+      this.rasterLayerManager.removeEntity(state.id);
     }
-    for (const state of data) this.upsert(state);
-  }
-
-  update(state: RasterLayerState): void {
-    this.upsert(state);
   }
 
   has(state: RasterLayerState): boolean {
-    return this.rasterLayers.has(state.id);
+    return this.rasterLayerManager.hasEntity(state.id);
   }
 
-  clear(): void {
-    for (const id of [...this.rasterLayers.keys()]) this.removeById(id);
+  async updateInternal(state: RasterLayerState): Promise<void> {
+    await this.upsert(state);
+    if (!state.visible) {
+      this.rasterLayerManager.removeEntity(state.id);
+    }
   }
 
-  updateInternal(state: RasterLayerState): void {
-    this.internalLayerIds.add(state.id);
-    this.upsert(state);
+  async removeInternal(id: string): Promise<void> {
+    await this.removeById(id);
   }
 
-  removeInternal(id: string): void {
-    this.internalLayerIds.delete(id);
-    this.removeById(id);
-  }
-
-  private upsert(state: RasterLayerState): void {
-    this.removeById(state.id);
-    if (!state.visible) return;
-
-    const imageMapType = this.renderer.create(state);
-    if (!imageMapType) return;
-
-    this.rasterLayers.set(state.id, imageMapType);
-  }
-
-  private removeById(id: string): void {
-    const imageMapType = this.rasterLayers.get(id);
-    if (!imageMapType) return;
-    this.renderer.remove(imageMapType);
-    this.rasterLayers.delete(id);
+  private removeInvisibleEntities(data: RasterLayerState[]): void {
+    for (const state of data) {
+      if (!state.visible) {
+        this.rasterLayerManager.removeEntity(state.id);
+      }
+    }
   }
 }

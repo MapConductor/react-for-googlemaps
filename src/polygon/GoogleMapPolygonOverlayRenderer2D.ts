@@ -6,17 +6,18 @@ import {
 } from '@mapconductor/js-sdk-core';
 import { toGoogleMapFillStyle } from '../color';
 import { geoPointToLatLng } from '../helpers';
+import { GoogleMapActualPolygon } from '../GoogleMapTypeAlias';
 import { GoogleMapViewHolder2D } from '../GoogleMapViewHolder2D';
 
 export class GoogleMapPolygonOverlayRenderer2D extends AbstractPolygonOverlayRenderer<
   GoogleMapViewHolder2D,
-  google.maps.Polygon
+  GoogleMapActualPolygon
 > {
   constructor(holder: GoogleMapViewHolder2D) {
     super(holder);
   }
 
-  async createPolygon(state: PolygonState): Promise<google.maps.Polygon | null> {
+  async createPolygon(state: PolygonState): Promise<GoogleMapActualPolygon | null> {
     const fill = toGoogleMapFillStyle(state.fillColor);
     return new google.maps.Polygon({
       paths: this.buildPaths(state),
@@ -35,12 +36,13 @@ export class GoogleMapPolygonOverlayRenderer2D extends AbstractPolygonOverlayRen
     polygon,
     current,
   }: {
-    polygon: google.maps.Polygon;
-    current: PolygonEntity<google.maps.Polygon>;
-    prev: PolygonEntity<google.maps.Polygon>;
-  }): Promise<google.maps.Polygon | null> {
+    polygon: GoogleMapActualPolygon;
+    current: PolygonEntity<GoogleMapActualPolygon>;
+    prev: PolygonEntity<GoogleMapActualPolygon>;
+  }): Promise<GoogleMapActualPolygon | null> {
+    const polygon2D = polygon as google.maps.Polygon;
     const fill = toGoogleMapFillStyle(current.state.fillColor);
-    polygon.setOptions({
+    polygon2D.setOptions({
       paths: this.buildPaths(current.state),
       strokeColor: current.state.strokeColor,
       strokeWeight: current.state.strokeWidth,
@@ -51,12 +53,13 @@ export class GoogleMapPolygonOverlayRenderer2D extends AbstractPolygonOverlayRen
       clickable: true,
       map: this.holder.map,
     });
-    return polygon;
+    return polygon2D;
   }
 
-  async removePolygon(entity: PolygonEntity<google.maps.Polygon>): Promise<void> {
-    google.maps.event.clearInstanceListeners(entity.polygon);
-    entity.polygon.setMap(null);
+  async removePolygon(entity: PolygonEntity<GoogleMapActualPolygon>): Promise<void> {
+    const polygon = entity.polygon as google.maps.Polygon;
+    google.maps.event.clearInstanceListeners(polygon);
+    polygon.setMap(null);
   }
 
   private buildPaths(state: PolygonState): google.maps.LatLngLiteral[][] {

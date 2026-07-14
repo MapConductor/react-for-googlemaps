@@ -1,5 +1,13 @@
 /// <reference types="google.maps" />
-import { LocalTileServer, TileScheme, type RasterLayerState } from '@mapconductor/js-sdk-core';
+import {
+  LocalTileServer,
+  TileScheme,
+  type MapCameraPosition,
+  type RasterLayerAddParams,
+  type RasterLayerChangeParams,
+  type RasterLayerEntity,
+  type RasterLayerState,
+} from '@mapconductor/js-sdk-core';
 import { GoogleMapViewHolder2D } from '../GoogleMapViewHolder2D';
 
 const EMPTY_TILE_DATA_URL =
@@ -33,6 +41,27 @@ function tileZoomForGoogleTileSize(zoom: number, tileSize: number): number {
 
 export class GoogleMapRasterLayerOverlayRenderer2D {
   constructor(readonly holder: GoogleMapViewHolder2D) {}
+
+  async onAdd(data: RasterLayerAddParams[]): Promise<(google.maps.ImageMapType | null)[]> {
+    return data.map(({ state }) => state.visible ? this.create(state) : null);
+  }
+
+  async onChange(
+    data: RasterLayerChangeParams<google.maps.ImageMapType>[],
+  ): Promise<(google.maps.ImageMapType | null)[]> {
+    return data.map(({ current, prev }) => {
+      this.remove(prev.layer);
+      return current.state.visible ? this.create(current.state) : null;
+    });
+  }
+
+  async onRemove(data: RasterLayerEntity<google.maps.ImageMapType>[]): Promise<void> {
+    for (const entity of data) this.remove(entity.layer);
+  }
+
+  async onCameraChanged(_mapCameraPosition: MapCameraPosition): Promise<void> {}
+
+  async onPostProcess(): Promise<void> {}
 
   create(state: RasterLayerState): google.maps.ImageMapType | null {
     const mapType = this.mapTypeFromState(state);

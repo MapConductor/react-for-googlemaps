@@ -1,9 +1,10 @@
 /// <reference types="google.maps" />
 import {
   createGeoPoint,
-  createPolylineEntity,
-  type PolylineEntity,
+  PolylineController,
+  PolylineManager,
   type OnPolylineEventHandler,
+  type PolylineEntity,
   type PolylineEvent,
   type PolylineState,
 } from '@mapconductor/js-sdk-core';
@@ -12,118 +13,93 @@ import { GoogleMapActualPolyline } from '../GoogleMapTypeAlias';
 import { GoogleMapPolylineOverlayRenderer } from './GoogleMapPolylineOverlayRenderer';
 import { GoogleMapPolylineOverlayRenderer2D } from './GoogleMapPolylineOverlayRenderer2D';
 
-interface PolylineRenderer {
-  createPolyline(state: PolylineState): Promise<GoogleMapActualPolyline | null>;
-  updatePolylineProperties(params: {
-    polyline: GoogleMapActualPolyline;
-    current: PolylineEntity<GoogleMapActualPolyline>;
-    prev: PolylineEntity<GoogleMapActualPolyline>;
-  }): Promise<GoogleMapActualPolyline | null>;
-  removePolyline(entity: PolylineEntity<GoogleMapActualPolyline>): Promise<void>;
-}
+type GoogleMapPolylineRenderer =
+  | GoogleMapPolylineOverlayRenderer
+  | GoogleMapPolylineOverlayRenderer2D;
 
-export class GoogleMapPolylineController {
-  private readonly polylines = new Map<string, GoogleMapActualPolyline>();
-  private readonly states = new Map<string, PolylineState>();
+export class GoogleMapPolylineController extends PolylineController<GoogleMapActualPolyline> {
+  declare readonly renderer: GoogleMapPolylineRenderer;
+
   private readonly clickCleanups = new Map<string, () => void>();
-  private readonly renderer: PolylineRenderer;
 
-  private clickListener: OnPolylineEventHandler | null = null;
-
-  constructor(renderer: GoogleMapPolylineOverlayRenderer | GoogleMapPolylineOverlayRenderer2D) {
-    this.renderer = renderer as unknown as PolylineRenderer;
+  constructor(renderer: GoogleMapPolylineRenderer) {
+    super({
+      polylineManager: new PolylineManager<GoogleMapActualPolyline>(),
+      renderer,
+    });
   }
 
-  composition(data: PolylineState[]): void {
-    const newIds = new Set(data.map((s) => s.id));
-    for (const id of [...this.polylines.keys()]) {
-      if (!newIds.has(id)) void this.removeById(id);
+  async composition(data: PolylineState[]): Promise<void> {
+    await this.add(data);
+  }
+
+  override async add(data: PolylineState[]): Promise<void> {
+    const newIds = new Set(data.map((state) => state.id));
+    for (const entity of this.polylineManager.allEntities()) {
+      if (!newIds.has(entity.state.id)) {
+        this.clearClickHandler(entity.state.id, entity.polyline);
+      }
     }
-    for (const state of data) void this.upsert(state);
+
+    await super.add(data);
+
+    for (const entity of this.polylineManager.allEntities()) {
+      this.setClickHandler(entity);
+    }
   }
 
-  update(state: PolylineState): void {
-    void this.upsert(state);
+  override async update(state: PolylineState): Promise<void> {
+    await super.update(state);
+    const entity = this.polylineManager.getEntity(state.id);
+    if (entity) this.setClickHandler(entity);
   }
 
   has(state: PolylineState): boolean {
-    return this.polylines.has(state.id);
+    return this.polylineManager.hasEntity(state.id);
   }
 
   setOnClickListener(listener: OnPolylineEventHandler | null): void {
     this.clickListener = listener;
   }
 
-  clear(): void {
-    for (const id of [...this.polylines.keys()]) void this.removeById(id);
-  }
-
-  private async upsert(state: PolylineState): Promise<void> {
-    const existing = this.polylines.get(state.id);
-    const prev = this.states.get(state.id);
-
-    let polyline: GoogleMapActualPolyline;
-    if (!existing) {
-      const created = await this.renderer.createPolyline(state);
-      if (!created) return;
-      polyline = created;
-      this.polylines.set(state.id, polyline);
-    } else {
-      polyline = existing;
-      if (prev) {
-        await this.renderer.updatePolylineProperties({
-          polyline,
-          current: createPolylineEntity({ polyline, state }),
-          prev: createPolylineEntity({ polyline, state: prev }),
-        });
-      }
+  override async clear(): Promise<void> {
+    for (const entity of this.polylineManager.allEntities()) {
+      this.clearClickHandler(entity.state.id, entity.polyline);
     }
-    this.states.set(state.id, state);
-
-    this.setClickHandler(polyline, state);
+    await super.clear();
   }
 
-  private async removeById(id: string): Promise<void> {
-    const polyline = this.polylines.get(id);
-    const state = this.states.get(id);
-    if (!polyline || !state) return;
-    this.clearClickHandler(id, polyline);
-    await this.renderer.removePolyline(createPolylineEntity({ polyline, state }));
-    this.polylines.delete(id);
-    this.states.delete(id);
-  }
-
-  private setClickHandler(polyline: GoogleMapActualPolyline, state: PolylineState): void {
+  private setClickHandler(entity: PolylineEntity<GoogleMapActualPolyline>): void {
+    const { polyline, state } = entity;
     this.clearClickHandler(state.id, polyline);
 
     if (polyline instanceof HTMLElement) {
       const listener = (event: Event) => {
-        const e = event as google.maps.maps3d.LocationClickEvent;
-        const position = e.position;
+        const position = (event as google.maps.maps3d.LocationClickEvent).position;
         if (!position) return;
-        const polylineEvent: PolylineEvent = {
+        this.dispatchClick({
           state,
           clicked: createGeoPoint({
             latitude: position.lat,
             longitude: position.lng,
             altitude: position.altitude ?? 0,
           }),
-        };
-        state.onClick?.(polylineEvent);
-        this.clickListener?.(polylineEvent);
+        });
       };
       polyline.addEventListener('gmp-click', listener);
-      this.clickCleanups.set(state.id, () => polyline.removeEventListener('gmp-click', listener));
+      this.clickCleanups.set(
+        state.id,
+        () => polyline.removeEventListener('gmp-click', listener),
+      );
       return;
     }
 
     google.maps.event.clearInstanceListeners(polyline);
-    polyline.addListener('click', (e: google.maps.MapMouseEvent) => {
-      const clicked = mouseEventToGeoPoint(e);
+    polyline.addListener('click', (event: google.maps.MapMouseEvent) => {
+      const clicked = mouseEventToGeoPoint(event);
       if (!clicked) return;
-      const event: PolylineEvent = { state, clicked };
-      state.onClick?.(event);
-      this.clickListener?.(event);
+      const polylineEvent: PolylineEvent = { state, clicked };
+      this.dispatchClick(polylineEvent);
     });
   }
 

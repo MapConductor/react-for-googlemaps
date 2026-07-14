@@ -5,17 +5,18 @@ import {
   type PolylineState,
 } from '@mapconductor/js-sdk-core';
 import { geoPointToLatLng } from '../helpers';
+import { GoogleMapActualPolyline } from '../GoogleMapTypeAlias';
 import { GoogleMapViewHolder2D } from '../GoogleMapViewHolder2D';
 
 export class GoogleMapPolylineOverlayRenderer2D extends AbstractPolylineOverlayRenderer<
   GoogleMapViewHolder2D,
-  google.maps.Polyline
+  GoogleMapActualPolyline
 > {
   constructor(holder: GoogleMapViewHolder2D) {
     super(holder);
   }
 
-  async createPolyline(state: PolylineState): Promise<google.maps.Polyline | null> {
+  async createPolyline(state: PolylineState): Promise<GoogleMapActualPolyline | null> {
     return new google.maps.Polyline({
       path: state.points.map(geoPointToLatLng),
       strokeColor: state.strokeColor,
@@ -31,11 +32,12 @@ export class GoogleMapPolylineOverlayRenderer2D extends AbstractPolylineOverlayR
     polyline,
     current,
   }: {
-    polyline: google.maps.Polyline;
-    current: PolylineEntity<google.maps.Polyline>;
-    prev: PolylineEntity<google.maps.Polyline>;
-  }): Promise<google.maps.Polyline | null> {
-    polyline.setOptions({
+    polyline: GoogleMapActualPolyline;
+    current: PolylineEntity<GoogleMapActualPolyline>;
+    prev: PolylineEntity<GoogleMapActualPolyline>;
+  }): Promise<GoogleMapActualPolyline | null> {
+    const polyline2D = polyline as google.maps.Polyline;
+    polyline2D.setOptions({
       path: current.state.points.map(geoPointToLatLng),
       strokeColor: current.state.strokeColor,
       strokeWeight: current.state.strokeWidth,
@@ -44,11 +46,12 @@ export class GoogleMapPolylineOverlayRenderer2D extends AbstractPolylineOverlayR
       clickable: true,
       map: this.holder.map,
     });
-    return polyline;
+    return polyline2D;
   }
 
-  async removePolyline(entity: PolylineEntity<google.maps.Polyline>): Promise<void> {
-    google.maps.event.clearInstanceListeners(entity.polyline);
-    entity.polyline.setMap(null);
+  async removePolyline(entity: PolylineEntity<GoogleMapActualPolyline>): Promise<void> {
+    const polyline = entity.polyline as google.maps.Polyline;
+    google.maps.event.clearInstanceListeners(polyline);
+    polyline.setMap(null);
   }
 }

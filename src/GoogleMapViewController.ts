@@ -256,11 +256,11 @@ export class GoogleMapViewController
   // --- Circle ---
 
   async compositionCircles(data: CircleState[]): Promise<void> {
-    this.circleController.composition(data);
+    await this.circleController.composition(data);
   }
 
   async updateCircle(state: CircleState): Promise<void> {
-    this.circleController.update(state);
+    await this.circleController.update(state);
   }
 
   hasCircle(state: CircleState): boolean {
@@ -274,11 +274,11 @@ export class GoogleMapViewController
   // --- Polyline ---
 
   async compositionPolylines(data: PolylineState[]): Promise<void> {
-    this.polylineController.composition(data);
+    await this.polylineController.composition(data);
   }
 
   async updatePolyline(state: PolylineState): Promise<void> {
-    this.polylineController.update(state);
+    await this.polylineController.update(state);
   }
 
   hasPolyline(state: PolylineState): boolean {
@@ -292,11 +292,11 @@ export class GoogleMapViewController
   // --- Polygon ---
 
   async compositionPolygons(data: PolygonState[]): Promise<void> {
-    this.polygonController.composition(data);
+    await this.polygonController.composition(data);
   }
 
   async updatePolygon(state: PolygonState): Promise<void> {
-    this.polygonController.update(state);
+    await this.polygonController.update(state);
   }
 
   hasPolygon(state: PolygonState): boolean {
@@ -310,11 +310,11 @@ export class GoogleMapViewController
   // --- GroundImage ---
 
   async compositionGroundImages(data: GroundImageState[]): Promise<void> {
-    this.groundImageController.composition(data);
+    await this.groundImageController.composition(data);
   }
 
   async updateGroundImage(state: GroundImageState): Promise<void> {
-    this.groundImageController.update(state);
+    await this.groundImageController.update(state);
   }
 
   hasGroundImage(state: GroundImageState): boolean {
@@ -328,11 +328,11 @@ export class GoogleMapViewController
   // --- RasterLayer ---
 
   async compositionRasterLayers(data: RasterLayerState[]): Promise<void> {
-    this.rasterLayerController.composition(data);
+    await this.rasterLayerController.composition(data);
   }
 
   async updateRasterLayer(state: RasterLayerState): Promise<void> {
-    this.rasterLayerController.update(state);
+    await this.rasterLayerController.update(state);
   }
 
   hasRasterLayer(state: RasterLayerState): boolean {

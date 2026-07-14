@@ -6,17 +6,18 @@ import {
 } from '@mapconductor/js-sdk-core';
 import { toGoogleMapFillStyle } from '../color';
 import { geoPointToLatLng } from '../helpers';
+import { GoogleMapActualCircle } from '../GoogleMapTypeAlias';
 import { GoogleMapViewHolder2D } from '../GoogleMapViewHolder2D';
 
 export class GoogleMapCircleOverlayRenderer2D extends AbstractCircleOverlayRenderer<
   GoogleMapViewHolder2D,
-  google.maps.Circle
+  GoogleMapActualCircle
 > {
   constructor(holder: GoogleMapViewHolder2D) {
     super(holder);
   }
 
-  async createCircle(state: CircleState): Promise<google.maps.Circle | null> {
+  async createCircle(state: CircleState): Promise<GoogleMapActualCircle | null> {
     const fill = toGoogleMapFillStyle(state.fillColor);
     return new google.maps.Circle({
       center: geoPointToLatLng(state.center),
@@ -35,12 +36,13 @@ export class GoogleMapCircleOverlayRenderer2D extends AbstractCircleOverlayRende
     circle,
     current,
   }: {
-    circle: google.maps.Circle;
-    current: CircleEntity<google.maps.Circle>;
-    prev: CircleEntity<google.maps.Circle>;
-  }): Promise<google.maps.Circle | null> {
+    circle: GoogleMapActualCircle;
+    current: CircleEntity<GoogleMapActualCircle>;
+    prev: CircleEntity<GoogleMapActualCircle>;
+  }): Promise<GoogleMapActualCircle | null> {
+    const circle2D = circle as google.maps.Circle;
     const fill = toGoogleMapFillStyle(current.state.fillColor);
-    circle.setOptions({
+    circle2D.setOptions({
       center: geoPointToLatLng(current.state.center),
       radius: current.state.radiusMeters,
       strokeColor: current.state.strokeColor,
@@ -51,11 +53,12 @@ export class GoogleMapCircleOverlayRenderer2D extends AbstractCircleOverlayRende
       clickable: current.state.clickable,
       map: this.holder.map,
     });
-    return circle;
+    return circle2D;
   }
 
-  async removeCircle(entity: CircleEntity<google.maps.Circle>): Promise<void> {
-    google.maps.event.clearInstanceListeners(entity.circle);
-    entity.circle.setMap(null);
+  async removeCircle(entity: CircleEntity<GoogleMapActualCircle>): Promise<void> {
+    const circle = entity.circle as google.maps.Circle;
+    google.maps.event.clearInstanceListeners(circle);
+    circle.setMap(null);
   }
 }

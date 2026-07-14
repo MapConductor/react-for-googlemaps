@@ -1,6 +1,8 @@
 /// <reference types="google.maps" />
 import {
-  createGroundImageEntity,
+  GroundImageController,
+  GroundImageManager,
+  type GroundImageEntity,
   type GroundImageEvent,
   type GroundImageState,
   type OnGroundImageEventHandler,
@@ -9,76 +11,54 @@ import { mouseEventToGeoPoint } from '../helpers';
 import { GoogleMapGroundImageOverlayRenderer } from './GoogleMapGroundImageOverlayRenderer';
 import { GoogleMapGroundImageOverlayRenderer2D } from './GoogleMapGroundImageOverlayRenderer2D';
 
-export class GoogleMapGroundImageController {
-  private readonly groundImages = new Map<string, google.maps.GroundOverlay>();
-  private readonly states = new Map<string, GroundImageState>();
-  ;
+type GoogleMapGroundImageRenderer =
+  | GoogleMapGroundImageOverlayRenderer
+  | GoogleMapGroundImageOverlayRenderer2D;
 
-  private clickListener: OnGroundImageEventHandler | null = null;
+export class GoogleMapGroundImageController extends GroundImageController<google.maps.GroundOverlay> {
+  declare readonly renderer: GoogleMapGroundImageRenderer;
 
-  constructor(readonly renderer: GoogleMapGroundImageOverlayRenderer | GoogleMapGroundImageOverlayRenderer2D) {  }
-
-  composition(data: GroundImageState[]): void {
-    const newIds = new Set(data.map((s) => s.id));
-    for (const id of [...this.groundImages.keys()]) {
-      if (!newIds.has(id)) void this.removeById(id);
-    }
-    for (const state of data) void this.upsert(state);
+  constructor(renderer: GoogleMapGroundImageRenderer) {
+    super({
+      groundImageManager: new GroundImageManager<google.maps.GroundOverlay>(),
+      renderer,
+    });
   }
 
-  update(state: GroundImageState): void {
-    void this.upsert(state);
+  async composition(data: GroundImageState[]): Promise<void> {
+    await this.add(data);
+  }
+
+  override async add(data: GroundImageState[]): Promise<void> {
+    await super.add(data);
+    for (const entity of this.groundImageManager.allEntities()) {
+      this.setClickHandler(entity);
+    }
+  }
+
+  override async update(state: GroundImageState): Promise<void> {
+    await super.update(state);
+    const entity = this.groundImageManager.getEntity(state.id);
+    if (entity) this.setClickHandler(entity);
   }
 
   has(state: GroundImageState): boolean {
-    return this.groundImages.has(state.id);
+    return this.groundImageManager.hasEntity(state.id);
   }
 
   setOnClickListener(listener: OnGroundImageEventHandler | null): void {
     this.clickListener = listener;
   }
 
-  clear(): void {
-    for (const id of [...this.groundImages.keys()]) void this.removeById(id);
-  }
-
-  private async upsert(state: GroundImageState): Promise<void> {
-    const existing = this.groundImages.get(state.id);
-    const prev = this.states.get(state.id);
-
-    let groundOverlay: google.maps.GroundOverlay;
-    if (!existing) {
-      const created = await this.renderer.createGroundImage(state);
-      if (!created) return;
-      groundOverlay = created;
-    } else if (prev) {
-      const updated = await this.renderer.updateGroundImageProperties({
-        groundImage: existing,
-        current: createGroundImageEntity({ groundImage: existing, state }),
-        prev: createGroundImageEntity({ groundImage: existing, state: prev }),
-      });
-      if (!updated) return;
-      groundOverlay = updated;
-    } else {
-      return;
-    }
-
-    this.groundImages.set(state.id, groundOverlay);
-    this.states.set(state.id, state);
-
-    groundOverlay.addListener('click', (e: google.maps.MapMouseEvent) => {
-      const event: GroundImageEvent = { state, clicked: mouseEventToGeoPoint(e) };
-      state.onClick?.(event);
-      this.clickListener?.(event);
+  private setClickHandler(entity: GroundImageEntity<google.maps.GroundOverlay>): void {
+    const { groundImage, state } = entity;
+    google.maps.event.clearInstanceListeners(groundImage);
+    groundImage.addListener('click', (event: google.maps.MapMouseEvent) => {
+      const groundImageEvent: GroundImageEvent = {
+        state,
+        clicked: mouseEventToGeoPoint(event),
+      };
+      this.dispatchClick(groundImageEvent);
     });
-  }
-
-  private async removeById(id: string): Promise<void> {
-    const groundImage = this.groundImages.get(id);
-    const state = this.states.get(id);
-    if (!groundImage || !state) return;
-    await this.renderer.removeGroundImage(createGroundImageEntity({ groundImage, state }));
-    this.groundImages.delete(id);
-    this.states.delete(id);
   }
 }
