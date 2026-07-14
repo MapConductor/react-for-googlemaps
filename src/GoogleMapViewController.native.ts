@@ -14,7 +14,12 @@ import {
   type RasterLayerCapable,
   type RasterLayerState,
 } from '@mapconductor/js-sdk-core';
-import { encodeMarkerBatch, markerIconToNative } from '@mapconductor/js-sdk-react/native';
+import {
+  createNativeMarkerIconRegistry,
+  encodeMarkerBatch,
+  markerIconToNative,
+  NATIVE_MARKER_BATCH_SIZE,
+} from '@mapconductor/js-sdk-react/native';
 import type {
   NativeMapExtensionCapable,
   NativeMapExtensionDescriptor,
@@ -34,8 +39,15 @@ export class GoogleMapViewController
 {
   readonly holder: GoogleMapMapViewHolder;
   private cameraPosition: MapCameraPosition;
+  private mapLoaded = false;
+  private markerCompositionGeneration = 0;
+  private activeMarkerComposition: number | null = null;
+  private pendingMarkerComposition: MarkerState[] | null = null;
+  private markerBatchAck: MarkerBatchAck | null = null;
+  private readonly pendingMarkerUpdates = new Set<string>();
   private readonly markerStates = new Map<string, MarkerState>();
   private readonly rasterLayerStates = new Map<string, RasterLayerState>();
+  private pendingRasterLayers: Array<ReturnType<typeof rasterLayerStateToNative>> | null = null;
   private markerClickListener: OnMarkerEventHandler | null = null;
   private markerDragStartListener: OnMarkerEventHandler | null = null;
   private markerDragListener: OnMarkerEventHandler | null = null;
@@ -55,7 +67,11 @@ export class GoogleMapViewController
   }
 
   async clearOverlays(): Promise<void> {
+    this.cancelMarkerComposition();
+    this.pendingMarkerUpdates.clear();
     this.markerStates.clear();
+    this.rasterLayerStates.clear();
+    this.pendingRasterLayers = this.mapLoaded ? null : [];
     this.dispatchCommand('clearOverlays', []);
   }
 
@@ -84,24 +100,49 @@ export class GoogleMapViewController
   }
 
   async compositionMarkers(data: MarkerState[]): Promise<void> {
+    const generation = ++this.markerCompositionGeneration;
+    markerTrace(`composition requested generation=${generation} count=${data.length} ready=${this.mapLoaded}`);
+    this.cancelMarkerBatchAck();
+    this.activeMarkerComposition = null;
+    this.pendingMarkerComposition = data;
+    this.pendingMarkerUpdates.clear();
     this.markerStates.clear();
     data.forEach((state) => this.markerStates.set(state.id, state));
-    this.dispatchCommand('compositionMarkers', [encodeMarkerBatch(data)]);
+    if (this.mapLoaded) {
+      await this.startPendingMarkerComposition(generation);
+    } else {
+      markerTrace(`composition queued generation=${generation} waitingFor=mapLoaded`);
+    }
   }
 
   async updateMarker(state: MarkerState): Promise<void> {
     this.markerStates.set(state.id, state);
+    if (this.pendingMarkerComposition !== null || this.activeMarkerComposition !== null) {
+      this.pendingMarkerUpdates.add(state.id);
+      return;
+    }
     this.dispatchCommand('updateMarker', [markerStateToNative(state)]);
   }
 
   async compositionRasterLayers(data: RasterLayerState[]): Promise<void> {
     this.rasterLayerStates.clear();
     data.forEach((state) => this.rasterLayerStates.set(state.id, state));
-    this.dispatchCommand('compositionRasterLayers', [data.map(rasterLayerStateToNative)]);
+    const payload = data.map(rasterLayerStateToNative);
+    if (!this.mapLoaded) {
+      this.pendingRasterLayers = payload;
+      return;
+    }
+    this.dispatchCommand('compositionRasterLayers', [payload]);
   }
 
   async updateRasterLayer(state: RasterLayerState): Promise<void> {
     this.rasterLayerStates.set(state.id, state);
+    if (!this.mapLoaded) {
+      this.pendingRasterLayers = Array.from(this.rasterLayerStates.values()).map(
+        rasterLayerStateToNative
+      );
+      return;
+    }
     this.dispatchCommand('updateRasterLayer', [rasterLayerStateToNative(state)]);
   }
 
@@ -164,7 +205,15 @@ export class GoogleMapViewController
 
   setMarkerAnimationOverlayHost(_host: MarkerAnimationOverlayHost | null): void {}
 
+  override setMapInitializedListener(listener: (() => void) | null): void {
+    super.setMapInitializedListener(listener);
+    if (listener && this.mapLoaded) listener();
+  }
+
   destroy(): void {
+    markerTrace('controller destroy');
+    this.cancelMarkerComposition();
+    this.pendingMarkerUpdates.clear();
     this.nativeMapExtensionEventHandlers.clear();
     this.setCameraMoveStartListener(null);
     this.setCameraMoveListener(null);
@@ -190,7 +239,23 @@ export class GoogleMapViewController
   }
 
   onNativeMapLoaded(): void {
+    markerTrace('native mapLoaded received');
+    this.mapLoaded = true;
+    if (this.pendingRasterLayers) {
+      this.dispatchCommand('compositionRasterLayers', [this.pendingRasterLayers]);
+      this.pendingRasterLayers = null;
+    }
     this.notifyMapInitialized();
+    void this.startPendingMarkerComposition(this.markerCompositionGeneration);
+  }
+
+  onNativeMarkerCompositionBatchProcessed(generation: number, sequence: number): void {
+    markerTrace(`ACK received generation=${generation} sequence=${sequence}`);
+    const ack = this.markerBatchAck;
+    if (!ack || ack.generation !== generation || ack.sequence !== sequence) return;
+    clearTimeout(ack.timeout);
+    this.markerBatchAck = null;
+    ack.resolve(true);
   }
 
   onNativeMapClick(point: GeoPoint): void {
@@ -237,6 +302,103 @@ export class GoogleMapViewController
     if (!node) return;
     UIManager.dispatchViewManagerCommand(node, commandName, args);
   }
+
+  private flushPendingMarkerUpdates(): void {
+    this.pendingMarkerUpdates.forEach((id) => {
+      const state = this.markerStates.get(id);
+      if (state) this.dispatchCommand('updateMarker', [markerStateToNative(state)]);
+    });
+    this.pendingMarkerUpdates.clear();
+  }
+
+  private async startPendingMarkerComposition(generation: number): Promise<void> {
+    if (!this.mapLoaded || generation !== this.markerCompositionGeneration) return;
+    const data = this.pendingMarkerComposition;
+    if (!data) return;
+    this.pendingMarkerComposition = null;
+    this.activeMarkerComposition = generation;
+    const compositionStartedAt = Date.now();
+    const iconRegistry = createNativeMarkerIconRegistry(data);
+    markerTrace(
+      `begin dispatch generation=${generation} count=${data.length} icons=${iconRegistry.icons.length}`
+    );
+    this.dispatchCommand('beginMarkerComposition', [generation, iconRegistry.icons]);
+
+    let sequence = 0;
+    for (let offset = 0; offset < data.length; offset += NATIVE_MARKER_BATCH_SIZE) {
+      if (generation !== this.markerCompositionGeneration) return;
+      const batch = data.slice(offset, offset + NATIVE_MARKER_BATCH_SIZE);
+      const batchStartedAt = Date.now();
+      markerTrace(
+        `batch encode start generation=${generation} sequence=${sequence} offset=${offset} count=${batch.length}`
+      );
+      const payload = encodeMarkerBatch(batch, iconRegistry);
+      markerTrace(
+        `batch dispatch generation=${generation} sequence=${sequence} encodeMs=${Date.now() - batchStartedAt}`
+      );
+      const ack = this.waitForMarkerBatchAck(generation, sequence);
+      this.dispatchCommand('appendMarkerComposition', [generation, sequence, payload]);
+      if (!(await ack)) return;
+      markerTrace(
+        `batch complete generation=${generation} sequence=${sequence} elapsedMs=${Date.now() - batchStartedAt}`
+      );
+      sequence++;
+    }
+
+    if (generation !== this.markerCompositionGeneration) return;
+    this.dispatchCommand('commitMarkerComposition', [generation]);
+    markerTrace(
+      `commit dispatch generation=${generation} count=${data.length} elapsedMs=${Date.now() - compositionStartedAt}`
+    );
+    this.activeMarkerComposition = null;
+    this.flushPendingMarkerUpdates();
+  }
+
+  private waitForMarkerBatchAck(generation: number, sequence: number): Promise<boolean> {
+    this.cancelMarkerBatchAck();
+    return new Promise((resolve) => {
+      const timeout = setTimeout(() => {
+        if (this.markerBatchAck?.generation !== generation) return;
+        this.markerBatchAck = null;
+        markerTrace(`ACK timeout generation=${generation} sequence=${sequence}`);
+        resolve(false);
+      }, MARKER_BATCH_ACK_TIMEOUT_MS);
+      this.markerBatchAck = { generation, sequence, timeout, resolve };
+    });
+  }
+
+  private cancelMarkerBatchAck(): void {
+    const ack = this.markerBatchAck;
+    if (!ack) return;
+    clearTimeout(ack.timeout);
+    this.markerBatchAck = null;
+    ack.resolve(false);
+  }
+
+  private cancelMarkerComposition(): void {
+    if (this.pendingMarkerComposition !== null || this.activeMarkerComposition !== null) {
+      markerTrace(
+        `composition cancelled generation=${this.markerCompositionGeneration} active=${this.activeMarkerComposition}`
+      );
+    }
+    this.markerCompositionGeneration++;
+    this.activeMarkerComposition = null;
+    this.pendingMarkerComposition = null;
+    this.cancelMarkerBatchAck();
+  }
+}
+
+function markerTrace(message: string): void {
+  console.info(`[MCMarkerTrace][GoogleMaps][JS][${Date.now()}] ${message}`);
+}
+
+const MARKER_BATCH_ACK_TIMEOUT_MS = 30_000;
+
+interface MarkerBatchAck {
+  generation: number;
+  sequence: number;
+  timeout: ReturnType<typeof setTimeout>;
+  resolve: (processed: boolean) => void;
 }
 
 function markerStateToNative(state: MarkerState) {

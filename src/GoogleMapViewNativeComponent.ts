@@ -34,6 +34,9 @@ export interface NativeGoogleMapViewProps extends ViewProps {
     altitude?: number | null;
   }>;
   onMapLoaded?: () => void;
+  onMarkerCompositionBatchProcessed?: (
+    event: NativeGoogleMapViewEvent<{ generation: number; sequence: number }>
+  ) => void;
   onMapClick?: (event: NativeGoogleMapViewEvent<{ point: GeoPoint }>) => void;
   onMapLongClick?: (event: NativeGoogleMapViewEvent<{ point: GeoPoint }>) => void;
   onCameraMoveStart?: (
