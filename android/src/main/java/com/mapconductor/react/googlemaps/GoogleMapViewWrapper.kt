@@ -565,6 +565,8 @@ class GoogleMapViewWrapper(context: Context) :
         state.onDragStart = { emitMarkerDrag("topMarkerDragStart", it) }
         state.onDrag = { emitMarkerDrag("topMarkerDrag", it) }
         state.onDragEnd = { emitMarkerDrag("topMarkerDragEnd", it) }
+        state.onAnimateStart = { emitMarkerAnimate("topMarkerAnimateStart", it) }
+        state.onAnimateEnd = { emitMarkerAnimate("topMarkerAnimateEnd", it) }
     }
 
     private fun emitMarkerDrag(
@@ -576,6 +578,18 @@ class GoogleMapViewWrapper(context: Context) :
             Arguments.createMap().apply {
                 putString("markerId", state.id)
                 putMap("point", GeoPoint.from(state.position).toWritableMap())
+            },
+        )
+    }
+
+    private fun emitMarkerAnimate(
+        eventName: String,
+        state: MarkerState,
+    ) {
+        emit(
+            eventName,
+            Arguments.createMap().apply {
+                putString("markerId", state.id)
             },
         )
     }

@@ -118,6 +118,8 @@ class GoogleMapsViewManager : ViewGroupManager<GoogleMapViewWrapper>() {
             "topMarkerDragStart" to mapOf("registrationName" to "onMarkerDragStart"),
             "topMarkerDrag" to mapOf("registrationName" to "onMarkerDrag"),
             "topMarkerDragEnd" to mapOf("registrationName" to "onMarkerDragEnd"),
+            "topMarkerAnimateStart" to mapOf("registrationName" to "onMarkerAnimateStart"),
+            "topMarkerAnimateEnd" to mapOf("registrationName" to "onMarkerAnimateEnd"),
             "topMarkerScreenPositions" to mapOf("registrationName" to "onMarkerScreenPositions"),
             "topInfoBubbleScreenPositions" to mapOf("registrationName" to "onInfoBubbleScreenPositions"),
             "topNativeMapExtensionEvent" to mapOf("registrationName" to "onNativeMapExtensionEvent"),

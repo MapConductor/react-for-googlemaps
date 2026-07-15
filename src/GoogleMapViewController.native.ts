@@ -78,6 +78,8 @@ export class GoogleMapViewController
   private markerDragStartListener: OnMarkerEventHandler | null = null;
   private markerDragListener: OnMarkerEventHandler | null = null;
   private markerDragEndListener: OnMarkerEventHandler | null = null;
+  private markerAnimateStartListener: OnMarkerEventHandler | null = null;
+  private markerAnimateEndListener: OnMarkerEventHandler | null = null;
   private polygonClickListener: OnPolygonEventHandler | null = null;
   private polylineClickListener: OnPolylineEventHandler | null = null;
   private readonly nativeMapExtensionEventHandlers = new Map<
@@ -343,11 +345,11 @@ export class GoogleMapViewController
   }
 
   setOnMarkerAnimateStart(listener: OnMarkerEventHandler | null): void {
-    void listener;
+    this.markerAnimateStartListener = listener;
   }
 
   setOnMarkerAnimateEnd(listener: OnMarkerEventHandler | null): void {
-    void listener;
+    this.markerAnimateEndListener = listener;
   }
 
   setMarkerAnimationOverlayHost(_host: MarkerAnimationOverlayHost | null): void {}
@@ -499,6 +501,21 @@ export class GoogleMapViewController
     state.position = point;
     state.onDragEnd?.(state);
     this.markerDragEndListener?.(state);
+  }
+
+  onNativeMarkerAnimateStart(markerId: string): void {
+    const state = this.markerStates.get(markerId);
+    if (!state) return;
+    state.onAnimateStart?.(state);
+    this.markerAnimateStartListener?.(state);
+  }
+
+  onNativeMarkerAnimateEnd(markerId: string): void {
+    const state = this.markerStates.get(markerId);
+    if (!state) return;
+    state.animate(null);
+    state.onAnimateEnd?.(state);
+    this.markerAnimateEndListener?.(state);
   }
 
   private dispatchCommand(commandName: string, args: unknown[]): void {

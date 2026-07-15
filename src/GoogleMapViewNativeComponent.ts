@@ -72,6 +72,12 @@ export interface NativeGoogleMapViewProps extends ViewProps {
   ) => void;
   onMarkerDrag?: (event: NativeGoogleMapViewEvent<{ markerId: string; point: GeoPoint }>) => void;
   onMarkerDragEnd?: (event: NativeGoogleMapViewEvent<{ markerId: string; point: GeoPoint }>) => void;
+  onMarkerAnimateStart?: (
+    event: NativeGoogleMapViewEvent<{ markerId: string }>
+  ) => void;
+  onMarkerAnimateEnd?: (
+    event: NativeGoogleMapViewEvent<{ markerId: string }>
+  ) => void;
   onMarkerScreenPositions?: (
     event: NativeGoogleMapViewEvent<{
       positions: Array<{ markerId: string; x: number; y: number }>;

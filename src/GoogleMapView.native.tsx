@@ -239,6 +239,12 @@ export function GoogleMapView({
               GeoPoint.from(event.nativeEvent.point)
             )
           }
+          onMarkerAnimateStart={(event) =>
+            controller?.onNativeMarkerAnimateStart(event.nativeEvent.markerId)
+          }
+          onMarkerAnimateEnd={(event) =>
+            controller?.onNativeMarkerAnimateEnd(event.nativeEvent.markerId)
+          }
           onMarkerScreenPositions={(event) => {
             const positions = event.nativeEvent.positions;
             setMarkerScreenPositions((previous) => {
