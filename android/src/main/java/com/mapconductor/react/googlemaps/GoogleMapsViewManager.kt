@@ -82,6 +82,8 @@ class GoogleMapsViewManager : ViewGroupManager<GoogleMapViewWrapper>() {
             "updatePolygon" -> root.updatePolygon(args?.getMap(0))
             "compositionRasterLayers" -> root.compositionRasterLayers(args?.getArray(0))
             "updateRasterLayer" -> root.updateRasterLayer(args?.getMap(0))
+            "compositionGroundImages" -> root.compositionGroundImages(args?.getArray(0))
+            "updateGroundImage" -> root.updateGroundImage(args?.getMap(0))
             "upsertNativeMapExtension" ->
                 root.upsertNativeMapExtension(
                     extensionId = args?.getString(0) ?: return,
@@ -110,6 +112,7 @@ class GoogleMapsViewManager : ViewGroupManager<GoogleMapViewWrapper>() {
             "topCameraMoveEnd" to mapOf("registrationName" to "onCameraMoveEnd"),
             "topMarkerClick" to mapOf("registrationName" to "onMarkerClick"),
             "topCircleClick" to mapOf("registrationName" to "onCircleClick"),
+            "topGroundImageClick" to mapOf("registrationName" to "onGroundImageClick"),
             "topPolylineClick" to mapOf("registrationName" to "onPolylineClick"),
             "topPolygonClick" to mapOf("registrationName" to "onPolygonClick"),
             "topMarkerDragStart" to mapOf("registrationName" to "onMarkerDragStart"),

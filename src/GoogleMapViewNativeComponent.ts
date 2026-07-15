@@ -58,6 +58,9 @@ export interface NativeGoogleMapViewProps extends ViewProps {
   onCircleClick?: (
     event: NativeGoogleMapViewEvent<{ circleId: string; point: GeoPoint }>
   ) => void;
+  onGroundImageClick?: (
+    event: NativeGoogleMapViewEvent<{ groundImageId: string; point: GeoPoint }>
+  ) => void;
   onPolylineClick?: (
     event: NativeGoogleMapViewEvent<{ polylineId: string; point: GeoPoint }>
   ) => void;

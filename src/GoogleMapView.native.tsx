@@ -90,6 +90,11 @@ export function GoogleMapView({
         void controller.updateCircle(circle);
       }
     });
+    scope.groundImageCollector.setUpdateHandler((groundImage) => {
+      if (controller.hasGroundImage(groundImage)) {
+        void controller.updateGroundImage(groundImage);
+      }
+    });
     scope.polylineCollector.setUpdateHandler((polyline) => {
       if (controller.hasPolyline(polyline)) {
         void controller.updatePolyline(polyline);
@@ -109,6 +114,7 @@ export function GoogleMapView({
     return () => {
       scope.markerCollector.setUpdateHandler(null);
       scope.circleCollector.setUpdateHandler(null);
+      scope.groundImageCollector.setUpdateHandler(null);
       scope.polylineCollector.setUpdateHandler(null);
       scope.polygonCollector.setUpdateHandler(null);
       scope.rasterLayerCollector.setUpdateHandler(null);
@@ -194,6 +200,12 @@ export function GoogleMapView({
           onCircleClick={(event) =>
             controller?.onNativeCircleClick(
               event.nativeEvent.circleId,
+              GeoPoint.from(event.nativeEvent.point)
+            )
+          }
+          onGroundImageClick={(event) =>
+            controller?.onNativeGroundImageClick(
+              event.nativeEvent.groundImageId,
               GeoPoint.from(event.nativeEvent.point)
             )
           }
