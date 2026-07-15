@@ -12,12 +12,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.facebook.react.bridge.ReadableMap
 import com.mapconductor.core.marker.DrawableDefaultIcon
+import com.mapconductor.core.marker.DefaultMarkerIcon
 import com.mapconductor.core.marker.ImageIcon
 import com.mapconductor.core.marker.MarkerIconInterface
 
 data class ReactNativeMarkerIcon(
     val type: String,
-    val uri: String,
+    val uri: String = "",
+    val fillColor: Color = Color.Red,
     val iconSize: Float = DEFAULT_ICON_SIZE,
     val scale: Float = 1f,
     val anchor: Offset = Offset(0.5f, 0.5f),
@@ -62,12 +64,13 @@ data class ReactNativeMarkerIcon(
 fun ReactNativeMarkerIcon.Companion.fromReadableMap(map: ReadableMap?): ReactNativeMarkerIcon? {
     if (map == null) return null
     val type = if (map.hasKey("type") && !map.isNull("type")) map.getString("type") else null
-    if (type != "image" && type != "imageDefault") return null
+    if (type != "image" && type != "imageDefault" && type != "colorDefault") return null
     val uri = if (map.hasKey("uri") && !map.isNull("uri")) map.getString("uri") else null
-    if (uri.isNullOrBlank()) return null
+    if (type != "colorDefault" && uri.isNullOrBlank()) return null
     return ReactNativeMarkerIcon(
         type = type,
-        uri = uri,
+        uri = uri.orEmpty(),
+        fillColor = colorFromReadableMap(map, "fillColor", Color.Red) ?: Color.Red,
         iconSize = if (map.hasKey("iconSize") && !map.isNull("iconSize")) map.getDouble("iconSize").toFloat() else DEFAULT_ICON_SIZE,
         scale = if (map.hasKey("scale") && !map.isNull("scale")) map.getDouble("scale").toFloat() else 1f,
         anchor = offsetFromReadableMap(if (map.hasKey("anchor") && !map.isNull("anchor")) map.getMap("anchor") else null, Offset(0.5f, 0.5f)),
@@ -86,6 +89,22 @@ private const val DEFAULT_ICON_SIZE = 48f
 
 fun ReactNativeMarkerIcon.toMarkerIcon(context: Context): MarkerIconInterface? {
     ReactNativeMarkerIcon.getCachedIcon(this)?.let { return it }
+
+    if (type == "colorDefault") {
+        return DefaultMarkerIcon(
+            fillColor = fillColor,
+            strokeColor = strokeColor,
+            strokeWidth = strokeWidth.dp,
+            scale = scale,
+            label = label,
+            labelTextColor = labelTextColor,
+            labelTextSize = labelTextSize.sp,
+            labelStrokeColor = labelStrokeColor,
+            infoAnchor = infoAnchor,
+            iconSize = iconSize.dp,
+            debug = debug,
+        ).also { ReactNativeMarkerIcon.putCachedIcon(this, it) }
+    }
 
     val bitmap = loadBitmap(context) ?: return null
     val result =

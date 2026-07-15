@@ -74,6 +74,12 @@ class GoogleMapsViewManager : ViewGroupManager<GoogleMapViewWrapper>() {
                 )
             "commitMarkerComposition" -> root.commitMarkerComposition(args?.getInt(0) ?: return)
             "updateMarker" -> root.updateMarker(args?.getMap(0))
+            "compositionCircles" -> root.compositionCircles(args?.getArray(0))
+            "updateCircle" -> root.updateCircle(args?.getMap(0))
+            "compositionPolylines" -> root.compositionPolylines(args?.getArray(0))
+            "updatePolyline" -> root.updatePolyline(args?.getMap(0))
+            "compositionPolygons" -> root.compositionPolygons(args?.getArray(0))
+            "updatePolygon" -> root.updatePolygon(args?.getMap(0))
             "compositionRasterLayers" -> root.compositionRasterLayers(args?.getArray(0))
             "updateRasterLayer" -> root.updateRasterLayer(args?.getMap(0))
             "upsertNativeMapExtension" ->
@@ -103,6 +109,9 @@ class GoogleMapsViewManager : ViewGroupManager<GoogleMapViewWrapper>() {
             "topCameraMove" to mapOf("registrationName" to "onCameraMove"),
             "topCameraMoveEnd" to mapOf("registrationName" to "onCameraMoveEnd"),
             "topMarkerClick" to mapOf("registrationName" to "onMarkerClick"),
+            "topCircleClick" to mapOf("registrationName" to "onCircleClick"),
+            "topPolylineClick" to mapOf("registrationName" to "onPolylineClick"),
+            "topPolygonClick" to mapOf("registrationName" to "onPolygonClick"),
             "topMarkerDragStart" to mapOf("registrationName" to "onMarkerDragStart"),
             "topMarkerDrag" to mapOf("registrationName" to "onMarkerDrag"),
             "topMarkerDragEnd" to mapOf("registrationName" to "onMarkerDragEnd"),

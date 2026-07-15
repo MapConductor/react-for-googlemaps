@@ -1,8 +1,10 @@
 import type React from 'react';
-import { findNodeHandle, UIManager } from 'react-native';
+import { findNodeHandle, processColor, UIManager } from 'react-native';
 import {
   BaseMapViewController,
   type CameraOptions,
+  type CircleCapable,
+  type CircleState,
   type GeoPoint,
   type GeoRectBounds,
   type MarkerAnimationOverlayHost,
@@ -11,6 +13,13 @@ import {
   type MapCameraPosition,
   type MapViewControllerInterface,
   type OnMarkerEventHandler,
+  type OnCircleEventHandler,
+  type OnPolygonEventHandler,
+  type OnPolylineEventHandler,
+  type PolygonCapable,
+  type PolygonState,
+  type PolylineCapable,
+  type PolylineState,
   type RasterLayerCapable,
   type RasterLayerState,
 } from '@mapconductor/js-sdk-core';
@@ -33,7 +42,10 @@ export class GoogleMapViewController
   extends BaseMapViewController
   implements
     MapViewControllerInterface,
+    CircleCapable,
     MarkerCapable,
+    PolygonCapable,
+    PolylineCapable,
     RasterLayerCapable,
     NativeMapExtensionCapable
 {
@@ -46,12 +58,21 @@ export class GoogleMapViewController
   private markerBatchAck: MarkerBatchAck | null = null;
   private readonly pendingMarkerUpdates = new Set<string>();
   private readonly markerStates = new Map<string, MarkerState>();
+  private readonly circleStates = new Map<string, CircleState>();
+  private readonly polygonStates = new Map<string, PolygonState>();
+  private readonly polylineStates = new Map<string, PolylineState>();
   private readonly rasterLayerStates = new Map<string, RasterLayerState>();
+  private pendingPolygons: Array<ReturnType<typeof polygonStateToNative>> | null = null;
+  private pendingCircles: Array<ReturnType<typeof circleStateToNative>> | null = null;
+  private pendingPolylines: Array<ReturnType<typeof polylineStateToNative>> | null = null;
   private pendingRasterLayers: Array<ReturnType<typeof rasterLayerStateToNative>> | null = null;
   private markerClickListener: OnMarkerEventHandler | null = null;
+  private circleClickListener: OnCircleEventHandler | null = null;
   private markerDragStartListener: OnMarkerEventHandler | null = null;
   private markerDragListener: OnMarkerEventHandler | null = null;
   private markerDragEndListener: OnMarkerEventHandler | null = null;
+  private polygonClickListener: OnPolygonEventHandler | null = null;
+  private polylineClickListener: OnPolylineEventHandler | null = null;
   private readonly nativeMapExtensionEventHandlers = new Map<
     string,
     NativeMapExtensionEventHandler
@@ -70,7 +91,13 @@ export class GoogleMapViewController
     this.cancelMarkerComposition();
     this.pendingMarkerUpdates.clear();
     this.markerStates.clear();
+    this.circleStates.clear();
+    this.polygonStates.clear();
+    this.polylineStates.clear();
     this.rasterLayerStates.clear();
+    this.pendingPolygons = this.mapLoaded ? null : [];
+    this.pendingCircles = this.mapLoaded ? null : [];
+    this.pendingPolylines = this.mapLoaded ? null : [];
     this.pendingRasterLayers = this.mapLoaded ? null : [];
     this.dispatchCommand('clearOverlays', []);
   }
@@ -119,6 +146,90 @@ export class GoogleMapViewController
       return;
     }
     this.dispatchCommand('updateMarker', [markerStateToNative(state)]);
+  }
+
+  async compositionPolylines(data: PolylineState[]): Promise<void> {
+    this.polylineStates.clear();
+    data.forEach((state) => this.polylineStates.set(state.id, state));
+    const payload = data.map(polylineStateToNative);
+    if (!this.mapLoaded) {
+      this.pendingPolylines = payload;
+      return;
+    }
+    this.dispatchCommand('compositionPolylines', [payload]);
+  }
+
+  async compositionCircles(data: CircleState[]): Promise<void> {
+    this.circleStates.clear();
+    data.forEach((state) => this.circleStates.set(state.id, state));
+    const payload = data.map(circleStateToNative);
+    if (!this.mapLoaded) {
+      this.pendingCircles = payload;
+      return;
+    }
+    this.dispatchCommand('compositionCircles', [payload]);
+  }
+
+  async updateCircle(state: CircleState): Promise<void> {
+    this.circleStates.set(state.id, state);
+    if (!this.mapLoaded) {
+      this.pendingCircles = Array.from(this.circleStates.values()).map(circleStateToNative);
+      return;
+    }
+    this.dispatchCommand('updateCircle', [circleStateToNative(state)]);
+  }
+
+  hasCircle(state: CircleState): boolean {
+    return this.circleStates.has(state.id);
+  }
+
+  setOnCircleClickListener(listener: OnCircleEventHandler | null): void {
+    this.circleClickListener = listener;
+  }
+
+  async compositionPolygons(data: PolygonState[]): Promise<void> {
+    this.polygonStates.clear();
+    data.forEach((state) => this.polygonStates.set(state.id, state));
+    const payload = data.map(polygonStateToNative);
+    if (!this.mapLoaded) {
+      this.pendingPolygons = payload;
+      return;
+    }
+    this.dispatchCommand('compositionPolygons', [payload]);
+  }
+
+  async updatePolygon(state: PolygonState): Promise<void> {
+    this.polygonStates.set(state.id, state);
+    if (!this.mapLoaded) {
+      this.pendingPolygons = Array.from(this.polygonStates.values()).map(polygonStateToNative);
+      return;
+    }
+    this.dispatchCommand('updatePolygon', [polygonStateToNative(state)]);
+  }
+
+  hasPolygon(state: PolygonState): boolean {
+    return this.polygonStates.has(state.id);
+  }
+
+  setOnPolygonClickListener(listener: OnPolygonEventHandler | null): void {
+    this.polygonClickListener = listener;
+  }
+
+  async updatePolyline(state: PolylineState): Promise<void> {
+    this.polylineStates.set(state.id, state);
+    if (!this.mapLoaded) {
+      this.pendingPolylines = Array.from(this.polylineStates.values()).map(polylineStateToNative);
+      return;
+    }
+    this.dispatchCommand('updatePolyline', [polylineStateToNative(state)]);
+  }
+
+  hasPolyline(state: PolylineState): boolean {
+    return this.polylineStates.has(state.id);
+  }
+
+  setOnPolylineClickListener(listener: OnPolylineEventHandler | null): void {
+    this.polylineClickListener = listener;
   }
 
   async compositionRasterLayers(data: RasterLayerState[]): Promise<void> {
@@ -210,6 +321,15 @@ export class GoogleMapViewController
   destroy(): void {
     this.cancelMarkerComposition();
     this.pendingMarkerUpdates.clear();
+    this.circleStates.clear();
+    this.pendingCircles = null;
+    this.circleClickListener = null;
+    this.polygonStates.clear();
+    this.pendingPolygons = null;
+    this.polygonClickListener = null;
+    this.polylineStates.clear();
+    this.pendingPolylines = null;
+    this.polylineClickListener = null;
     this.nativeMapExtensionEventHandlers.clear();
     this.setCameraMoveStartListener(null);
     this.setCameraMoveListener(null);
@@ -236,6 +356,18 @@ export class GoogleMapViewController
 
   onNativeMapLoaded(): void {
     this.mapLoaded = true;
+    if (this.pendingCircles) {
+      this.dispatchCommand('compositionCircles', [this.pendingCircles]);
+      this.pendingCircles = null;
+    }
+    if (this.pendingPolygons) {
+      this.dispatchCommand('compositionPolygons', [this.pendingPolygons]);
+      this.pendingPolygons = null;
+    }
+    if (this.pendingPolylines) {
+      this.dispatchCommand('compositionPolylines', [this.pendingPolylines]);
+      this.pendingPolylines = null;
+    }
     if (this.pendingRasterLayers) {
       this.dispatchCommand('compositionRasterLayers', [this.pendingRasterLayers]);
       this.pendingRasterLayers = null;
@@ -265,6 +397,30 @@ export class GoogleMapViewController
     if (!state) return;
     state.onClick?.(state);
     this.markerClickListener?.(state);
+  }
+
+  onNativeCircleClick(circleId: string, clicked: GeoPoint): void {
+    const state = this.circleStates.get(circleId);
+    if (!state) return;
+    const event = { state, clicked };
+    state.onClick?.(event);
+    this.circleClickListener?.(event);
+  }
+
+  onNativePolylineClick(polylineId: string, clicked: GeoPoint): void {
+    const state = this.polylineStates.get(polylineId);
+    if (!state) return;
+    const event = { state, clicked };
+    state.onClick?.(event);
+    this.polylineClickListener?.(event);
+  }
+
+  onNativePolygonClick(polygonId: string, clicked: GeoPoint): void {
+    const state = this.polygonStates.get(polygonId);
+    if (!state) return;
+    const event = { state, clicked };
+    state.onClick?.(event);
+    this.polygonClickListener?.(event);
   }
 
   onNativeMarkerDragStart(markerId: string, point: GeoPoint): void {
@@ -390,5 +546,43 @@ function rasterLayerStateToNative(state: RasterLayerState) {
     userAgent: state.userAgent,
     debug: state.debug,
     extraHeaders: state.extraHeaders,
+  };
+}
+
+function polylineStateToNative(state: PolylineState) {
+  return {
+    id: state.id,
+    points: state.points,
+    strokeColor: processColor(state.strokeColor) ?? processColor('#000000'),
+    strokeWidth: state.strokeWidth,
+    geodesic: state.geodesic,
+    zIndex: state.zIndex,
+  };
+}
+
+function polygonStateToNative(state: PolygonState) {
+  return {
+    id: state.id,
+    points: state.points,
+    holes: state.holes,
+    strokeColor: processColor(state.strokeColor) ?? processColor('#000000'),
+    strokeWidth: state.strokeWidth,
+    fillColor: processColor(state.fillColor) ?? processColor('transparent'),
+    geodesic: state.geodesic,
+    zIndex: state.zIndex,
+  };
+}
+
+function circleStateToNative(state: CircleState) {
+  return {
+    id: state.id,
+    center: state.center,
+    radiusMeters: state.radiusMeters,
+    clickable: state.clickable,
+    geodesic: state.geodesic,
+    strokeColor: processColor(state.strokeColor) ?? processColor('#FF0000'),
+    strokeWidth: state.strokeWidth,
+    fillColor: processColor(state.fillColor) ?? processColor('rgba(255,255,255,0.5)'),
+    zIndex: state.zIndex,
   };
 }

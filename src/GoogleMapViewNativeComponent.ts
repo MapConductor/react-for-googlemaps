@@ -55,6 +55,15 @@ export interface NativeGoogleMapViewProps extends ViewProps {
     event: NativeGoogleMapViewEvent<{ cameraPosition: MapCameraPosition }>
   ) => void;
   onMarkerClick?: (event: NativeGoogleMapViewEvent<{ markerId: string }>) => void;
+  onCircleClick?: (
+    event: NativeGoogleMapViewEvent<{ circleId: string; point: GeoPoint }>
+  ) => void;
+  onPolylineClick?: (
+    event: NativeGoogleMapViewEvent<{ polylineId: string; point: GeoPoint }>
+  ) => void;
+  onPolygonClick?: (
+    event: NativeGoogleMapViewEvent<{ polygonId: string; point: GeoPoint }>
+  ) => void;
   onMarkerDragStart?: (
     event: NativeGoogleMapViewEvent<{ markerId: string; point: GeoPoint }>
   ) => void;
