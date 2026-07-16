@@ -289,7 +289,12 @@ class GoogleMapViewWrapper(context: Context) :
             emitMarkerScreenPositions()
             emitInfoBubbleScreenPositions()
         }
-        controller.setMapClickListener { emitPointEvent("topMapClick", it) }
+        controller.setMapClickListener {
+            val zoom = latestCameraPosition?.zoom ?: requestedCameraPosition?.zoom ?: MapCameraPosition.Default.zoom
+            if (!nativeMapExtensionHost.dispatchMapClick(it, zoom)) {
+                emitPointEvent("topMapClick", it)
+            }
+        }
         controller.setMapLongClickListener { emitPointEvent("topMapLongClick", it) }
     }
 
