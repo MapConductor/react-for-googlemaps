@@ -1,5 +1,5 @@
-import type { HostComponent, ViewProps } from 'react-native';
-import { codegenNativeComponent } from 'react-native';
+import type { ViewProps } from 'react-native';
+import { requireNativeComponent } from 'react-native';
 import type { GeoPoint, MapCameraPosition, MarkerTilingOptions } from '@mapconductor/js-sdk-core';
 import type { NativeMapExtensionEvent } from '@mapconductor/js-sdk-react/native';
 
@@ -21,6 +21,7 @@ export interface NativeMarkerTilingOptions {
 }
 
 export interface NativeGoogleMapViewProps extends ViewProps {
+  apiKey?: string;
   cameraPosition?: {
     position: {
       latitude: number;
@@ -121,8 +122,8 @@ export function toNativeCameraPosition(cameraPosition: MapCameraPosition | undef
   };
 }
 
-export default codegenNativeComponent<NativeGoogleMapViewProps>(
-  // Align to android/src/main/java/com/mapconductor/react/googlemaps/GoogleMapsViewManager.kt (REACT_CLASS)
-  // and ios/MapConductorGoogleMapsViewManager.m (RCT_EXPORT_MODULE)
+export default requireNativeComponent<NativeGoogleMapViewProps>(
+  // Align to android/src/main/java/com/mapconductor/react/googlemaps/GoogleMapViewManager.kt (REACT_CLASS)
+  // and ios/MapConductorGoogleMapViewManager.m (RCT_EXPORT_MODULE)
   'GoogleMapView'
-) as HostComponent<NativeGoogleMapViewProps>;
+);

@@ -13,10 +13,13 @@ import {
 import { GoogleMapDesign, type GoogleMapDesignType } from './GoogleMapDesign';
 
 export interface GoogleMapViewStateInterface
-  extends MapViewStateInterface<GoogleMapDesignType> {}
+  extends MapViewStateInterface<GoogleMapDesignType> {
+  readonly apiKey: string;
+}
 
 export interface GoogleMapViewStateParams {
   id?: string;
+  apiKey?: string;
   mapId?: string;
   mapDesignType?: GoogleMapDesignType;
   cameraPosition?: MapCameraPosition;
@@ -25,22 +28,24 @@ export interface GoogleMapViewStateParams {
 export class GoogleMapViewState extends MapViewState<GoogleMapDesignType>
   implements GoogleMapViewStateInterface {
   readonly id: string;
+  readonly apiKey: string;
   readonly mapId: string | null;
   private _cameraPosition: MapCameraPosition;
   private _mapDesignType: GoogleMapDesignType;
   private _controller: MapViewControllerInterface | null = null;
   private _padding: MapPaddings = MapPaddings.Zeros;
-  private _holder: MapViewHolder<unknown, unknown> | null = null;
   private _cameraPositionChangeListener: ((camera: MapCameraPosition) => void) | null = null;
 
   constructor({
     id = createRandomId(),
+    apiKey = '',
     mapId = undefined,
     mapDesignType = GoogleMapDesign.Normal,
     cameraPosition = MapCameraPositionNS.Default,
   }: GoogleMapViewStateParams = {}) {
     super();
     this.id = id;
+    this.apiKey = apiKey;
     this.mapId = mapId ?? null;
     this._cameraPosition = cameraPosition;
     this._mapDesignType = mapDesignType;
@@ -85,7 +90,7 @@ export class GoogleMapViewState extends MapViewState<GoogleMapDesignType>
   }
 
   override getMapViewHolder(): MapViewHolder<unknown, unknown> | null {
-    return this._holder;
+    return this._controller?.holder ?? null;
   }
 
   // Called by GoogleMapView when controller is initialized
@@ -96,11 +101,6 @@ export class GoogleMapViewState extends MapViewState<GoogleMapDesignType>
 
   setPadding(paddings: MapPaddings): void {
     this._padding = paddings;
-  }
-
-  // Called by GoogleMapView when map view holder is available
-  setMapViewHolder(holder: MapViewHolder<unknown, unknown> | null): void {
-    this._holder = holder;
   }
 
   // Called by GoogleMapView when camera position changes
@@ -123,12 +123,14 @@ export class GoogleMapViewState extends MapViewState<GoogleMapDesignType>
 
 export function useGoogleMapViewState({
   id = createRandomId(),
+  apiKey = '',
   mapId = undefined,
   mapDesignType = GoogleMapDesign.Normal,
   cameraPosition = MapCameraPositionNS.Default,
 }: GoogleMapViewStateParams = {}): GoogleMapViewState {
   const [state] = useState(() => new GoogleMapViewState({
     id,
+    apiKey,
     mapId,
     mapDesignType,
     cameraPosition,

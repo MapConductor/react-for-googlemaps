@@ -24,9 +24,13 @@ def loadGoogleMapsApiKey = {
     file.withInputStream { properties.load(it) }
   }
 
-  return properties.getProperty("GOOGLE_MAPS_API_KEY")
+  return properties.getProperty("ANDROID_GOOGLE_MAPS_API_KEY")
+    ?: properties.getProperty("GOOGLE_MAPS_API_KEY")
+    ?: rootProject.findProperty("ANDROID_GOOGLE_MAPS_API_KEY")
+    ?: project.findProperty("ANDROID_GOOGLE_MAPS_API_KEY")
     ?: rootProject.findProperty("GOOGLE_MAPS_API_KEY")
     ?: project.findProperty("GOOGLE_MAPS_API_KEY")
+    ?: System.getenv("ANDROID_GOOGLE_MAPS_API_KEY")
     ?: System.getenv("GOOGLE_MAPS_API_KEY")
     ?: ""
 }

@@ -1,0 +1,2759 @@
+{
+  "ABIRoot": {
+    "kind": "Root",
+    "name": "MapConductorForGoogleMaps",
+    "printedName": "MapConductorForGoogleMaps",
+    "children": [
+      {
+        "kind": "Import",
+        "name": "Foundation",
+        "printedName": "Foundation",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "Import",
+        "name": "MapConductorCore",
+        "printedName": "MapConductorCore",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "Import",
+        "name": "GoogleMaps",
+        "printedName": "GoogleMaps",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "Import",
+        "name": "MapConductorCore",
+        "printedName": "MapConductorCore",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "GoogleMapDesignTypeProtocol",
+        "printedName": "GoogleMapDesignTypeProtocol",
+        "declKind": "Protocol",
+        "usr": "s:25MapConductorForGoogleMaps0dA18DesignTypeProtocolP",
+        "mangledName": "$s25MapConductorForGoogleMaps0dA18DesignTypeProtocolP",
+        "moduleName": "MapConductorForGoogleMaps",
+        "genericSig": "<τ_0_0 : MapConductorCore.MapDesignTypeProtocol, τ_0_0.Identifier == GoogleMaps.GMSMapViewType>",
+        "sugared_genericSig": "<Self : MapConductorCore.MapDesignTypeProtocol, Self.Identifier == GoogleMaps.GMSMapViewType>",
+        "declAttributes": [
+          "AccessControl"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "MapDesignTypeProtocol",
+            "printedName": "MapDesignTypeProtocol",
+            "usr": "s:16MapConductorCore0A18DesignTypeProtocolP",
+            "mangledName": "$s16MapConductorCore0A18DesignTypeProtocolP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "GoogleMapDesign",
+        "printedName": "GoogleMapDesign",
+        "children": [
+          {
+            "kind": "Var",
+            "name": "id",
+            "printedName": "id",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "GMSMapViewType",
+                "printedName": "GoogleMaps.GMSMapViewType",
+                "usr": "c:@E@GMSMapViewType"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:25MapConductorForGoogleMaps0dA6DesignV2idSo14GMSMapViewTypeVvp",
+            "mangledName": "$s25MapConductorForGoogleMaps0dA6DesignV2idSo14GMSMapViewTypeVvp",
+            "moduleName": "MapConductorForGoogleMaps",
+            "declAttributes": [
+              "HasStorage",
+              "AccessControl"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "GMSMapViewType",
+                    "printedName": "GoogleMaps.GMSMapViewType",
+                    "usr": "c:@E@GMSMapViewType"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:25MapConductorForGoogleMaps0dA6DesignV2idSo14GMSMapViewTypeVvg",
+                "mangledName": "$s25MapConductorForGoogleMaps0dA6DesignV2idSo14GMSMapViewTypeVvg",
+                "moduleName": "MapConductorForGoogleMaps",
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(id:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "GoogleMapDesign",
+                "printedName": "MapConductorForGoogleMaps.GoogleMapDesign",
+                "usr": "s:25MapConductorForGoogleMaps0dA6DesignV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "GMSMapViewType",
+                "printedName": "GoogleMaps.GMSMapViewType",
+                "usr": "c:@E@GMSMapViewType"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:25MapConductorForGoogleMaps0dA6DesignV2idACSo14GMSMapViewTypeV_tcfc",
+            "mangledName": "$s25MapConductorForGoogleMaps0dA6DesignV2idACSo14GMSMapViewTypeV_tcfc",
+            "moduleName": "MapConductorForGoogleMaps",
+            "declAttributes": [
+              "AccessControl"
+            ],
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Function",
+            "name": "getValue",
+            "printedName": "getValue()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "GMSMapViewType",
+                "printedName": "GoogleMaps.GMSMapViewType",
+                "usr": "c:@E@GMSMapViewType"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:25MapConductorForGoogleMaps0dA6DesignV8getValueSo14GMSMapViewTypeVyF",
+            "mangledName": "$s25MapConductorForGoogleMaps0dA6DesignV8getValueSo14GMSMapViewTypeVyF",
+            "moduleName": "MapConductorForGoogleMaps",
+            "declAttributes": [
+              "AccessControl"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Var",
+            "name": "Normal",
+            "printedName": "Normal",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "GoogleMapDesign",
+                "printedName": "MapConductorForGoogleMaps.GoogleMapDesign",
+                "usr": "s:25MapConductorForGoogleMaps0dA6DesignV"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:25MapConductorForGoogleMaps0dA6DesignV6NormalACvpZ",
+            "mangledName": "$s25MapConductorForGoogleMaps0dA6DesignV6NormalACvpZ",
+            "moduleName": "MapConductorForGoogleMaps",
+            "static": true,
+            "declAttributes": [
+              "HasInitialValue",
+              "HasStorage",
+              "AccessControl"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "GoogleMapDesign",
+                    "printedName": "MapConductorForGoogleMaps.GoogleMapDesign",
+                    "usr": "s:25MapConductorForGoogleMaps0dA6DesignV"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:25MapConductorForGoogleMaps0dA6DesignV6NormalACvgZ",
+                "mangledName": "$s25MapConductorForGoogleMaps0dA6DesignV6NormalACvgZ",
+                "moduleName": "MapConductorForGoogleMaps",
+                "static": true,
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "Satellite",
+            "printedName": "Satellite",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "GoogleMapDesign",
+                "printedName": "MapConductorForGoogleMaps.GoogleMapDesign",
+                "usr": "s:25MapConductorForGoogleMaps0dA6DesignV"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:25MapConductorForGoogleMaps0dA6DesignV9SatelliteACvpZ",
+            "mangledName": "$s25MapConductorForGoogleMaps0dA6DesignV9SatelliteACvpZ",
+            "moduleName": "MapConductorForGoogleMaps",
+            "static": true,
+            "declAttributes": [
+              "HasInitialValue",
+              "HasStorage",
+              "AccessControl"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "GoogleMapDesign",
+                    "printedName": "MapConductorForGoogleMaps.GoogleMapDesign",
+                    "usr": "s:25MapConductorForGoogleMaps0dA6DesignV"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:25MapConductorForGoogleMaps0dA6DesignV9SatelliteACvgZ",
+                "mangledName": "$s25MapConductorForGoogleMaps0dA6DesignV9SatelliteACvgZ",
+                "moduleName": "MapConductorForGoogleMaps",
+                "static": true,
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "Hybrid",
+            "printedName": "Hybrid",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "GoogleMapDesign",
+                "printedName": "MapConductorForGoogleMaps.GoogleMapDesign",
+                "usr": "s:25MapConductorForGoogleMaps0dA6DesignV"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:25MapConductorForGoogleMaps0dA6DesignV6HybridACvpZ",
+            "mangledName": "$s25MapConductorForGoogleMaps0dA6DesignV6HybridACvpZ",
+            "moduleName": "MapConductorForGoogleMaps",
+            "static": true,
+            "declAttributes": [
+              "HasInitialValue",
+              "HasStorage",
+              "AccessControl"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "GoogleMapDesign",
+                    "printedName": "MapConductorForGoogleMaps.GoogleMapDesign",
+                    "usr": "s:25MapConductorForGoogleMaps0dA6DesignV"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:25MapConductorForGoogleMaps0dA6DesignV6HybridACvgZ",
+                "mangledName": "$s25MapConductorForGoogleMaps0dA6DesignV6HybridACvgZ",
+                "moduleName": "MapConductorForGoogleMaps",
+                "static": true,
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "Terrain",
+            "printedName": "Terrain",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "GoogleMapDesign",
+                "printedName": "MapConductorForGoogleMaps.GoogleMapDesign",
+                "usr": "s:25MapConductorForGoogleMaps0dA6DesignV"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:25MapConductorForGoogleMaps0dA6DesignV7TerrainACvpZ",
+            "mangledName": "$s25MapConductorForGoogleMaps0dA6DesignV7TerrainACvpZ",
+            "moduleName": "MapConductorForGoogleMaps",
+            "static": true,
+            "declAttributes": [
+              "HasInitialValue",
+              "HasStorage",
+              "AccessControl"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "GoogleMapDesign",
+                    "printedName": "MapConductorForGoogleMaps.GoogleMapDesign",
+                    "usr": "s:25MapConductorForGoogleMaps0dA6DesignV"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:25MapConductorForGoogleMaps0dA6DesignV7TerrainACvgZ",
+                "mangledName": "$s25MapConductorForGoogleMaps0dA6DesignV7TerrainACvgZ",
+                "moduleName": "MapConductorForGoogleMaps",
+                "static": true,
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "None",
+            "printedName": "None",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "GoogleMapDesign",
+                "printedName": "MapConductorForGoogleMaps.GoogleMapDesign",
+                "usr": "s:25MapConductorForGoogleMaps0dA6DesignV"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:25MapConductorForGoogleMaps0dA6DesignV4NoneACvpZ",
+            "mangledName": "$s25MapConductorForGoogleMaps0dA6DesignV4NoneACvpZ",
+            "moduleName": "MapConductorForGoogleMaps",
+            "static": true,
+            "declAttributes": [
+              "HasInitialValue",
+              "HasStorage",
+              "AccessControl"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "GoogleMapDesign",
+                    "printedName": "MapConductorForGoogleMaps.GoogleMapDesign",
+                    "usr": "s:25MapConductorForGoogleMaps0dA6DesignV"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:25MapConductorForGoogleMaps0dA6DesignV4NoneACvgZ",
+                "mangledName": "$s25MapConductorForGoogleMaps0dA6DesignV4NoneACvgZ",
+                "moduleName": "MapConductorForGoogleMaps",
+                "static": true,
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Function",
+            "name": "Create",
+            "printedName": "Create(id:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "GoogleMapDesign",
+                "printedName": "MapConductorForGoogleMaps.GoogleMapDesign",
+                "usr": "s:25MapConductorForGoogleMaps0dA6DesignV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "GMSMapViewType",
+                "printedName": "GoogleMaps.GMSMapViewType",
+                "usr": "c:@E@GMSMapViewType"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:25MapConductorForGoogleMaps0dA6DesignV6Create2idACSo14GMSMapViewTypeV_tFZ",
+            "mangledName": "$s25MapConductorForGoogleMaps0dA6DesignV6Create2idACSo14GMSMapViewTypeV_tFZ",
+            "moduleName": "MapConductorForGoogleMaps",
+            "static": true,
+            "declAttributes": [
+              "AccessControl"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "toMapDesignType",
+            "printedName": "toMapDesignType(id:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "GoogleMapDesignTypeProtocol",
+                "printedName": "any MapConductorForGoogleMaps.GoogleMapDesignTypeProtocol",
+                "usr": "s:25MapConductorForGoogleMaps0dA18DesignTypeProtocolP"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "GMSMapViewType",
+                "printedName": "GoogleMaps.GMSMapViewType",
+                "usr": "c:@E@GMSMapViewType"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:25MapConductorForGoogleMaps0dA6DesignV02toaF4Type2idAA0dafH8Protocol_pSo010GMSMapViewH0V_tFZ",
+            "mangledName": "$s25MapConductorForGoogleMaps0dA6DesignV02toaF4Type2idAA0dafH8Protocol_pSo010GMSMapViewH0V_tFZ",
+            "moduleName": "MapConductorForGoogleMaps",
+            "static": true,
+            "declAttributes": [
+              "AccessControl"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Var",
+            "name": "hashValue",
+            "printedName": "hashValue",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:25MapConductorForGoogleMaps0dA6DesignV9hashValueSivp",
+            "mangledName": "$s25MapConductorForGoogleMaps0dA6DesignV9hashValueSivp",
+            "moduleName": "MapConductorForGoogleMaps",
+            "implicit": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:25MapConductorForGoogleMaps0dA6DesignV9hashValueSivg",
+                "mangledName": "$s25MapConductorForGoogleMaps0dA6DesignV9hashValueSivg",
+                "moduleName": "MapConductorForGoogleMaps",
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Function",
+            "name": "hash",
+            "printedName": "hash(into:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Hasher",
+                "printedName": "Swift.Hasher",
+                "paramValueOwnership": "InOut",
+                "usr": "s:s6HasherV"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:25MapConductorForGoogleMaps0dA6DesignV4hash4intoys6HasherVz_tF",
+            "mangledName": "$s25MapConductorForGoogleMaps0dA6DesignV4hash4intoys6HasherVz_tF",
+            "moduleName": "MapConductorForGoogleMaps",
+            "implicit": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "==",
+            "printedName": "==(_:_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "GoogleMapDesign",
+                "printedName": "MapConductorForGoogleMaps.GoogleMapDesign",
+                "usr": "s:25MapConductorForGoogleMaps0dA6DesignV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "GoogleMapDesign",
+                "printedName": "MapConductorForGoogleMaps.GoogleMapDesign",
+                "usr": "s:25MapConductorForGoogleMaps0dA6DesignV"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:25MapConductorForGoogleMaps0dA6DesignV2eeoiySbAC_ACtFZ",
+            "mangledName": "$s25MapConductorForGoogleMaps0dA6DesignV2eeoiySbAC_ACtFZ",
+            "moduleName": "MapConductorForGoogleMaps",
+            "static": true,
+            "implicit": true,
+            "funcSelfKind": "NonMutating"
+          }
+        ],
+        "declKind": "Struct",
+        "usr": "s:25MapConductorForGoogleMaps0dA6DesignV",
+        "mangledName": "$s25MapConductorForGoogleMaps0dA6DesignV",
+        "moduleName": "MapConductorForGoogleMaps",
+        "declAttributes": [
+          "AccessControl"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "GoogleMapDesignTypeProtocol",
+            "printedName": "GoogleMapDesignTypeProtocol",
+            "usr": "s:25MapConductorForGoogleMaps0dA18DesignTypeProtocolP",
+            "mangledName": "$s25MapConductorForGoogleMaps0dA18DesignTypeProtocolP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Hashable",
+            "printedName": "Hashable",
+            "usr": "s:SH",
+            "mangledName": "$sSH"
+          },
+          {
+            "kind": "Conformance",
+            "name": "MapDesignTypeProtocol",
+            "printedName": "MapDesignTypeProtocol",
+            "children": [
+              {
+                "kind": "TypeWitness",
+                "name": "Identifier",
+                "printedName": "Identifier",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "GMSMapViewType",
+                    "printedName": "GoogleMaps.GMSMapViewType",
+                    "usr": "c:@E@GMSMapViewType"
+                  }
+                ]
+              }
+            ],
+            "usr": "s:16MapConductorCore0A18DesignTypeProtocolP",
+            "mangledName": "$s16MapConductorCore0A18DesignTypeProtocolP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ",
+            "mangledName": "$sSQ"
+          }
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "GoogleMaps",
+        "printedName": "GoogleMaps",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "Import",
+        "name": "Combine",
+        "printedName": "Combine",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "Import",
+        "name": "GoogleMaps",
+        "printedName": "GoogleMaps",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "Import",
+        "name": "MapConductorCore",
+        "printedName": "MapConductorCore",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "Import",
+        "name": "SwiftUI",
+        "printedName": "SwiftUI",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "Import",
+        "name": "UIKit",
+        "printedName": "UIKit",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "GoogleMapView",
+        "printedName": "GoogleMapView",
+        "children": [
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(state:onMapLoaded:onMapClick:onMapLongClick:onCameraMoveStart:onCameraMove:onCameraMoveEnd:sdkInitialize:content:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "GoogleMapView",
+                "printedName": "MapConductorForGoogleMaps.GoogleMapView",
+                "usr": "s:25MapConductorForGoogleMaps0dA4ViewV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "GoogleMapViewState",
+                "printedName": "MapConductorForGoogleMaps.GoogleMapViewState",
+                "usr": "s:25MapConductorForGoogleMaps0dA9ViewStateC"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "((MapConductorForGoogleMaps.GoogleMapViewState) -> ())?",
+                "children": [
+                  {
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(MapConductorForGoogleMaps.GoogleMapViewState) -> ()",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "GoogleMapViewState",
+                        "printedName": "MapConductorForGoogleMaps.GoogleMapViewState",
+                        "usr": "s:25MapConductorForGoogleMaps0dA9ViewStateC"
+                      }
+                    ]
+                  }
+                ],
+                "hasDefaultArg": true,
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "((MapConductorCore.GeoPoint) -> ())?",
+                "children": [
+                  {
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(MapConductorCore.GeoPoint) -> ()",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "GeoPoint",
+                        "printedName": "MapConductorCore.GeoPoint",
+                        "usr": "s:16MapConductorCore8GeoPointV"
+                      }
+                    ]
+                  }
+                ],
+                "hasDefaultArg": true,
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "((MapConductorCore.GeoPoint) -> ())?",
+                "children": [
+                  {
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(MapConductorCore.GeoPoint) -> ()",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "GeoPoint",
+                        "printedName": "MapConductorCore.GeoPoint",
+                        "usr": "s:16MapConductorCore8GeoPointV"
+                      }
+                    ]
+                  }
+                ],
+                "hasDefaultArg": true,
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "((MapConductorCore.MapCameraPosition) -> ())?",
+                "children": [
+                  {
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(MapConductorCore.MapCameraPosition) -> ()",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MapCameraPosition",
+                        "printedName": "MapConductorCore.MapCameraPosition",
+                        "usr": "s:16MapConductorCore0A14CameraPositionC"
+                      }
+                    ]
+                  }
+                ],
+                "hasDefaultArg": true,
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "((MapConductorCore.MapCameraPosition) -> ())?",
+                "children": [
+                  {
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(MapConductorCore.MapCameraPosition) -> ()",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MapCameraPosition",
+                        "printedName": "MapConductorCore.MapCameraPosition",
+                        "usr": "s:16MapConductorCore0A14CameraPositionC"
+                      }
+                    ]
+                  }
+                ],
+                "hasDefaultArg": true,
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "((MapConductorCore.MapCameraPosition) -> ())?",
+                "children": [
+                  {
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(MapConductorCore.MapCameraPosition) -> ()",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MapCameraPosition",
+                        "printedName": "MapConductorCore.MapCameraPosition",
+                        "usr": "s:16MapConductorCore0A14CameraPositionC"
+                      }
+                    ]
+                  }
+                ],
+                "hasDefaultArg": true,
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "(() -> ())?",
+                "children": [
+                  {
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "() -> ()",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ]
+                  }
+                ],
+                "hasDefaultArg": true,
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "() -> MapConductorCore.MapViewContent",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "MapViewContent",
+                    "printedName": "MapConductorCore.MapViewContent",
+                    "usr": "s:16MapConductorCore0A11ViewContentV"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "hasDefaultArg": true
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:25MapConductorForGoogleMaps0dA4ViewV5state02onA6Loaded0hA5Click0ha4LongJ00H15CameraMoveStart0hlM00hlM3End13sdkInitialize7contentAcA0daF5StateC_yANcSgy0aB4Core8GeoPointVcSgASyAP0aL8PositionCcSgA2VyycSgAP0aF7ContentVyctcfc",
+            "mangledName": "$s25MapConductorForGoogleMaps0dA4ViewV5state02onA6Loaded0hA5Click0ha4LongJ00H15CameraMoveStart0hlM00hlM3End13sdkInitialize7contentAcA0daF5StateC_yANcSgy0aB4Core8GeoPointVcSgASyAP0aL8PositionCcSgA2VyycSgAP0aF7ContentVyctcfc",
+            "moduleName": "MapConductorForGoogleMaps",
+            "declAttributes": [
+              "Preconcurrency",
+              "Custom",
+              "AccessControl"
+            ],
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Var",
+            "name": "body",
+            "printedName": "body",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "OpaqueTypeArchetype",
+                "printedName": "some SwiftUI.View",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "View",
+                    "printedName": "SwiftUI.View",
+                    "usr": "s:7SwiftUI4ViewP"
+                  }
+                ]
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:25MapConductorForGoogleMaps0dA4ViewV4bodyQrvp",
+            "mangledName": "$s25MapConductorForGoogleMaps0dA4ViewV4bodyQrvp",
+            "moduleName": "MapConductorForGoogleMaps",
+            "declAttributes": [
+              "Preconcurrency",
+              "Custom",
+              "AccessControl"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "OpaqueTypeArchetype",
+                    "printedName": "some SwiftUI.View",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "View",
+                        "printedName": "SwiftUI.View",
+                        "usr": "s:7SwiftUI4ViewP"
+                      }
+                    ]
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:25MapConductorForGoogleMaps0dA4ViewV4bodyQrvg",
+                "mangledName": "$s25MapConductorForGoogleMaps0dA4ViewV4bodyQrvg",
+                "moduleName": "MapConductorForGoogleMaps",
+                "accessorKind": "get"
+              }
+            ]
+          }
+        ],
+        "declKind": "Struct",
+        "usr": "s:25MapConductorForGoogleMaps0dA4ViewV",
+        "mangledName": "$s25MapConductorForGoogleMaps0dA4ViewV",
+        "moduleName": "MapConductorForGoogleMaps",
+        "declAttributes": [
+          "Preconcurrency",
+          "Custom",
+          "AccessControl"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "View",
+            "printedName": "View",
+            "children": [
+              {
+                "kind": "TypeWitness",
+                "name": "Body",
+                "printedName": "Body",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "OpaqueTypeArchetype",
+                    "printedName": "some SwiftUI.View",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "View",
+                        "printedName": "SwiftUI.View",
+                        "usr": "s:7SwiftUI4ViewP"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "usr": "s:7SwiftUI4ViewP",
+            "mangledName": "$s7SwiftUI4ViewP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP",
+            "mangledName": "$ss8SendableP"
+          }
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "Combine",
+        "printedName": "Combine",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "Import",
+        "name": "Foundation",
+        "printedName": "Foundation",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "Import",
+        "name": "MapConductorCore",
+        "printedName": "MapConductorCore",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "GoogleMapViewState",
+        "printedName": "GoogleMapViewState",
+        "children": [
+          {
+            "kind": "Var",
+            "name": "id",
+            "printedName": "id",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:25MapConductorForGoogleMaps0dA9ViewStateC2idSSvp",
+            "mangledName": "$s25MapConductorForGoogleMaps0dA9ViewStateC2idSSvp",
+            "moduleName": "MapConductorForGoogleMaps",
+            "overriding": true,
+            "declAttributes": [
+              "Final",
+              "Override",
+              "AccessControl"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:25MapConductorForGoogleMaps0dA9ViewStateC2idSSvg",
+                "mangledName": "$s25MapConductorForGoogleMaps0dA9ViewStateC2idSSvg",
+                "moduleName": "MapConductorForGoogleMaps",
+                "overriding": true,
+                "declAttributes": [
+                  "Final"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "cameraPosition",
+            "printedName": "cameraPosition",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "MapCameraPosition",
+                "printedName": "MapConductorCore.MapCameraPosition",
+                "usr": "s:16MapConductorCore0A14CameraPositionC"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:25MapConductorForGoogleMaps0dA9ViewStateC14cameraPosition0aB4Core0a6CameraI0Cvp",
+            "mangledName": "$s25MapConductorForGoogleMaps0dA9ViewStateC14cameraPosition0aB4Core0a6CameraI0Cvp",
+            "moduleName": "MapConductorForGoogleMaps",
+            "overriding": true,
+            "declAttributes": [
+              "Final",
+              "Override",
+              "AccessControl"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "MapCameraPosition",
+                    "printedName": "MapConductorCore.MapCameraPosition",
+                    "usr": "s:16MapConductorCore0A14CameraPositionC"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:25MapConductorForGoogleMaps0dA9ViewStateC14cameraPosition0aB4Core0a6CameraI0Cvg",
+                "mangledName": "$s25MapConductorForGoogleMaps0dA9ViewStateC14cameraPosition0aB4Core0a6CameraI0Cvg",
+                "moduleName": "MapConductorForGoogleMaps",
+                "overriding": true,
+                "declAttributes": [
+                  "Final"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "mapDesignType",
+            "printedName": "mapDesignType",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "GoogleMapDesignTypeProtocol",
+                "printedName": "any MapConductorForGoogleMaps.GoogleMapDesignTypeProtocol",
+                "usr": "s:25MapConductorForGoogleMaps0dA18DesignTypeProtocolP"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:25MapConductorForGoogleMaps0dA9ViewStateC13mapDesignTypeAA0daiJ8Protocol_pvp",
+            "mangledName": "$s25MapConductorForGoogleMaps0dA9ViewStateC13mapDesignTypeAA0daiJ8Protocol_pvp",
+            "moduleName": "MapConductorForGoogleMaps",
+            "overriding": true,
+            "declAttributes": [
+              "Final",
+              "Override",
+              "AccessControl"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "GoogleMapDesignTypeProtocol",
+                    "printedName": "any MapConductorForGoogleMaps.GoogleMapDesignTypeProtocol",
+                    "usr": "s:25MapConductorForGoogleMaps0dA18DesignTypeProtocolP"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:25MapConductorForGoogleMaps0dA9ViewStateC13mapDesignTypeAA0daiJ8Protocol_pvg",
+                "mangledName": "$s25MapConductorForGoogleMaps0dA9ViewStateC13mapDesignTypeAA0daiJ8Protocol_pvg",
+                "moduleName": "MapConductorForGoogleMaps",
+                "overriding": true,
+                "declAttributes": [
+                  "Final"
+                ],
+                "accessorKind": "get"
+              },
+              {
+                "kind": "Accessor",
+                "name": "Set",
+                "printedName": "Set()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "GoogleMapDesignTypeProtocol",
+                    "printedName": "any MapConductorForGoogleMaps.GoogleMapDesignTypeProtocol",
+                    "usr": "s:25MapConductorForGoogleMaps0dA18DesignTypeProtocolP"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:25MapConductorForGoogleMaps0dA9ViewStateC13mapDesignTypeAA0daiJ8Protocol_pvs",
+                "mangledName": "$s25MapConductorForGoogleMaps0dA9ViewStateC13mapDesignTypeAA0daiJ8Protocol_pvs",
+                "moduleName": "MapConductorForGoogleMaps",
+                "overriding": true,
+                "declAttributes": [
+                  "Final"
+                ],
+                "accessorKind": "set"
+              },
+              {
+                "kind": "Accessor",
+                "name": "Modify",
+                "printedName": "Modify()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:25MapConductorForGoogleMaps0dA9ViewStateC13mapDesignTypeAA0daiJ8Protocol_pvM",
+                "mangledName": "$s25MapConductorForGoogleMaps0dA9ViewStateC13mapDesignTypeAA0daiJ8Protocol_pvM",
+                "moduleName": "MapConductorForGoogleMaps",
+                "overriding": true,
+                "implicit": true,
+                "declAttributes": [
+                  "Final"
+                ],
+                "accessorKind": "_modify"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "uiSettings",
+            "printedName": "uiSettings",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "MapUISettings",
+                "printedName": "MapConductorCore.MapUISettings",
+                "usr": "s:16MapConductorCore0A10UISettingsV"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:25MapConductorForGoogleMaps0dA9ViewStateC10uiSettings0aB4Core0A10UISettingsVvp",
+            "mangledName": "$s25MapConductorForGoogleMaps0dA9ViewStateC10uiSettings0aB4Core0A10UISettingsVvp",
+            "moduleName": "MapConductorForGoogleMaps",
+            "overriding": true,
+            "declAttributes": [
+              "Final",
+              "Override",
+              "AccessControl"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "MapUISettings",
+                    "printedName": "MapConductorCore.MapUISettings",
+                    "usr": "s:16MapConductorCore0A10UISettingsV"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:25MapConductorForGoogleMaps0dA9ViewStateC10uiSettings0aB4Core0A10UISettingsVvg",
+                "mangledName": "$s25MapConductorForGoogleMaps0dA9ViewStateC10uiSettings0aB4Core0A10UISettingsVvg",
+                "moduleName": "MapConductorForGoogleMaps",
+                "overriding": true,
+                "declAttributes": [
+                  "Final"
+                ],
+                "accessorKind": "get"
+              },
+              {
+                "kind": "Accessor",
+                "name": "Set",
+                "printedName": "Set()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "MapUISettings",
+                    "printedName": "MapConductorCore.MapUISettings",
+                    "usr": "s:16MapConductorCore0A10UISettingsV"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:25MapConductorForGoogleMaps0dA9ViewStateC10uiSettings0aB4Core0A10UISettingsVvs",
+                "mangledName": "$s25MapConductorForGoogleMaps0dA9ViewStateC10uiSettings0aB4Core0A10UISettingsVvs",
+                "moduleName": "MapConductorForGoogleMaps",
+                "overriding": true,
+                "declAttributes": [
+                  "Final"
+                ],
+                "accessorKind": "set"
+              },
+              {
+                "kind": "Accessor",
+                "name": "Modify",
+                "printedName": "Modify()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:25MapConductorForGoogleMaps0dA9ViewStateC10uiSettings0aB4Core0A10UISettingsVvM",
+                "mangledName": "$s25MapConductorForGoogleMaps0dA9ViewStateC10uiSettings0aB4Core0A10UISettingsVvM",
+                "moduleName": "MapConductorForGoogleMaps",
+                "overriding": true,
+                "implicit": true,
+                "declAttributes": [
+                  "Final"
+                ],
+                "accessorKind": "_modify"
+              }
+            ]
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(id:mapDesignType:cameraPosition:uiSettings:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "GoogleMapViewState",
+                "printedName": "MapConductorForGoogleMaps.GoogleMapViewState",
+                "usr": "s:25MapConductorForGoogleMaps0dA9ViewStateC"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "GoogleMapDesignTypeProtocol",
+                "printedName": "any MapConductorForGoogleMaps.GoogleMapDesignTypeProtocol",
+                "hasDefaultArg": true,
+                "usr": "s:25MapConductorForGoogleMaps0dA18DesignTypeProtocolP"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "MapCameraPosition",
+                "printedName": "MapConductorCore.MapCameraPosition",
+                "hasDefaultArg": true,
+                "usr": "s:16MapConductorCore0A14CameraPositionC"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "MapUISettings",
+                "printedName": "MapConductorCore.MapUISettings",
+                "hasDefaultArg": true,
+                "usr": "s:16MapConductorCore0A10UISettingsV"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:25MapConductorForGoogleMaps0dA9ViewStateC2id13mapDesignType14cameraPosition10uiSettingsACSS_AA0dajK8Protocol_p0aB4Core0a6CameraM0CAI0A10UISettingsVtcfc",
+            "mangledName": "$s25MapConductorForGoogleMaps0dA9ViewStateC2id13mapDesignType14cameraPosition10uiSettingsACSS_AA0dajK8Protocol_p0aB4Core0a6CameraM0CAI0A10UISettingsVtcfc",
+            "moduleName": "MapConductorForGoogleMaps",
+            "declAttributes": [
+              "AccessControl"
+            ],
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(mapDesignType:cameraPosition:uiSettings:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "GoogleMapViewState",
+                "printedName": "MapConductorForGoogleMaps.GoogleMapViewState",
+                "usr": "s:25MapConductorForGoogleMaps0dA9ViewStateC"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "GoogleMapDesignTypeProtocol",
+                "printedName": "any MapConductorForGoogleMaps.GoogleMapDesignTypeProtocol",
+                "hasDefaultArg": true,
+                "usr": "s:25MapConductorForGoogleMaps0dA18DesignTypeProtocolP"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "MapCameraPosition",
+                "printedName": "MapConductorCore.MapCameraPosition",
+                "hasDefaultArg": true,
+                "usr": "s:16MapConductorCore0A14CameraPositionC"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "MapUISettings",
+                "printedName": "MapConductorCore.MapUISettings",
+                "hasDefaultArg": true,
+                "usr": "s:16MapConductorCore0A10UISettingsV"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:25MapConductorForGoogleMaps0dA9ViewStateC13mapDesignType14cameraPosition10uiSettingsAcA0daiJ8Protocol_p_0aB4Core0a6CameraL0CAH0A10UISettingsVtcfc",
+            "mangledName": "$s25MapConductorForGoogleMaps0dA9ViewStateC13mapDesignType14cameraPosition10uiSettingsAcA0daiJ8Protocol_p_0aB4Core0a6CameraL0CAH0A10UISettingsVtcfc",
+            "moduleName": "MapConductorForGoogleMaps",
+            "declAttributes": [
+              "Convenience",
+              "AccessControl"
+            ],
+            "init_kind": "Convenience"
+          },
+          {
+            "kind": "Function",
+            "name": "moveCameraTo",
+            "printedName": "moveCameraTo(cameraPosition:durationMillis:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "MapCameraPosition",
+                "printedName": "MapConductorCore.MapCameraPosition",
+                "usr": "s:16MapConductorCore0A14CameraPositionC"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.Int64?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int64",
+                    "printedName": "Swift.Int64",
+                    "usr": "s:s5Int64V"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:25MapConductorForGoogleMaps0dA9ViewStateC12moveCameraTo14cameraPosition14durationMillisy0aB4Core0aiL0C_s5Int64VSgtF",
+            "mangledName": "$s25MapConductorForGoogleMaps0dA9ViewStateC12moveCameraTo14cameraPosition14durationMillisy0aB4Core0aiL0C_s5Int64VSgtF",
+            "moduleName": "MapConductorForGoogleMaps",
+            "overriding": true,
+            "declAttributes": [
+              "Final",
+              "Override",
+              "AccessControl"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "fitBounds",
+            "printedName": "fitBounds(bounds:padding:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "GeoRectBounds",
+                "printedName": "MapConductorCore.GeoRectBounds",
+                "usr": "s:16MapConductorCore13GeoRectBoundsC"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:25MapConductorForGoogleMaps0dA9ViewStateC9fitBounds6bounds7paddingy0aB4Core07GeoRectI0C_SitF",
+            "mangledName": "$s25MapConductorForGoogleMaps0dA9ViewStateC9fitBounds6bounds7paddingy0aB4Core07GeoRectI0C_SitF",
+            "moduleName": "MapConductorForGoogleMaps",
+            "overriding": true,
+            "declAttributes": [
+              "Final",
+              "Override",
+              "AccessControl"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "moveCameraTo",
+            "printedName": "moveCameraTo(position:durationMillis:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "GeoPoint",
+                "printedName": "MapConductorCore.GeoPoint",
+                "usr": "s:16MapConductorCore8GeoPointV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.Int64?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int64",
+                    "printedName": "Swift.Int64",
+                    "usr": "s:s5Int64V"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:25MapConductorForGoogleMaps0dA9ViewStateC12moveCameraTo8position14durationMillisy0aB4Core8GeoPointV_s5Int64VSgtF",
+            "mangledName": "$s25MapConductorForGoogleMaps0dA9ViewStateC12moveCameraTo8position14durationMillisy0aB4Core8GeoPointV_s5Int64VSgtF",
+            "moduleName": "MapConductorForGoogleMaps",
+            "overriding": true,
+            "declAttributes": [
+              "Final",
+              "Override",
+              "AccessControl"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "getMapViewHolder",
+            "printedName": "getMapViewHolder()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "MapConductorCore.AnyMapViewHolder?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "AnyMapViewHolder",
+                    "printedName": "MapConductorCore.AnyMapViewHolder",
+                    "usr": "s:16MapConductorCore03AnyA10ViewHolderV"
+                  }
+                ],
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:25MapConductorForGoogleMaps0dA9ViewStateC03getaF6Holder0aB4Core03AnyafI0VSgyF",
+            "mangledName": "$s25MapConductorForGoogleMaps0dA9ViewStateC03getaF6Holder0aB4Core03AnyafI0VSgyF",
+            "moduleName": "MapConductorForGoogleMaps",
+            "overriding": true,
+            "declAttributes": [
+              "Final",
+              "Override",
+              "AccessControl"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "GoogleMapViewState",
+                "printedName": "MapConductorForGoogleMaps.GoogleMapViewState",
+                "usr": "s:25MapConductorForGoogleMaps0dA9ViewStateC"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:25MapConductorForGoogleMaps0dA9ViewStateCACycfc",
+            "mangledName": "$s25MapConductorForGoogleMaps0dA9ViewStateCACycfc",
+            "moduleName": "MapConductorForGoogleMaps",
+            "overriding": true,
+            "implicit": true,
+            "declAttributes": [
+              "Override"
+            ],
+            "init_kind": "Designated"
+          }
+        ],
+        "declKind": "Class",
+        "usr": "s:25MapConductorForGoogleMaps0dA9ViewStateC",
+        "mangledName": "$s25MapConductorForGoogleMaps0dA9ViewStateC",
+        "moduleName": "MapConductorForGoogleMaps",
+        "declAttributes": [
+          "Final",
+          "AccessControl"
+        ],
+        "superclassUsr": "s:16MapConductorCore0A9ViewStateC",
+        "superclassNames": [
+          "MapConductorCore.MapViewState<any MapConductorForGoogleMaps.GoogleMapDesignTypeProtocol>"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "ObservableObject",
+            "printedName": "ObservableObject",
+            "children": [
+              {
+                "kind": "TypeWitness",
+                "name": "ObjectWillChangePublisher",
+                "printedName": "ObjectWillChangePublisher",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "ObservableObjectPublisher",
+                    "printedName": "Combine.ObservableObjectPublisher",
+                    "usr": "s:7Combine25ObservableObjectPublisherC"
+                  }
+                ]
+              }
+            ],
+            "usr": "s:7Combine16ObservableObjectP",
+            "mangledName": "$s7Combine16ObservableObjectP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "MapViewStateProtocol",
+            "printedName": "MapViewStateProtocol",
+            "children": [
+              {
+                "kind": "TypeWitness",
+                "name": "ActualMapDesignType",
+                "printedName": "ActualMapDesignType",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "GoogleMapDesignTypeProtocol",
+                    "printedName": "any MapConductorForGoogleMaps.GoogleMapDesignTypeProtocol",
+                    "usr": "s:25MapConductorForGoogleMaps0dA18DesignTypeProtocolP"
+                  }
+                ]
+              }
+            ],
+            "usr": "s:16MapConductorCore0A17ViewStateProtocolP",
+            "mangledName": "$s16MapConductorCore0A17ViewStateProtocolP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          }
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "Foundation",
+        "printedName": "Foundation",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "Import",
+        "name": "GoogleMaps",
+        "printedName": "GoogleMaps",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "Import",
+        "name": "MapConductorCore",
+        "printedName": "MapConductorCore",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "Import",
+        "name": "Foundation",
+        "printedName": "Foundation",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "Import",
+        "name": "MapConductorCore",
+        "printedName": "MapConductorCore",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "GoogleMapsZoomAltitudeConverter",
+        "printedName": "GoogleMapsZoomAltitudeConverter",
+        "children": [
+          {
+            "kind": "Var",
+            "name": "zoom0Altitude",
+            "printedName": "zoom0Altitude",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Double",
+                "printedName": "Swift.Double",
+                "usr": "s:Sd"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:25MapConductorForGoogleMaps0dE21ZoomAltitudeConverterC05zoom0G0Sdvp",
+            "mangledName": "$s25MapConductorForGoogleMaps0dE21ZoomAltitudeConverterC05zoom0G0Sdvp",
+            "moduleName": "MapConductorForGoogleMaps",
+            "declAttributes": [
+              "Final",
+              "HasStorage",
+              "AccessControl"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Double",
+                    "printedName": "Swift.Double",
+                    "usr": "s:Sd"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:25MapConductorForGoogleMaps0dE21ZoomAltitudeConverterC05zoom0G0Sdvg",
+                "mangledName": "$s25MapConductorForGoogleMaps0dE21ZoomAltitudeConverterC05zoom0G0Sdvg",
+                "moduleName": "MapConductorForGoogleMaps",
+                "implicit": true,
+                "declAttributes": [
+                  "Final"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(zoom0Altitude:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "GoogleMapsZoomAltitudeConverter",
+                "printedName": "MapConductorForGoogleMaps.GoogleMapsZoomAltitudeConverter",
+                "usr": "s:25MapConductorForGoogleMaps0dE21ZoomAltitudeConverterC"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Double",
+                "printedName": "Swift.Double",
+                "hasDefaultArg": true,
+                "usr": "s:Sd"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:25MapConductorForGoogleMaps0dE21ZoomAltitudeConverterC05zoom0G0ACSd_tcfc",
+            "mangledName": "$s25MapConductorForGoogleMaps0dE21ZoomAltitudeConverterC05zoom0G0ACSd_tcfc",
+            "moduleName": "MapConductorForGoogleMaps",
+            "declAttributes": [
+              "AccessControl"
+            ],
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Function",
+            "name": "zoomLevelToAltitude",
+            "printedName": "zoomLevelToAltitude(zoomLevel:latitude:tilt:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Double",
+                "printedName": "Swift.Double",
+                "usr": "s:Sd"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Double",
+                "printedName": "Swift.Double",
+                "usr": "s:Sd"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Double",
+                "printedName": "Swift.Double",
+                "usr": "s:Sd"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Double",
+                "printedName": "Swift.Double",
+                "usr": "s:Sd"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:25MapConductorForGoogleMaps0dE21ZoomAltitudeConverterC011zoomLevelToG00iJ08latitude4tiltS2d_S2dtF",
+            "mangledName": "$s25MapConductorForGoogleMaps0dE21ZoomAltitudeConverterC011zoomLevelToG00iJ08latitude4tiltS2d_S2dtF",
+            "moduleName": "MapConductorForGoogleMaps",
+            "declAttributes": [
+              "AccessControl"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "altitudeToZoomLevel",
+            "printedName": "altitudeToZoomLevel(altitude:latitude:tilt:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Double",
+                "printedName": "Swift.Double",
+                "usr": "s:Sd"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Double",
+                "printedName": "Swift.Double",
+                "usr": "s:Sd"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Double",
+                "printedName": "Swift.Double",
+                "usr": "s:Sd"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Double",
+                "printedName": "Swift.Double",
+                "usr": "s:Sd"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:25MapConductorForGoogleMaps0dE21ZoomAltitudeConverterC010altitudeToF5Level0I08latitude4tiltS2d_S2dtF",
+            "mangledName": "$s25MapConductorForGoogleMaps0dE21ZoomAltitudeConverterC010altitudeToF5Level0I08latitude4tiltS2d_S2dtF",
+            "moduleName": "MapConductorForGoogleMaps",
+            "declAttributes": [
+              "AccessControl"
+            ],
+            "funcSelfKind": "NonMutating"
+          }
+        ],
+        "declKind": "Class",
+        "usr": "s:25MapConductorForGoogleMaps0dE21ZoomAltitudeConverterC",
+        "mangledName": "$s25MapConductorForGoogleMaps0dE21ZoomAltitudeConverterC",
+        "moduleName": "MapConductorForGoogleMaps",
+        "declAttributes": [
+          "AccessControl"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "ZoomAltitudeConverterProtocol",
+            "printedName": "ZoomAltitudeConverterProtocol",
+            "usr": "s:16MapConductorCore29ZoomAltitudeConverterProtocolP",
+            "mangledName": "$s16MapConductorCore29ZoomAltitudeConverterProtocolP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          }
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "Combine",
+        "printedName": "Combine",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "Import",
+        "name": "CoreLocation",
+        "printedName": "CoreLocation",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "Import",
+        "name": "GoogleMaps",
+        "printedName": "GoogleMaps",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "Import",
+        "name": "MapConductorCore",
+        "printedName": "MapConductorCore",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "Import",
+        "name": "CoreLocation",
+        "printedName": "CoreLocation",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "Import",
+        "name": "GoogleMaps",
+        "printedName": "GoogleMaps",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "Import",
+        "name": "MapConductorCore",
+        "printedName": "MapConductorCore",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "Import",
+        "name": "UIKit",
+        "printedName": "UIKit",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "Import",
+        "name": "CoreLocation",
+        "printedName": "CoreLocation",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "Import",
+        "name": "GoogleMaps",
+        "printedName": "GoogleMaps",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "Import",
+        "name": "MapConductorCore",
+        "printedName": "MapConductorCore",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "Import",
+        "name": "QuartzCore",
+        "printedName": "QuartzCore",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "Import",
+        "name": "CoreGraphics",
+        "printedName": "CoreGraphics",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "Import",
+        "name": "CoreLocation",
+        "printedName": "CoreLocation",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "Import",
+        "name": "GoogleMaps",
+        "printedName": "GoogleMaps",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "Import",
+        "name": "MapConductorCore",
+        "printedName": "MapConductorCore",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "Import",
+        "name": "Combine",
+        "printedName": "Combine",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "Import",
+        "name": "CoreLocation",
+        "printedName": "CoreLocation",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "Import",
+        "name": "GoogleMaps",
+        "printedName": "GoogleMaps",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "Import",
+        "name": "MapConductorCore",
+        "printedName": "MapConductorCore",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "Import",
+        "name": "CoreLocation",
+        "printedName": "CoreLocation",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "Import",
+        "name": "GoogleMaps",
+        "printedName": "GoogleMaps",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "Import",
+        "name": "MapConductorCore",
+        "printedName": "MapConductorCore",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "Import",
+        "name": "Combine",
+        "printedName": "Combine",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "Import",
+        "name": "CoreLocation",
+        "printedName": "CoreLocation",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "Import",
+        "name": "GoogleMaps",
+        "printedName": "GoogleMaps",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "Import",
+        "name": "MapConductorCore",
+        "printedName": "MapConductorCore",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "Import",
+        "name": "CoreGraphics",
+        "printedName": "CoreGraphics",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "Import",
+        "name": "CoreLocation",
+        "printedName": "CoreLocation",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "Import",
+        "name": "GoogleMaps",
+        "printedName": "GoogleMaps",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "Import",
+        "name": "MapConductorCore",
+        "printedName": "MapConductorCore",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "Import",
+        "name": "Combine",
+        "printedName": "Combine",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "Import",
+        "name": "CoreLocation",
+        "printedName": "CoreLocation",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "Import",
+        "name": "GoogleMaps",
+        "printedName": "GoogleMaps",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "Import",
+        "name": "MapConductorCore",
+        "printedName": "MapConductorCore",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "Import",
+        "name": "GoogleMaps",
+        "printedName": "GoogleMaps",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "Import",
+        "name": "MapConductorCore",
+        "printedName": "MapConductorCore",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "Import",
+        "name": "UIKit",
+        "printedName": "UIKit",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "Import",
+        "name": "Combine",
+        "printedName": "Combine",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "Import",
+        "name": "CoreLocation",
+        "printedName": "CoreLocation",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "Import",
+        "name": "GoogleMaps",
+        "printedName": "GoogleMaps",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "Import",
+        "name": "MapConductorCore",
+        "printedName": "MapConductorCore",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "Import",
+        "name": "GoogleMaps",
+        "printedName": "GoogleMaps",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "Import",
+        "name": "MapConductorCore",
+        "printedName": "MapConductorCore",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "Import",
+        "name": "UIKit",
+        "printedName": "UIKit",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "Import",
+        "name": "Combine",
+        "printedName": "Combine",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "Import",
+        "name": "GoogleMaps",
+        "printedName": "GoogleMaps",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "Import",
+        "name": "MapConductorCore",
+        "printedName": "MapConductorCore",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "Import",
+        "name": "GoogleMaps",
+        "printedName": "GoogleMaps",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "Import",
+        "name": "MapConductorCore",
+        "printedName": "MapConductorCore",
+        "declKind": "Import",
+        "moduleName": "MapConductorForGoogleMaps"
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "MapCameraPosition",
+        "printedName": "MapCameraPosition",
+        "children": [
+          {
+            "kind": "Function",
+            "name": "toCameraPosition",
+            "printedName": "toCameraPosition()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "GMSCameraPosition",
+                "printedName": "GoogleMaps.GMSCameraPosition",
+                "usr": "c:objc(cs)GMSCameraPosition"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:16MapConductorCore0A14CameraPositionC0aB13ForGoogleMapsE02todE0So09GMSCameraE0CyF",
+            "mangledName": "$s16MapConductorCore0A14CameraPositionC0aB13ForGoogleMapsE02todE0So09GMSCameraE0CyF",
+            "moduleName": "MapConductorForGoogleMaps",
+            "declAttributes": [
+              "Final"
+            ],
+            "isFromExtension": true,
+            "funcSelfKind": "NonMutating"
+          }
+        ],
+        "declKind": "Class",
+        "usr": "s:16MapConductorCore0A14CameraPositionC",
+        "mangledName": "$s16MapConductorCore0A14CameraPositionC",
+        "moduleName": "MapConductorCore",
+        "declAttributes": [
+          "Final"
+        ],
+        "isExternal": true,
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "MapCameraPositionProtocol",
+            "printedName": "MapCameraPositionProtocol",
+            "usr": "s:16MapConductorCore0A22CameraPositionProtocolP",
+            "mangledName": "$s16MapConductorCore0A22CameraPositionProtocolP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "GMSCameraPosition",
+        "printedName": "GMSCameraPosition",
+        "children": [
+          {
+            "kind": "Function",
+            "name": "toMapCameraPosition",
+            "printedName": "toMapCameraPosition(logicalTiltHint:visibleRegion:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "MapCameraPosition",
+                "printedName": "MapConductorCore.MapCameraPosition",
+                "usr": "s:16MapConductorCore0A14CameraPositionC"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.Double?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Double",
+                    "printedName": "Swift.Double",
+                    "usr": "s:Sd"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "MapConductorCore.VisibleRegion?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "VisibleRegion",
+                    "printedName": "MapConductorCore.VisibleRegion",
+                    "usr": "s:16MapConductorCore13VisibleRegionV"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:So17GMSCameraPositionC25MapConductorForGoogleMapsE02toc6CameraB015logicalTiltHint13visibleRegion0cD4Core0ciB0CSdSg_AG07VisibleN0VSgtF",
+            "mangledName": "$sSo17GMSCameraPositionC25MapConductorForGoogleMapsE02toc6CameraB015logicalTiltHint13visibleRegion0cD4Core0ciB0CSdSg_AG07VisibleN0VSgtF",
+            "moduleName": "MapConductorForGoogleMaps",
+            "isFromExtension": true,
+            "funcSelfKind": "NonMutating"
+          }
+        ],
+        "declKind": "Class",
+        "usr": "c:objc(cs)GMSCameraPosition",
+        "moduleName": "GoogleMaps",
+        "isOpen": true,
+        "objc_name": "GMSCameraPosition",
+        "declAttributes": [
+          "ObjC",
+          "Dynamic"
+        ],
+        "superclassUsr": "c:objc(cs)NSObject",
+        "isExternal": true,
+        "inheritsConvenienceInitializers": true,
+        "superclassNames": [
+          "ObjectiveC.NSObject"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "_KeyValueCodingAndObserving",
+            "printedName": "_KeyValueCodingAndObserving",
+            "usr": "s:10Foundation27_KeyValueCodingAndObservingP",
+            "mangledName": "$s10Foundation27_KeyValueCodingAndObservingP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "_KeyValueCodingAndObservingPublishing",
+            "printedName": "_KeyValueCodingAndObservingPublishing",
+            "usr": "s:10Foundation37_KeyValueCodingAndObservingPublishingP",
+            "mangledName": "$s10Foundation37_KeyValueCodingAndObservingPublishingP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "CVarArg",
+            "printedName": "CVarArg",
+            "usr": "s:s7CVarArgP",
+            "mangledName": "$ss7CVarArgP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "CustomDebugStringConvertible",
+            "printedName": "CustomDebugStringConvertible",
+            "usr": "s:s28CustomDebugStringConvertibleP",
+            "mangledName": "$ss28CustomDebugStringConvertibleP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "CustomStringConvertible",
+            "printedName": "CustomStringConvertible",
+            "usr": "s:s23CustomStringConvertibleP",
+            "mangledName": "$ss23CustomStringConvertibleP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ",
+            "mangledName": "$sSQ"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Hashable",
+            "printedName": "Hashable",
+            "usr": "s:SH",
+            "mangledName": "$sSH"
+          }
+        ]
+      }
+    ],
+    "json_format_version": 8
+  },
+  "ConstValues": [
+    {
+      "filePath": "\/Users\/masashi\/mapconductor\/ios-sdk\/ios-for-googlemaps\/Sources\/MapConductorForGoogleMaps\/AdaptiveInterpolation.swift",
+      "kind": "FloatLiteral",
+      "offset": 317,
+      "length": 5,
+      "value": "400.0"
+    },
+    {
+      "filePath": "\/Users\/masashi\/mapconductor\/ios-sdk\/ios-for-googlemaps\/Sources\/MapConductorForGoogleMaps\/AdaptiveInterpolation.swift",
+      "kind": "FloatLiteral",
+      "offset": 380,
+      "length": 4,
+      "value": "50.0"
+    },
+    {
+      "filePath": "\/Users\/masashi\/mapconductor\/ios-sdk\/ios-for-googlemaps\/Sources\/MapConductorForGoogleMaps\/AdaptiveInterpolation.swift",
+      "kind": "FloatLiteral",
+      "offset": 441,
+      "length": 9,
+      "value": "100000.0"
+    },
+    {
+      "filePath": "\/Users\/masashi\/mapconductor\/ios-sdk\/ios-for-googlemaps\/Sources\/MapConductorForGoogleMaps\/GoogleMapView.swift",
+      "kind": "BooleanLiteral",
+      "offset": 5727,
+      "length": 5,
+      "value": "false"
+    },
+    {
+      "filePath": "\/Users\/masashi\/mapconductor\/ios-sdk\/ios-for-googlemaps\/Sources\/MapConductorForGoogleMaps\/GoogleMapView.swift",
+      "kind": "StringLiteral",
+      "offset": 7005,
+      "length": 21,
+      "value": "\"mapView unavailable\""
+    },
+    {
+      "filePath": "\/Users\/masashi\/mapconductor\/ios-sdk\/ios-for-googlemaps\/Sources\/MapConductorForGoogleMaps\/GoogleMapView.swift",
+      "kind": "BooleanLiteral",
+      "offset": 7198,
+      "length": 5,
+      "value": "false"
+    },
+    {
+      "filePath": "\/Users\/masashi\/mapconductor\/ios-sdk\/ios-for-googlemaps\/Sources\/MapConductorForGoogleMaps\/GoogleMapViewState.swift",
+      "kind": "IntegerLiteral",
+      "offset": 1696,
+      "length": 1,
+      "value": "0"
+    },
+    {
+      "filePath": "\/Users\/masashi\/mapconductor\/ios-sdk\/ios-for-googlemaps\/Sources\/MapConductorForGoogleMaps\/GoogleMapViewState.swift",
+      "kind": "IntegerLiteral",
+      "offset": 2339,
+      "length": 1,
+      "value": "0"
+    },
+    {
+      "filePath": "\/Users\/masashi\/mapconductor\/ios-sdk\/ios-for-googlemaps\/Sources\/MapConductorForGoogleMaps\/MapCameraPositionExtensions.swift",
+      "kind": "FloatLiteral",
+      "offset": 132,
+      "length": 13,
+      "value": "171319879.0"
+    },
+    {
+      "filePath": "\/Users\/masashi\/mapconductor\/ios-sdk\/ios-for-googlemaps\/Sources\/MapConductorForGoogleMaps\/ZoomAltitudeConverter.swift",
+      "kind": "FloatLiteral",
+      "offset": 248,
+      "length": 3,
+      "value": "2.0"
+    },
+    {
+      "filePath": "\/Users\/masashi\/mapconductor\/ios-sdk\/ios-for-googlemaps\/Sources\/MapConductorForGoogleMaps\/ZoomAltitudeConverter.swift",
+      "kind": "FloatLiteral",
+      "offset": 291,
+      "length": 3,
+      "value": "0.0"
+    },
+    {
+      "filePath": "\/Users\/masashi\/mapconductor\/ios-sdk\/ios-for-googlemaps\/Sources\/MapConductorForGoogleMaps\/ZoomAltitudeConverter.swift",
+      "kind": "FloatLiteral",
+      "offset": 334,
+      "length": 4,
+      "value": "22.0"
+    },
+    {
+      "filePath": "\/Users\/masashi\/mapconductor\/ios-sdk\/ios-for-googlemaps\/Sources\/MapConductorForGoogleMaps\/ZoomAltitudeConverter.swift",
+      "kind": "FloatLiteral",
+      "offset": 377,
+      "length": 5,
+      "value": "100.0"
+    },
+    {
+      "filePath": "\/Users\/masashi\/mapconductor\/ios-sdk\/ios-for-googlemaps\/Sources\/MapConductorForGoogleMaps\/ZoomAltitudeConverter.swift",
+      "kind": "FloatLiteral",
+      "offset": 421,
+      "length": 12,
+      "value": "50000000.0"
+    },
+    {
+      "filePath": "\/Users\/masashi\/mapconductor\/ios-sdk\/ios-for-googlemaps\/Sources\/MapConductorForGoogleMaps\/ZoomAltitudeConverter.swift",
+      "kind": "FloatLiteral",
+      "offset": 470,
+      "length": 4,
+      "value": "0.01"
+    },
+    {
+      "filePath": "\/Users\/masashi\/mapconductor\/ios-sdk\/ios-for-googlemaps\/Sources\/MapConductorForGoogleMaps\/ZoomAltitudeConverter.swift",
+      "kind": "FloatLiteral",
+      "offset": 512,
+      "length": 4,
+      "value": "0.05"
+    },
+    {
+      "filePath": "\/Users\/masashi\/mapconductor\/ios-sdk\/ios-for-googlemaps\/Sources\/MapConductorForGoogleMaps\/ZoomAltitudeConverter.swift",
+      "kind": "FloatLiteral",
+      "offset": 558,
+      "length": 13,
+      "value": "171319879.0"
+    },
+    {
+      "filePath": "\/Users\/masashi\/mapconductor\/ios-sdk\/ios-for-googlemaps\/Sources\/MapConductorForGoogleMaps\/circle\/GoogleMapCircleController.swift",
+      "kind": "Dictionary",
+      "offset": 292,
+      "length": 3,
+      "value": "[]"
+    },
+    {
+      "filePath": "\/Users\/masashi\/mapconductor\/ios-sdk\/ios-for-googlemaps\/Sources\/MapConductorForGoogleMaps\/circle\/GoogleMapCircleController.swift",
+      "kind": "Dictionary",
+      "offset": 360,
+      "length": 3,
+      "value": "[]"
+    },
+    {
+      "filePath": "\/Users\/masashi\/mapconductor\/ios-sdk\/ios-for-googlemaps\/Sources\/MapConductorForGoogleMaps\/circle\/GoogleMapCircleOverlayRenderer.swift",
+      "kind": "IntegerLiteral",
+      "offset": 3982,
+      "length": 2,
+      "value": "64"
+    },
+    {
+      "filePath": "\/Users\/masashi\/mapconductor\/ios-sdk\/ios-for-googlemaps\/Sources\/MapConductorForGoogleMaps\/circle\/GoogleMapCircleOverlayRenderer.swift",
+      "kind": "FloatLiteral",
+      "offset": 4017,
+      "length": 11,
+      "value": "6371000.0"
+    },
+    {
+      "filePath": "\/Users\/masashi\/mapconductor\/ios-sdk\/ios-for-googlemaps\/Sources\/MapConductorForGoogleMaps\/groundimage\/GoogleMapGroundImageController.swift",
+      "kind": "Dictionary",
+      "offset": 323,
+      "length": 3,
+      "value": "[]"
+    },
+    {
+      "filePath": "\/Users\/masashi\/mapconductor\/ios-sdk\/ios-for-googlemaps\/Sources\/MapConductorForGoogleMaps\/groundimage\/GoogleMapGroundImageController.swift",
+      "kind": "Dictionary",
+      "offset": 396,
+      "length": 3,
+      "value": "[]"
+    },
+    {
+      "filePath": "\/Users\/masashi\/mapconductor\/ios-sdk\/ios-for-googlemaps\/Sources\/MapConductorForGoogleMaps\/marker\/GoogleMapMarkerController.swift",
+      "kind": "Dictionary",
+      "offset": 292,
+      "length": 3,
+      "value": "[]"
+    },
+    {
+      "filePath": "\/Users\/masashi\/mapconductor\/ios-sdk\/ios-for-googlemaps\/Sources\/MapConductorForGoogleMaps\/marker\/GoogleMapMarkerController.swift",
+      "kind": "Dictionary",
+      "offset": 360,
+      "length": 3,
+      "value": "[]"
+    },
+    {
+      "filePath": "\/Users\/masashi\/mapconductor\/ios-sdk\/ios-for-googlemaps\/Sources\/MapConductorForGoogleMaps\/marker\/GoogleMapMarkerController.swift",
+      "kind": "Array",
+      "offset": 3840,
+      "length": 2,
+      "value": "[]"
+    },
+    {
+      "filePath": "\/Users\/masashi\/mapconductor\/ios-sdk\/ios-for-googlemaps\/Sources\/MapConductorForGoogleMaps\/marker\/GoogleMapMarkerController.swift",
+      "kind": "StringLiteral",
+      "offset": 3935,
+      "length": 2,
+      "value": "\"\""
+    },
+    {
+      "filePath": "\/Users\/masashi\/mapconductor\/ios-sdk\/ios-for-googlemaps\/Sources\/MapConductorForGoogleMaps\/marker\/GoogleMapMarkerRenderer.swift",
+      "kind": "IntegerLiteral",
+      "offset": 252,
+      "length": 2,
+      "value": "30"
+    },
+    {
+      "filePath": "\/Users\/masashi\/mapconductor\/ios-sdk\/ios-for-googlemaps\/Sources\/MapConductorForGoogleMaps\/marker\/GoogleMapMarkerRenderer.swift",
+      "kind": "FloatLiteral",
+      "offset": 323,
+      "length": 3,
+      "value": "1.0"
+    },
+    {
+      "filePath": "\/Users\/masashi\/mapconductor\/ios-sdk\/ios-for-googlemaps\/Sources\/MapConductorForGoogleMaps\/marker\/GoogleMapMarkerRenderer.swift",
+      "kind": "FloatLiteral",
+      "offset": 329,
+      "length": 3,
+      "value": "4.0"
+    },
+    {
+      "filePath": "\/Users\/masashi\/mapconductor\/ios-sdk\/ios-for-googlemaps\/Sources\/MapConductorForGoogleMaps\/marker\/GoogleMapMarkerRenderer.swift",
+      "kind": "Dictionary",
+      "offset": 498,
+      "length": 3,
+      "value": "[]"
+    },
+    {
+      "filePath": "\/Users\/masashi\/mapconductor\/ios-sdk\/ios-for-googlemaps\/Sources\/MapConductorForGoogleMaps\/marker\/GoogleMapMarkerRenderer.swift",
+      "kind": "Dictionary",
+      "offset": 563,
+      "length": 3,
+      "value": "[]"
+    },
+    {
+      "filePath": "\/Users\/masashi\/mapconductor\/ios-sdk\/ios-for-googlemaps\/Sources\/MapConductorForGoogleMaps\/marker\/GoogleMapMarkerRenderer.swift",
+      "kind": "Dictionary",
+      "offset": 639,
+      "length": 3,
+      "value": "[]"
+    },
+    {
+      "filePath": "\/Users\/masashi\/mapconductor\/ios-sdk\/ios-for-googlemaps\/Sources\/MapConductorForGoogleMaps\/marker\/GoogleMapMarkerRenderer.swift",
+      "kind": "IntegerLiteral",
+      "offset": 697,
+      "length": 1,
+      "value": "0"
+    },
+    {
+      "filePath": "\/Users\/masashi\/mapconductor\/ios-sdk\/ios-for-googlemaps\/Sources\/MapConductorForGoogleMaps\/marker\/GoogleMapMarkerRenderer.swift",
+      "kind": "Array",
+      "offset": 777,
+      "length": 2,
+      "value": "[]"
+    },
+    {
+      "filePath": "\/Users\/masashi\/mapconductor\/ios-sdk\/ios-for-googlemaps\/Sources\/MapConductorForGoogleMaps\/polygon\/GoogleMapPolygonController.swift",
+      "kind": "Dictionary",
+      "offset": 297,
+      "length": 3,
+      "value": "[]"
+    },
+    {
+      "filePath": "\/Users\/masashi\/mapconductor\/ios-sdk\/ios-for-googlemaps\/Sources\/MapConductorForGoogleMaps\/polygon\/GoogleMapPolygonController.swift",
+      "kind": "Dictionary",
+      "offset": 366,
+      "length": 3,
+      "value": "[]"
+    },
+    {
+      "filePath": "\/Users\/masashi\/mapconductor\/ios-sdk\/ios-for-googlemaps\/Sources\/MapConductorForGoogleMaps\/polygon\/GoogleMapPolygonOverlayRenderer.swift",
+      "kind": "IntegerLiteral",
+      "offset": 276,
+      "length": 2,
+      "value": "64"
+    },
+    {
+      "filePath": "\/Users\/masashi\/mapconductor\/ios-sdk\/ios-for-googlemaps\/Sources\/MapConductorForGoogleMaps\/polyline\/GoogleMapPolylineController.swift",
+      "kind": "Dictionary",
+      "offset": 303,
+      "length": 3,
+      "value": "[]"
+    },
+    {
+      "filePath": "\/Users\/masashi\/mapconductor\/ios-sdk\/ios-for-googlemaps\/Sources\/MapConductorForGoogleMaps\/polyline\/GoogleMapPolylineController.swift",
+      "kind": "Dictionary",
+      "offset": 373,
+      "length": 3,
+      "value": "[]"
+    },
+    {
+      "filePath": "\/Users\/masashi\/mapconductor\/ios-sdk\/ios-for-googlemaps\/Sources\/MapConductorForGoogleMaps\/polyline\/GoogleMapPolylineOverlayRenderer.swift",
+      "kind": "IntegerLiteral",
+      "offset": 279,
+      "length": 2,
+      "value": "64"
+    },
+    {
+      "filePath": "\/Users\/masashi\/mapconductor\/ios-sdk\/ios-for-googlemaps\/Sources\/MapConductorForGoogleMaps\/raster\/GoogleMapRasterLayerController.swift",
+      "kind": "Dictionary",
+      "offset": 297,
+      "length": 3,
+      "value": "[]"
+    },
+    {
+      "filePath": "\/Users\/masashi\/mapconductor\/ios-sdk\/ios-for-googlemaps\/Sources\/MapConductorForGoogleMaps\/raster\/GoogleMapRasterLayerController.swift",
+      "kind": "Dictionary",
+      "offset": 365,
+      "length": 3,
+      "value": "[]"
+    }
+  ]
+}

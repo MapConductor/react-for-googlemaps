@@ -1,4 +1,4 @@
-import type { MapDesignTypeInterface } from '@mapconductor/js-sdk-core';
+import type { AttributionRule, MapDesignTypeInterface } from '@mapconductor/js-sdk-core';
 
 export type GoogleMapDesignType = MapDesignTypeInterface<string>;
 
@@ -9,7 +9,13 @@ export namespace GoogleMapDesign {
   export const Terrain: GoogleMapDesignType = { id: 'terrain', getValue: () => 'terrain' };
   export const None: GoogleMapDesignType = { id: 'none', getValue: () => 'none' };
 
-  export function Create(id: string): GoogleMapDesignType {
+  export function Create(
+    id: string,
+    attributionRules: readonly AttributionRule[] = []
+  ): GoogleMapDesignType {
+    if (attributionRules.length > 0) {
+      return { id, attributionRules, getValue: () => id };
+    }
     switch (id) {
       case 'roadmap': return Normal;
       case 'satellite': return Satellite;

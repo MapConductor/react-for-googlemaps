@@ -4,6 +4,7 @@ import { GeoPoint, MapCameraPosition } from '@mapconductor/js-sdk-core';
 import type { MarkerTilingOptions } from '@mapconductor/js-sdk-core';
 import {
   InfoBubbleLayer,
+  MapAttributionOverlay,
   MapContext,
   MapViewScope,
   MapViewScopeProvider,
@@ -24,7 +25,6 @@ import NativeGoogleMapView, {
 
 export interface GoogleMapViewProps extends Omit<MapViewBaseProps<GoogleMapViewState>, 'state'> {
   state?: GoogleMapViewState;
-  apiKey?: string;
   mapId?: string;
   markerTilingOptions?: MarkerTilingOptions;
   className?: string;
@@ -61,6 +61,7 @@ export function GoogleMapView({
   );
   const [infoBubblePositions, setInfoBubblePositions] = useState<InfoBubblePositionRequest[]>([]);
   const [isReady, setIsReady] = useState(false);
+  const [attributionCamera, setAttributionCamera] = useState(() => state?.cameraPosition);
   const [infoBubbleScreenPositions, setInfoBubbleScreenPositions] =
     useState<InfoBubbleScreenPositionMap>(() => new Map());
 
@@ -132,7 +133,6 @@ export function GoogleMapView({
     if (!state || !controller) return undefined;
 
     state.setController(controller);
-    state.setMapViewHolder(controller.holder);
 
     controller.setMapInitializedListener(() => onMapLoadedRef.current?.(state));
     controller.setMapClickListener((point) => onMapClickRef.current?.(point));
@@ -152,7 +152,6 @@ export function GoogleMapView({
 
     return () => {
       state.setController(null);
-      state.setMapViewHolder(null);
       controller.destroy();
     };
   }, [controller, state]);
@@ -164,20 +163,24 @@ export function GoogleMapView({
         <NativeGoogleMapView
           ref={nativeRef}
           style={StyleSheet.absoluteFill}
+          apiKey={state?.apiKey}
           cameraPosition={toNativeCameraPosition(initialCameraPositionRef.current)}
           mapDesignType={state?.mapDesignType.id}
           markerTilingOptions={toNativeMarkerTilingOptions(markerTilingOptions)}
           infoBubblePositions={infoBubblePositions}
           onCameraMoveStart={(event) => {
             const camera = MapCameraPosition.from(event.nativeEvent.cameraPosition);
+            setAttributionCamera(camera);
             controller?.onNativeCameraMoveStart(camera);
           }}
           onCameraMove={(event) => {
             const camera = MapCameraPosition.from(event.nativeEvent.cameraPosition);
+            setAttributionCamera(camera);
             controller?.onNativeCameraMove(camera);
           }}
           onCameraMoveEnd={(event) => {
             const camera = MapCameraPosition.from(event.nativeEvent.cameraPosition);
+            setAttributionCamera(camera);
             controller?.onNativeCameraMoveEnd(camera);
           }}
           onMapClick={(event) =>
@@ -275,6 +278,13 @@ export function GoogleMapView({
           infoBubbleScreenPositions={infoBubbleScreenPositions}
           onPositionRequestsChange={setInfoBubblePositions}
         />
+        {attributionCamera ? (
+          <MapAttributionOverlay
+            scope={scope}
+            camera={attributionCamera}
+            designAttributionRules={state?.mapDesignType.attributionRules}
+          />
+        ) : null}
         {children}
       </View>
       </MapViewScopeProvider>

@@ -31,12 +31,10 @@ export class GoogleMapProvider2D extends MapProvider {
     if (!hasLibrary('maps3d') && !hasLibrary('maps')) {
       setOptions({
         key: config.apiKey,
+        v: config.version,
+        libraries: Array.from(new Set(config.libraries)),
       });
     }
-    setOptions({
-      v: config.version,
-        libraries: Array.from(new Set(config.libraries)),
-    });
 
     const { Map } = await loadLibrary<google.maps.MapsLibrary>('maps');
 

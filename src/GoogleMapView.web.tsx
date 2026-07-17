@@ -5,6 +5,7 @@ import {
   MapViewScopeProvider,
   InfoBubbleOverlay,
   MarkerAnimationLayer,
+  MapAttributionOverlay,
   type InfoBubbleEntry,
 } from '@mapconductor/js-sdk-react';
 import type {
@@ -23,7 +24,6 @@ import { GoogleMapConfig } from './GoogleMapConfig';
  */
 export function GoogleMapView({
   state,
-  apiKey,
   mapId,
   className,
   style,
@@ -76,7 +76,7 @@ export function GoogleMapView({
 
     const config: GoogleMapConfig = {
       container: containerRef.current,
-      apiKey,
+      apiKey: state.apiKey,
       mapId,
       initCameraPosition: state.cameraPosition,
       mapDesignType: mapDesignType,
@@ -188,7 +188,7 @@ export function GoogleMapView({
       bridgeUnsubs.current = [];
       provider.destroy();
     };
-  }, [apiKey, mapId, state.mapDesignType.id]);
+  }, [mapId, state.apiKey, state.mapDesignType.id]);
 
   // cameraTick is read here only to force a re-render when the camera moves,
   // so that toScreenOffset() recalculates bubble positions.
@@ -208,6 +208,11 @@ export function GoogleMapView({
           ref={containerRef}
           className={className}
           style={{ width: '100%', height: '100%' }}
+        />
+        <MapAttributionOverlay
+          scope={scope}
+          camera={typedControllerRef.current?.getCameraPosition() ?? state.cameraPosition}
+          designAttributionRules={state.mapDesignType.attributionRules}
         />
         {animationEntries.length > 0 && typedControllerRef.current && (
           <MarkerAnimationLayer

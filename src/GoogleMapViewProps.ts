@@ -1,10 +1,8 @@
 import React from "react";
 import { MapViewBaseProps, MarkerTilingOptions } from "@mapconductor/js-sdk-core";
-import { GoogleMapViewState } from "./GoogleMapViewState";
+import type { GoogleMapViewStateInterface } from "./GoogleMapViewState";
 
-export interface GoogleMapViewProps extends MapViewBaseProps<GoogleMapViewState> {
-  apiKey: string;
-
+export interface GoogleMapViewProps extends MapViewBaseProps<GoogleMapViewStateInterface> {
   // Web-specific
   mapId?: string;
   markerTilingOptions?: MarkerTilingOptions;

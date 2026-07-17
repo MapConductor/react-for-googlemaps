@@ -148,10 +148,21 @@ private fun ReactNativeMarkerIcon.decodeBitmap(context: Context): Bitmap? =
                 BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
             }
         }
+        uri.startsWith("file:///android_res/") -> decodeDrawableResource(uri, context)
         uri.startsWith("file:") || uri.startsWith("content:") || uri.startsWith("android.resource:") ->
             context.contentResolver.openInputStream(Uri.parse(uri))?.use { BitmapFactory.decodeStream(it) }
-        else -> null
+        else -> decodeDrawableResource(uri, context)
     }
+
+private fun decodeDrawableResource(
+    uri: String,
+    context: Context,
+): Bitmap? {
+    val fileName = Uri.parse(uri).lastPathSegment ?: uri
+    val resourceName = fileName.substringBeforeLast('.')
+    val resourceId = context.resources.getIdentifier(resourceName, "drawable", context.packageName)
+    return if (resourceId == 0) null else BitmapFactory.decodeResource(context.resources, resourceId)
+}
 
 private fun offsetFromReadableMap(
     map: ReadableMap?,
