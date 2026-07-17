@@ -20,7 +20,8 @@ public protocol GoogleMapDesignTypeProtocol : MapConductorCore.MapDesignTypeProt
 public typealias GoogleMapDesignType = any MapConductorForGoogleMaps.GoogleMapDesignTypeProtocol
 public struct GoogleMapDesign : MapConductorForGoogleMaps.GoogleMapDesignTypeProtocol, Swift.Hashable {
   public let id: GoogleMaps.GMSMapViewType
-  public init(id: GoogleMaps.GMSMapViewType)
+  public let attributionRules: [MapConductorCore.AttributionRule]
+  public init(id: GoogleMaps.GMSMapViewType, attributionRules: [MapConductorCore.AttributionRule] = [])
   public func getValue() -> GoogleMaps.GMSMapViewType
   public static let Normal: MapConductorForGoogleMaps.GoogleMapDesign
   public static let Satellite: MapConductorForGoogleMaps.GoogleMapDesign

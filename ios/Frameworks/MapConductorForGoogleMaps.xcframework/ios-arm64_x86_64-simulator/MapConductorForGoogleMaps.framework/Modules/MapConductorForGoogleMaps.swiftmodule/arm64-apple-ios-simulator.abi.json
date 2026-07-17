@@ -119,9 +119,69 @@
             ]
           },
           {
+            "kind": "Var",
+            "name": "attributionRules",
+            "printedName": "attributionRules",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[MapConductorCore.AttributionRule]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "AttributionRule",
+                    "printedName": "MapConductorCore.AttributionRule",
+                    "usr": "s:16MapConductorCore15AttributionRuleV"
+                  }
+                ],
+                "usr": "s:Sa"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:25MapConductorForGoogleMaps0dA6DesignV16attributionRulesSay0aB4Core15AttributionRuleVGvp",
+            "mangledName": "$s25MapConductorForGoogleMaps0dA6DesignV16attributionRulesSay0aB4Core15AttributionRuleVGvp",
+            "moduleName": "MapConductorForGoogleMaps",
+            "declAttributes": [
+              "HasStorage",
+              "AccessControl"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Array",
+                    "printedName": "[MapConductorCore.AttributionRule]",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "AttributionRule",
+                        "printedName": "MapConductorCore.AttributionRule",
+                        "usr": "s:16MapConductorCore15AttributionRuleV"
+                      }
+                    ],
+                    "usr": "s:Sa"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:25MapConductorForGoogleMaps0dA6DesignV16attributionRulesSay0aB4Core15AttributionRuleVGvg",
+                "mangledName": "$s25MapConductorForGoogleMaps0dA6DesignV16attributionRulesSay0aB4Core15AttributionRuleVGvg",
+                "moduleName": "MapConductorForGoogleMaps",
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
             "kind": "Constructor",
             "name": "init",
-            "printedName": "init(id:)",
+            "printedName": "init(id:attributionRules:)",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -134,11 +194,26 @@
                 "name": "GMSMapViewType",
                 "printedName": "GoogleMaps.GMSMapViewType",
                 "usr": "c:@E@GMSMapViewType"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[MapConductorCore.AttributionRule]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "AttributionRule",
+                    "printedName": "MapConductorCore.AttributionRule",
+                    "usr": "s:16MapConductorCore15AttributionRuleV"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "usr": "s:Sa"
               }
             ],
             "declKind": "Constructor",
-            "usr": "s:25MapConductorForGoogleMaps0dA6DesignV2idACSo14GMSMapViewTypeV_tcfc",
-            "mangledName": "$s25MapConductorForGoogleMaps0dA6DesignV2idACSo14GMSMapViewTypeV_tcfc",
+            "usr": "s:25MapConductorForGoogleMaps0dA6DesignV2id16attributionRulesACSo14GMSMapViewTypeV_Say0aB4Core15AttributionRuleVGtcfc",
+            "mangledName": "$s25MapConductorForGoogleMaps0dA6DesignV2id16attributionRulesACSo14GMSMapViewTypeV_Say0aB4Core15AttributionRuleVGtcfc",
             "moduleName": "MapConductorForGoogleMaps",
             "declAttributes": [
               "AccessControl"
@@ -2476,23 +2551,30 @@
       "value": "100000.0"
     },
     {
+      "filePath": "\/Users\/masashi\/mapconductor\/ios-sdk\/ios-for-googlemaps\/Sources\/MapConductorForGoogleMaps\/GoogleMapDesign.swift",
+      "kind": "Array",
+      "offset": 452,
+      "length": 2,
+      "value": "[]"
+    },
+    {
       "filePath": "\/Users\/masashi\/mapconductor\/ios-sdk\/ios-for-googlemaps\/Sources\/MapConductorForGoogleMaps\/GoogleMapView.swift",
       "kind": "BooleanLiteral",
-      "offset": 5727,
+      "offset": 5943,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/masashi\/mapconductor\/ios-sdk\/ios-for-googlemaps\/Sources\/MapConductorForGoogleMaps\/GoogleMapView.swift",
       "kind": "StringLiteral",
-      "offset": 7005,
+      "offset": 7221,
       "length": 21,
       "value": "\"mapView unavailable\""
     },
     {
       "filePath": "\/Users\/masashi\/mapconductor\/ios-sdk\/ios-for-googlemaps\/Sources\/MapConductorForGoogleMaps\/GoogleMapView.swift",
       "kind": "BooleanLiteral",
-      "offset": 7198,
+      "offset": 7414,
       "length": 5,
       "value": "false"
     },
