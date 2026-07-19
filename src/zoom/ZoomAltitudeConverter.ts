@@ -3,10 +3,31 @@ import { AbstractZoomAltitudeConverter, computeOffset, MapCameraPosition } from 
 // Map3DElement allows tilt in [0, 90]. Keep a hair below the horizon so the
 // orbit camera never degenerates (range → ∞ at exactly 90°).
 const MAX_MAP3D_TILT = 89.0;
-
 const degToRad = (deg: number) => (deg * Math.PI) / 180;
 
+export interface ZoomAltitudeViewportSize {
+    width: number;
+    height: number;
+}
+
 export class ZoomAltitudeConverter extends AbstractZoomAltitudeConverter {
+    // Uses the same linear viewport normalization as android-for-arcgis. The
+    // web Map3DElement calibration matches MapLibre at a 540 CSS px viewport.
+    static readonly REFERENCE_VIEWPORT_HEIGHT_PX = 540;
+
+    constructor(
+        zoom0Altitude = AbstractZoomAltitudeConverter.DEFAULT_ZOOM0_ALTITUDE,
+        private readonly viewportSizeProvider: (() => ZoomAltitudeViewportSize | null) | null = null,
+    ) {
+        super(zoom0Altitude);
+    }
+
+    private effectiveZoom0Altitude(): number {
+        const height = this.viewportSizeProvider?.()?.height;
+        if (height == null || !Number.isFinite(height) || height <= 0) return this.zoom0Altitude;
+        return this.zoom0Altitude * (height / ZoomAltitudeConverter.REFERENCE_VIEWPORT_HEIGHT_PX);
+    }
+
     private cosLatitudeFactor(latitude: number): number {
         const clamped = Math.max(-85, Math.min(85, latitude));
         const latRad = (clamped * Math.PI) / 180;
@@ -61,7 +82,7 @@ export class ZoomAltitudeConverter extends AbstractZoomAltitudeConverter {
     }): number {
         const clampedZoom = Math.min(Math.max(zoomLevel, AbstractZoomAltitudeConverter.MIN_ZOOM_LEVEL), AbstractZoomAltitudeConverter.MAX_ZOOM_LEVEL);
         const cosLat = this.cosLatitudeFactor(latitude);
-        const distance = (this.zoom0Altitude * cosLat) / Math.pow(AbstractZoomAltitudeConverter.ZOOM_FACTOR, clampedZoom);
+        const distance = (this.effectiveZoom0Altitude() * cosLat) / Math.pow(AbstractZoomAltitudeConverter.ZOOM_FACTOR, clampedZoom);
         return Math.min(Math.max(distance, AbstractZoomAltitudeConverter.MIN_ALTITUDE), AbstractZoomAltitudeConverter.MAX_ALTITUDE);
     }
 
@@ -75,7 +96,7 @@ export class ZoomAltitudeConverter extends AbstractZoomAltitudeConverter {
     }): number {
         const clampedDistance = Math.min(Math.max(distance, AbstractZoomAltitudeConverter.MIN_ALTITUDE), AbstractZoomAltitudeConverter.MAX_ALTITUDE);
         const cosLat = this.cosLatitudeFactor(latitude);
-        const zoomLevel = Math.log2((this.zoom0Altitude * cosLat) / clampedDistance);
+        const zoomLevel = Math.log2((this.effectiveZoom0Altitude() * cosLat) / clampedDistance);
         return Math.min(Math.max(zoomLevel, AbstractZoomAltitudeConverter.MIN_ZOOM_LEVEL), AbstractZoomAltitudeConverter.MAX_ZOOM_LEVEL);
     }
 

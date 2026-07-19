@@ -37,6 +37,7 @@ import { GoogleMapRasterLayerController } from './raster/GoogleMapRasterLayerCon
 import { GoogleMapViewHolder2D } from './GoogleMapViewHolder2D';
 import { GoogleMapActualMap2D } from './GoogleMapTypeAlias';
 import { GoogleMapMarkerController2D } from './marker/GoogleMapMarkerController2D';
+import { toGoogleMapsCameraPosition } from './GoogleMapCameraPosition';
 
 export class GoogleMapViewController2D
   extends BaseMapViewController
@@ -124,28 +125,30 @@ export class GoogleMapViewController2D
   }
 
   moveCamera(position: MapCameraPosition): Promise<boolean> {
+    const camera = toGoogleMapsCameraPosition(position);
     return new Promise((resolve) => {
       const idleListener = this.holder.map.addListener('idle', () => {
         google.maps.event.removeListener(idleListener);
         resolve(true);
       });
-      this.holder.map.setCenter(geoPointToLatLng(position.center));
-      this.holder.map.setZoom(position.zoom);
-      if (position.bearing !== undefined) this.holder.map.setHeading(position.bearing);
-      if (position.pitch !== undefined) this.holder.map.setTilt(position.pitch);
+      this.holder.map.setCenter(geoPointToLatLng(camera.center));
+      this.holder.map.setZoom(camera.zoom);
+      this.holder.map.setHeading(camera.bearing);
+      this.holder.map.setTilt(camera.tilt);
     });
   }
 
   animateCamera(position: MapCameraPosition, _options?: CameraOptions): Promise<boolean> {
+    const camera = toGoogleMapsCameraPosition(position);
     return new Promise((resolve) => {
       const idleListener = this.holder.map.addListener('idle', () => {
         google.maps.event.removeListener(idleListener);
         resolve(true);
       });
-      this.holder.map.panTo(geoPointToLatLng(position.center));
-      this.holder.map.setZoom(position.zoom);
-      if (position.bearing !== undefined) this.holder.map.setHeading(position.bearing);
-      if (position.pitch !== undefined) this.holder.map.setTilt(position.pitch);
+      this.holder.map.panTo(geoPointToLatLng(camera.center));
+      this.holder.map.setZoom(camera.zoom);
+      this.holder.map.setHeading(camera.bearing);
+      this.holder.map.setTilt(camera.tilt);
     });
   }
 

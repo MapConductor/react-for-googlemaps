@@ -11,6 +11,7 @@ import { GoogleMapRasterLayerController } from './raster/GoogleMapRasterLayerCon
 import { hasLibrary, loadLibrary } from './LibraryLoader';
 import { GoogleMapConfig2D } from './GoogleMapConfig';
 import { GoogleMapViewHolder2D } from './GoogleMapViewHolder2D';
+import { toGoogleMapsCameraPosition } from './GoogleMapCameraPosition';
 import { GoogleMapGroundImageOverlayRenderer2D } from './groundimage/GoogleMapGroundImageOverlayRenderer2D';
 import { GoogleMapPolygonOverlayRenderer2D } from './polygon/GoogleMapPolygonOverlayRenderer2D';
 import { GoogleMapPolylineOverlayRenderer2D } from './polyline/GoogleMapPolylineOverlayRenderer2D';
@@ -54,10 +55,16 @@ export class GoogleMapProvider2D extends MapProvider {
       throw new Error('Container element not found');
     }
 
+    const initialCamera = config.initCameraPosition
+      ? toGoogleMapsCameraPosition(config.initCameraPosition)
+      : null;
+
     // Create Google Maps instance
     const map = new Map(container, {
-      zoom: config.initCameraPosition?.zoom || 2,
-      center: geoPointToLatLngAltitude(config.initCameraPosition?.center || null) || { lat: 0, lng: 0 },
+      zoom: initialCamera?.zoom ?? 2,
+      center: geoPointToLatLngAltitude(initialCamera?.center || null) || { lat: 0, lng: 0 },
+      heading: initialCamera?.bearing ?? 0,
+      tilt: initialCamera?.tilt ?? 0,
       mapId: config.mapId,
       mapTypeId: config.mapDesignType,
       ...config.options,

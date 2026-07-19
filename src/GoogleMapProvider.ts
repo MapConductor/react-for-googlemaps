@@ -22,6 +22,7 @@ import { ZoomAltitudeConverter } from './zoom';
  * Google Maps provider implementation
  */
 export class GoogleMapProvider extends MapProvider {
+  private resizeObserver: ResizeObserver | null = null;
 
   async initialize(config: GoogleMapConfig): Promise<MapViewControllerInterface> {
 
@@ -57,7 +58,17 @@ export class GoogleMapProvider extends MapProvider {
       throw new Error('Container element not found');
     }
 
-    const zoomConverter = new ZoomAltitudeConverter(ZoomAltitudeConverter.DEFAULT_ZOOM0_ALTITUDE);
+    const viewportSize = () => {
+      const rect = container.getBoundingClientRect();
+      return { width: rect.width, height: rect.height };
+    };
+    // Map3DElement uses a physical camera range while MapConductor zoom follows
+    // a screen-space scale. Normalize the calibrated range by viewport height,
+    // as android-for-arcgis does for SceneView camera altitude.
+    const zoomConverter = new ZoomAltitudeConverter(
+      ZoomAltitudeConverter.DEFAULT_ZOOM0_ALTITUDE - 37_500_000,
+      viewportSize,
+    );
 
     // Create Google Maps instance.
     // Oblique camera semantics: initCameraPosition.position is the ground point
@@ -78,6 +89,24 @@ export class GoogleMapProvider extends MapProvider {
     Object.assign(map.style, { width: '100%', height: '100%', display: 'block' });
     container.innerHTML = '';
     container.appendChild(map);
+
+    let previousHeight = viewportSize().height;
+    if (typeof ResizeObserver !== 'undefined') {
+      this.resizeObserver = new ResizeObserver(() => {
+        const nextHeight = viewportSize().height;
+        if (nextHeight <= 0 || nextHeight === previousHeight) return;
+
+        const range = map.range;
+        if (range != null) {
+          const previousEffectiveHeight = previousHeight > 0
+            ? previousHeight
+            : ZoomAltitudeConverter.REFERENCE_VIEWPORT_HEIGHT_PX;
+          map.range = range * (nextHeight / previousEffectiveHeight);
+        }
+        previousHeight = nextHeight;
+      });
+      this.resizeObserver.observe(container);
+    }
 
     const holder = new GoogleMapViewHolder(container, map, zoomConverter);
     const markerController = getMarkerController(holder, config);
@@ -102,6 +131,8 @@ export class GoogleMapProvider extends MapProvider {
   }
 
   destroy(): void {
+    this.resizeObserver?.disconnect();
+    this.resizeObserver = null;
     if (this.controller) {
       this.controller.destroy();
       this.controller = null;

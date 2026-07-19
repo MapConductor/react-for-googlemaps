@@ -7,26 +7,17 @@
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "react-native": {
-        "types": "./dist/index.native.d.ts",
-        "import": "./dist/index.native.mjs",
-        "require": "./dist/index.native.js"
-      },
       "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
       "require": "./dist/index.js"
     }
   },
   "files": [
-    "android",
-    "ios",
-    "MapConductorReactForGoogleMaps.podspec",
-    "react-native.config.js",
     "dist"
   ],
   "scripts": {
-    "build": "tsup src/index.ts src/index.native.ts --format cjs,esm --dts",
-    "dev": "tsup src/index.ts src/index.native.ts --format cjs,esm --dts --watch",
+    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
     "clean": "rm -rf dist",
     "test": "echo 'No tests yet'"
   },
@@ -40,13 +31,7 @@
   "license": "Apache2",
   "peerDependencies": {
     "@mapconductor/js-sdk-core": "^0.1.0",
-    "react": "^19.2.0",
-    "react-native": ">=0.73.0"
-  },
-  "peerDependenciesMeta": {
-    "react-native": {
-      "optional": true
-    }
+    "react": "^19.2.0"
   },
   "dependencies": {
     "@googlemaps/js-api-loader": "^2.1.1",
