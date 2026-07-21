@@ -37,6 +37,9 @@ export function GoogleMapView2D({
   version,
   libraries,
   markerTilingOptions,
+  minZoom,
+  maxZoom,
+  restrictBounds,
   onError,
   children,
 }: GoogleMapViewProps) {
@@ -79,6 +82,9 @@ export function GoogleMapView2D({
       markerTilingOptions,
       version,
       libraries: libraryList,
+      minZoom,
+      maxZoom,
+      restrictBounds,
     };
 
     provider

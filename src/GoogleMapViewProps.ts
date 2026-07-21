@@ -1,5 +1,5 @@
 import React from "react";
-import { MapViewBaseProps, MarkerTilingOptions } from "@mapconductor/js-sdk-core";
+import { GeoRectBounds, MapViewBaseProps, MarkerTilingOptions } from "@mapconductor/js-sdk-core";
 import type { GoogleMapViewStateInterface } from "./GoogleMapViewState";
 
 export interface GoogleMapViewProps extends MapViewBaseProps<GoogleMapViewStateInterface> {
@@ -11,4 +11,8 @@ export interface GoogleMapViewProps extends MapViewBaseProps<GoogleMapViewStateI
   onError?: (error: Error) => void;
   children?: React.ReactNode;
   libraries?: string;
+  minZoom?: number;
+  maxZoom?: number;
+  /** Restricts panning/zooming so the viewport cannot leave this rectangle. */
+  restrictBounds?: GeoRectBounds;
 }

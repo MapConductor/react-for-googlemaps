@@ -1,6 +1,6 @@
 {
   "name": "@mapconductor/react-for-googlemaps",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Google Maps provider for MapConductor React SDK",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -13,7 +13,9 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "README.ja.md",
+    "README.es-419.md"
   ],
   "scripts": {
     "build": "tsup src/index.ts --format cjs,esm --dts",

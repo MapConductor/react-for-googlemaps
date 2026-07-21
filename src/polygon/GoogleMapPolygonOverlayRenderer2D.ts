@@ -5,7 +5,7 @@ import {
   type PolygonState,
 } from '@mapconductor/js-sdk-core';
 import { toGoogleMapFillStyle } from '../color';
-import { geoPointToLatLng } from '../helpers';
+import { ensureClockwise, ensureCounterClockwise, geoPointToLatLng } from '../helpers';
 import { GoogleMapActualPolygon } from '../GoogleMapTypeAlias';
 import { GoogleMapViewHolder2D } from '../GoogleMapViewHolder2D';
 
@@ -63,9 +63,13 @@ export class GoogleMapPolygonOverlayRenderer2D extends AbstractPolygonOverlayRen
   }
 
   private buildPaths(state: PolygonState): google.maps.LatLngLiteral[][] {
-    return [
-      state.points.map(geoPointToLatLng),
-      ...state.holes.map((hole) => hole.map(geoPointToLatLng)),
-    ];
+    // google.maps.Polygon requires holes to wind opposite the outer ring to
+    // render as a cutout (same winding fills solid — see helpers.ts).
+    const outer = ensureClockwise(state.points.map(geoPointToLatLng));
+    const holes = state.holes
+      .map((hole) => hole.map(geoPointToLatLng))
+      .filter((ring) => ring.length >= 3)
+      .map(ensureCounterClockwise);
+    return [outer, ...holes];
   }
 }

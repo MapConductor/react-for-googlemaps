@@ -59,6 +59,16 @@ export class GoogleMapProvider2D extends MapProvider {
       ? toGoogleMapsCameraPosition(config.initCameraPosition)
       : null;
 
+    const restrictBounds = config.restrictBounds;
+    const latLngBounds = restrictBounds?.southWest && restrictBounds.northEast
+      ? {
+          south: restrictBounds.southWest.latitude,
+          west: restrictBounds.southWest.longitude,
+          north: restrictBounds.northEast.latitude,
+          east: restrictBounds.northEast.longitude,
+        }
+      : undefined;
+
     // Create Google Maps instance
     const map = new Map(container, {
       zoom: initialCamera?.zoom ?? 2,
@@ -67,6 +77,12 @@ export class GoogleMapProvider2D extends MapProvider {
       tilt: initialCamera?.tilt ?? 0,
       mapId: config.mapId,
       mapTypeId: config.mapDesignType,
+      minZoom: config.minZoom,
+      maxZoom: config.maxZoom,
+      // strictBounds keeps the whole viewport inside latLngBounds (not just
+      // the center), matching the "cannot leave this rectangle" semantics of
+      // restrictBounds on the other providers.
+      restriction: latLngBounds ? { latLngBounds, strictBounds: true } : undefined,
       ...config.options,
     });
 

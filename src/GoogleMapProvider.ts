@@ -1,5 +1,5 @@
 import { APIOptions, setOptions } from '@googlemaps/js-api-loader';
-import { MapProvider, type MapViewControllerInterface } from '@mapconductor/js-sdk-core';
+import { MapProvider, type GeoRectBounds, type MapViewControllerInterface } from '@mapconductor/js-sdk-core';
 import { GoogleMapViewController } from './GoogleMapViewController';
 import { GoogleMapViewHolder } from './GoogleMapViewHolder';
 import { GoogleMapCircleController } from './circle/GoogleMapCircleController';
@@ -17,6 +17,16 @@ import { GoogleMapCircleOverlayRenderer } from './circle/GoogleMapCircleOverlayR
 import { GoogleMapConfig } from './GoogleMapConfig';
 import { GoogleMapMarkerRenderer } from './marker/GoogleMapMarkerRenderer';
 import { ZoomAltitudeConverter } from './zoom';
+
+function toLatLngBoundsLiteral(bounds: GeoRectBounds | undefined): google.maps.LatLngBoundsLiteral | undefined {
+  if (!bounds?.southWest || !bounds.northEast) return undefined;
+  return {
+    south: bounds.southWest.latitude,
+    west: bounds.southWest.longitude,
+    north: bounds.northEast.latitude,
+    east: bounds.northEast.longitude,
+  };
+}
 
 /**
  * Google Maps provider implementation
@@ -75,6 +85,12 @@ export class GoogleMapProvider extends MapProvider {
     // at screen center, so apply it via center/range/tilt (orbit model) — never
     // via cameraPosition, which would treat it as the camera's own location.
     const initCameraOptions = zoomConverter.mapCameraPositionToCameraOptions(config.initCameraPosition ?? null);
+    // maxAltitude/minAltitude restrict how far the camera can zoom out/in;
+    // there is no single "current latitude" before the map exists, so use the
+    // initial camera's latitude (falls back to the equator) as the reference
+    // for the cos(latitude) ground-resolution correction — an approximation,
+    // same tradeoff ArcGIS/Cesium make for their zoom<->altitude conversions.
+    const referenceLatitude = config.initCameraPosition?.position.latitude ?? 0;
     const map = new Map3DElement({
       ...(initCameraOptions ?? {
         center: { lat: 0, lng: 0, altitude: 0 },
@@ -84,6 +100,13 @@ export class GoogleMapProvider extends MapProvider {
       }),
       mapId: config.mapId, // Styles are associated with map IDs.
       mode: config.mapDesignType,
+      minAltitude: config.maxZoom !== undefined
+        ? zoomConverter.zoomLevelToAltitude({ zoomLevel: config.maxZoom, latitude: referenceLatitude, tilt: 0 })
+        : undefined,
+      maxAltitude: config.minZoom !== undefined
+        ? zoomConverter.zoomLevelToAltitude({ zoomLevel: config.minZoom, latitude: referenceLatitude, tilt: 0 })
+        : undefined,
+      bounds: toLatLngBoundsLiteral(config.restrictBounds),
       ...config.options,
     });
     Object.assign(map.style, { width: '100%', height: '100%', display: 'block' });

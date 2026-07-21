@@ -30,6 +30,9 @@ export function GoogleMapView({
   version,
   markerTilingOptions,
   libraries,
+  minZoom,
+  maxZoom,
+  restrictBounds,
   onError,
   onMapLoaded,
   onMapClick,
@@ -83,6 +86,9 @@ export function GoogleMapView({
       markerTilingOptions,
       version,
       libraries: libraryList,
+      minZoom,
+      maxZoom,
+      restrictBounds,
     };
 
     provider

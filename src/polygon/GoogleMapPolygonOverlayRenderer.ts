@@ -13,6 +13,7 @@ import {
   buildPolygonPath,
   interpolationCacheKey,
 } from '../overlay3d';
+import { ensureClockwise, ensureCounterClockwise } from '../helpers';
 
 export class GoogleMapPolygonOverlayRenderer extends AbstractPolygonOverlayRenderer<
   GoogleMapViewHolder,
@@ -29,7 +30,9 @@ export class GoogleMapPolygonOverlayRenderer extends AbstractPolygonOverlayRende
       await loadLibrary<google.maps.Maps3DLibrary>('maps3d');
     const innerPaths = this.buildInnerPaths(state);
     const polygon = new Polygon3DInteractiveElement({
-      path: this.buildPath(state.points, state.geodesic),
+      // google.maps polygons require holes to wind opposite the outer ring
+      // to render as a cutout — same winding fills solid (see helpers.ts).
+      path: ensureClockwise(this.buildPath(state.points, state.geodesic)),
       ...(innerPaths.length > 0 ? { innerPaths } : {}),
       strokeColor: state.strokeColor,
       strokeWidth: state.strokeWidth,
@@ -57,7 +60,7 @@ export class GoogleMapPolygonOverlayRenderer extends AbstractPolygonOverlayRende
       return this.createPolygon(current.state);
     }
 
-    polygon.path = this.buildPath(current.state.points, current.state.geodesic);
+    polygon.path = ensureClockwise(this.buildPath(current.state.points, current.state.geodesic));
     // if (innerPaths.length > 0) polygon.innerPaths = innerPaths;
     polygon.strokeColor = current.state.strokeColor;
     polygon.strokeWidth = current.state.strokeWidth;
@@ -89,7 +92,8 @@ export class GoogleMapPolygonOverlayRenderer extends AbstractPolygonOverlayRende
   private buildInnerPaths(state: PolygonState): google.maps.LatLngAltitudeLiteral[][] {
     return state.holes
       .map((hole) => this.buildPath(hole, state.geodesic))
-      .filter((hole) => hole.length >= 3);
+      .filter((hole) => hole.length >= 3)
+      .map(ensureCounterClockwise);
   }
 
   private maxSegmentLengthMeters(): number {
