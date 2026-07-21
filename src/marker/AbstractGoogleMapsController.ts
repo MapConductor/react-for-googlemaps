@@ -10,7 +10,6 @@ import {
   type GeoPoint,
   type MarkerEntity,
   type MarkerState,
-  type OnMarkerEventHandler,
   type RasterLayerState,
 } from '@mapconductor/js-sdk-core';
 import { GoogleMapMarkerRendererInterface } from './GoogleMapMarkerRendererInterface';
@@ -44,18 +43,6 @@ export abstract class AbstractGoogleMapsController<
     });
   }
 
-  async composition(data: MarkerState[]): Promise<void> {
-    await this.add(data);
-  }
-
-  has(state: MarkerState): boolean {
-    return this.markerManager.hasEntity(state.id);
-  }
-
-  override find(position: GeoPoint): MarkerEntity<ActualMarker> | null {
-    return this.markerManager.findNearest(position);
-  }
-
   findTiled(position: GeoPoint, zoom: number): MarkerEntity<ActualMarker> | null {
     const found = this.tileRenderer?.findNearest(
       position,
@@ -63,30 +50,6 @@ export abstract class AbstractGoogleMapsController<
       zoom,
     );
     return found ? this.markerManager.getEntity(found.id) : null;
-  }
-
-  setOnClickListener(listener: OnMarkerEventHandler | null): void {
-    this.clickListener = listener;
-  }
-
-  setOnDragStart(listener: OnMarkerEventHandler | null): void {
-    this.dragStartListener = listener;
-  }
-
-  setOnDrag(listener: OnMarkerEventHandler | null): void {
-    this.dragListener = listener;
-  }
-
-  setOnDragEnd(listener: OnMarkerEventHandler | null): void {
-    this.dragEndListener = listener;
-  }
-
-  setOnAnimateStart(listener: OnMarkerEventHandler | null): void {
-    this.animateStartListener = listener;
-  }
-
-  setOnAnimateEnd(listener: OnMarkerEventHandler | null): void {
-    this.animateEndListener = listener;
   }
 
   override async clear(): Promise<void> {

@@ -3,7 +3,6 @@ import {
   createGeoPoint,
   PolylineController,
   PolylineManager,
-  type OnPolylineEventHandler,
   type PolylineEntity,
   type PolylineEvent,
   type PolylineState,
@@ -29,10 +28,6 @@ export class GoogleMapPolylineController extends PolylineController<GoogleMapAct
     });
   }
 
-  async composition(data: PolylineState[]): Promise<void> {
-    await this.add(data);
-  }
-
   override async add(data: PolylineState[]): Promise<void> {
     const newIds = new Set(data.map((state) => state.id));
     for (const entity of this.polylineManager.allEntities()) {
@@ -52,14 +47,6 @@ export class GoogleMapPolylineController extends PolylineController<GoogleMapAct
     await super.update(state);
     const entity = this.polylineManager.getEntity(state.id);
     if (entity) this.setClickHandler(entity);
-  }
-
-  has(state: PolylineState): boolean {
-    return this.polylineManager.hasEntity(state.id);
-  }
-
-  setOnClickListener(listener: OnPolylineEventHandler | null): void {
-    this.clickListener = listener;
   }
 
   override async clear(): Promise<void> {

@@ -6,7 +6,6 @@ import {
   type CircleEntity,
   type CircleEvent,
   type CircleState,
-  type OnCircleEventHandler,
 } from '@mapconductor/js-sdk-core';
 import { mouseEventToGeoPoint } from '../helpers';
 import { GoogleMapActualCircle } from '../GoogleMapTypeAlias';
@@ -29,10 +28,6 @@ export class GoogleMapCircleController extends CircleController<GoogleMapActualC
     });
   }
 
-  async composition(data: CircleState[]): Promise<void> {
-    await this.add(data);
-  }
-
   override async add(data: CircleState[]): Promise<void> {
     const newIds = new Set(data.map((state) => state.id));
     for (const entity of this.circleManager.allEntities()) {
@@ -52,14 +47,6 @@ export class GoogleMapCircleController extends CircleController<GoogleMapActualC
     await super.update(state);
     const entity = this.circleManager.getEntity(state.id);
     if (entity) this.setClickHandler(entity);
-  }
-
-  has(state: CircleState): boolean {
-    return this.circleManager.hasEntity(state.id);
-  }
-
-  setOnClickListener(listener: OnCircleEventHandler | null): void {
-    this.clickListener = listener;
   }
 
   override async clear(): Promise<void> {

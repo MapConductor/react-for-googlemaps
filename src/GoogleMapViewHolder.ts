@@ -1,5 +1,6 @@
 /// <reference types="google.maps" />
 import {
+  Earth,
   MapViewHolderBase,
   createGeoPoint,
   type GeoPoint,
@@ -18,8 +19,8 @@ type Vec3 = [number, number, number];
 //   visible: boolean;
 // };
 
-const WGS84_A = 6378137.0;
-const WGS84_E2 = 6.69437999014e-3;
+const WGS84_A = Earth.RADIUS_METERS;
+const WGS84_E2 = Earth.ECCENTRICITY_SQUARED;
 
 const degToRad = (deg: number) => (deg * Math.PI) / 180;
 
@@ -115,10 +116,6 @@ export class GoogleMapViewHolder extends MapViewHolderBase<HTMLElement, google.m
     //   depth: cz,
     //
     // };
-  }
-
-  async fromScreenOffset(offset: Offset): Promise<GeoPoint | null> {
-    return this.fromScreenOffsetSync(offset);
   }
 
   fromScreenOffsetSync(offset: Offset): GeoPoint | null {

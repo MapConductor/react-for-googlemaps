@@ -3,7 +3,6 @@ import {
   createGeoPoint,
   PolygonController,
   PolygonManager,
-  type OnPolygonEventHandler,
   type PolygonEntity,
   type PolygonEvent,
   type PolygonState,
@@ -29,10 +28,6 @@ export class GoogleMapPolygonController extends PolygonController<GoogleMapActua
     });
   }
 
-  async composition(data: PolygonState[]): Promise<void> {
-    await this.add(data);
-  }
-
   override async add(data: PolygonState[]): Promise<void> {
     const newIds = new Set(data.map((state) => state.id));
     for (const entity of this.polygonManager.allEntities()) {
@@ -52,14 +47,6 @@ export class GoogleMapPolygonController extends PolygonController<GoogleMapActua
     await super.update(state);
     const entity = this.polygonManager.getEntity(state.id);
     if (entity) this.setClickHandler(entity);
-  }
-
-  has(state: PolygonState): boolean {
-    return this.polygonManager.hasEntity(state.id);
-  }
-
-  setOnClickListener(listener: OnPolygonEventHandler | null): void {
-    this.clickListener = listener;
   }
 
   override async clear(): Promise<void> {

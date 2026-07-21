@@ -34,10 +34,6 @@ export class GoogleMapViewHolder2D extends MapViewHolderBase<HTMLElement, Google
     };
   }
 
-  async fromScreenOffset(offset: Offset): Promise<GeoPoint | null> {
-    return this.fromScreenOffsetSync(offset);
-  }
-
   fromScreenOffsetSync(offset: Offset): GeoPoint | null {
     const projection = this.map.getProjection();
     if (!projection) return null;

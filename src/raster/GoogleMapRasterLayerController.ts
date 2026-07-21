@@ -33,10 +33,6 @@ export class GoogleMapRasterLayerController extends RasterLayerController<google
     }
   }
 
-  has(state: RasterLayerState): boolean {
-    return this.rasterLayerManager.hasEntity(state.id);
-  }
-
   async updateInternal(state: RasterLayerState): Promise<void> {
     await this.upsert(state);
     if (!state.visible) {

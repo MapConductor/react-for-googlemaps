@@ -5,7 +5,6 @@ import {
   type GroundImageEntity,
   type GroundImageEvent,
   type GroundImageState,
-  type OnGroundImageEventHandler,
 } from '@mapconductor/js-sdk-core';
 import { mouseEventToGeoPoint } from '../helpers';
 import { GoogleMapGroundImageOverlayRenderer } from './GoogleMapGroundImageOverlayRenderer';
@@ -25,10 +24,6 @@ export class GoogleMapGroundImageController extends GroundImageController<google
     });
   }
 
-  async composition(data: GroundImageState[]): Promise<void> {
-    await this.add(data);
-  }
-
   override async add(data: GroundImageState[]): Promise<void> {
     await super.add(data);
     for (const entity of this.groundImageManager.allEntities()) {
@@ -40,14 +35,6 @@ export class GoogleMapGroundImageController extends GroundImageController<google
     await super.update(state);
     const entity = this.groundImageManager.getEntity(state.id);
     if (entity) this.setClickHandler(entity);
-  }
-
-  has(state: GroundImageState): boolean {
-    return this.groundImageManager.hasEntity(state.id);
-  }
-
-  setOnClickListener(listener: OnGroundImageEventHandler | null): void {
-    this.clickListener = listener;
   }
 
   private setClickHandler(entity: GroundImageEntity<google.maps.GroundOverlay>): void {
