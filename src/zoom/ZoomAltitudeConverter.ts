@@ -5,6 +5,15 @@ import { AbstractZoomAltitudeConverter, computeOffset, MapCameraPosition } from 
 const MAX_MAP3D_TILT = 89.0;
 const degToRad = (deg: number) => (deg * Math.PI) / 180;
 
+/**
+ * Quantize a programmatic zoom target to the nearest integer, mirroring how
+ * Google Maps 2D (the project-wide camera reference) snaps zoom. The 3D
+ * Map3DElement renders the true fractional zoom, so without this it sits up to
+ * half a level apart from the 2D map at fractional targets (Oahu 9.5 -> 10,
+ * Kiribati 4.5 -> 5). Reported zoom (distanceToZoomLevel) stays fractional.
+ */
+const snapZoomToGoogle = (zoom: number): number => Math.round(zoom);
+
 export interface ZoomAltitudeViewportSize {
     width: number;
     height: number;
@@ -127,7 +136,7 @@ export class ZoomAltitudeConverter extends AbstractZoomAltitudeConverter {
                     lng: position.longitude,
                     altitude: position.altitude ?? 0,
                 },
-                range: this.zoomLevelToDistance({ zoomLevel: zoom, latitude: position.latitude }),
+                range: this.zoomLevelToDistance({ zoomLevel: snapZoomToGoogle(zoom), latitude: position.latitude }),
                 tilt: Math.min(tilt, MAX_MAP3D_TILT),
                 heading: bearing,
             };
