@@ -1,6 +1,8 @@
 /// <reference types="google.maps" />
 import {
   AbstractPolygonOverlayRenderer,
+  buildUnwrappedPolygonRings,
+  type GeoPoint,
   type PolygonEntity,
   type PolygonState,
 } from '@mapconductor/js-sdk-core';
@@ -63,13 +65,33 @@ export class GoogleMapPolygonOverlayRenderer2D extends AbstractPolygonOverlayRen
   }
 
   private buildPaths(state: PolygonState): google.maps.LatLngLiteral[][] {
+    // Geodesic polygons keep the raw vertices — google.maps renders
+    // great-circle edges natively via the `geodesic` flag. Non-geodesic rings
+    // are densified with the core linear lat/lng interpolation (Android's
+    // straight-in-lat/lng semantics); without it Google draws straight edges
+    // in projected Mercator space, which bow away from the lat/lng straight
+    // line.
+    const [outerRing, ...holeRings] = state.geodesic
+      ? [state.points, ...state.holes.filter((ring) => ring.length >= 3)]
+      : densifiedRings(state);
+    if (!outerRing) return [];
+
     // google.maps.Polygon requires holes to wind opposite the outer ring to
     // render as a cutout (same winding fills solid — see helpers.ts).
-    const outer = ensureClockwise(state.points.map(geoPointToLatLng));
-    const holes = state.holes
+    const outer = ensureClockwise(outerRing.map(geoPointToLatLng));
+    const holes = holeRings
       .map((hole) => hole.map(geoPointToLatLng))
       .filter((ring) => ring.length >= 3)
       .map(ensureCounterClockwise);
     return [outer, ...holes];
   }
+}
+
+function densifiedRings(state: PolygonState): GeoPoint[][] {
+  const { outerRings, holeRings } = buildUnwrappedPolygonRings(
+    state.points,
+    state.holes,
+    false,
+  );
+  return [...outerRings, ...holeRings];
 }

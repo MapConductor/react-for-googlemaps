@@ -1,5 +1,6 @@
 import {
-  createGeoPoint,
+  circleToRing,
+  closeRing,
   createInterpolatePoints,
   createLinearInterpolatePoints,
   type CircleState,
@@ -9,8 +10,6 @@ import {
 } from '@mapconductor/js-sdk-core';
 import { geoPointToLatLngAlt } from './helpers';
 
-const CIRCLE_SEGMENTS = 64;
-const CIRCLE_EARTH_RADIUS_METERS = 6371000.0;
 const ADAPTIVE_EARTH_RADIUS_METERS = 6378137.0;
 const ADAPTIVE_EARTH_CIRCUMFERENCE_METERS = 2.0 * Math.PI * ADAPTIVE_EARTH_RADIUS_METERS;
 const ADAPTIVE_TILE_SIZE_PIXELS = 256.0;
@@ -101,69 +100,20 @@ export class LatLngAltitudeInterpolationCache {
 }
 
 export function buildCirclePath(state: CircleState): google.maps.LatLngAltitudeLiteral[] {
-  const center = state.center;
-  const centerLatRad = toRadians(center.latitude);
-  const centerLngRad = toRadians(center.longitude);
-  const angularDistance = state.radiusMeters / CIRCLE_EARTH_RADIUS_METERS;
-  const points: GeoPoint[] = [];
-
-  for (let i = 0; i <= CIRCLE_SEGMENTS; i += 1) {
-    const bearing = 2.0 * Math.PI * i / CIRCLE_SEGMENTS;
-
-    if (state.geodesic) {
-      const lat = Math.atan2(
-        Math.sin(centerLatRad) * Math.cos(angularDistance) +
-          Math.cos(centerLatRad) * Math.sin(angularDistance) * Math.cos(bearing),
-        Math.sqrt(
-          (
-            Math.cos(centerLatRad) * Math.cos(angularDistance) -
-              Math.sin(centerLatRad) * Math.sin(angularDistance) * Math.cos(bearing)
-          ) *
-            (
-              Math.cos(centerLatRad) * Math.cos(angularDistance) -
-                Math.sin(centerLatRad) * Math.sin(angularDistance) * Math.cos(bearing)
-            ) +
-            (Math.sin(angularDistance) * Math.sin(bearing)) *
-              (Math.sin(angularDistance) * Math.sin(bearing)),
-        ),
-      );
-
-      const lng = centerLngRad +
-        Math.atan2(
-          Math.sin(bearing) * Math.sin(angularDistance) * Math.cos(centerLatRad),
-          Math.cos(angularDistance) - Math.sin(centerLatRad) * Math.sin(lat),
-        );
-
-      points.push(createGeoPoint({
-        latitude: toDegrees(lat),
-        longitude: toDegrees(lng),
-        altitude: center.altitude ?? 0,
-      }));
-    } else {
-      const latDegreesPerMeter = 1.0 / (CIRCLE_EARTH_RADIUS_METERS * Math.PI / 180.0);
-      const lngDegreesPerMeter = 1.0 / (
-        CIRCLE_EARTH_RADIUS_METERS * Math.PI / 180.0 * Math.cos(centerLatRad)
-      );
-      const dx = state.radiusMeters * Math.cos(bearing);
-      const dy = state.radiusMeters * Math.sin(bearing);
-
-      points.push(createGeoPoint({
-        latitude: center.latitude + dy * latDegreesPerMeter,
-        longitude: center.longitude + dx * lngDegreesPerMeter,
-        altitude: center.altitude ?? 0,
-      }));
-    }
-  }
-
-  return toLatLngAltitudePath(points);
+  // Closed circle ring from the shared core geometry (128 segments, consistent
+  // earth radius across providers). The center altitude is applied to every
+  // ring vertex, as before.
+  const altitude = state.center.altitude ?? 0;
+  return closeRing(circleToRing(state.center, state.radiusMeters, state.geodesic))
+    .map((point): google.maps.LatLngAltitudeLiteral => ({
+      lat: point.latitude,
+      lng: point.longitude,
+      altitude,
+    }));
 }
 
 function toRadians(degrees: number): number {
   return degrees * Math.PI / 180.0;
-}
-
-function toDegrees(radians: number): number {
-  return radians * 180.0 / Math.PI;
 }
 
 function clamp(value: number, min: number, max: number): number {

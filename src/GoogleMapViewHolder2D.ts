@@ -27,9 +27,20 @@ export class GoogleMapViewHolder2D extends MapViewHolderBase<HTMLElement, Google
     const centerPoint = projection.fromLatLngToPoint(center);
     if (!point || !centerPoint) return null;
 
+    // fromLatLngToPoint maps longitude into a wrapped [0, 256) world, so a point
+    // and the center on opposite sides of the antimeridian differ by ~256 world
+    // units even when they are geographically adjacent. Left unwrapped, a marker
+    // just across the dateline projects ~360° off-screen and screen-space
+    // overlays (marker drop/bounce animations, info bubbles) render off-view even
+    // though Google draws the feature itself on the copy in view. Wrap the world-x
+    // delta to the nearest copy (Google's world size is 256).
+    const WORLD_SIZE = 256;
+    let dx = point.x - centerPoint.x;
+    dx -= WORLD_SIZE * Math.round(dx / WORLD_SIZE);
+
     const scale = Math.pow(2, zoom);
     return {
-      x: (point.x - centerPoint.x) * scale + this.mapView.offsetWidth / 2,
+      x: dx * scale + this.mapView.offsetWidth / 2,
       y: (point.y - centerPoint.y) * scale + this.mapView.offsetHeight / 2,
     };
   }
