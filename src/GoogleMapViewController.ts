@@ -28,6 +28,8 @@ import {
   type RasterLayerState,
   createGeoRectBounds,
   type VisibleRegion,
+  MapUISettingsDiagnostics,
+  type MapUISettings,
 } from '@mapconductor/js-sdk-core';
 import { GoogleMapMarkerController } from './marker/GoogleMapMarkerController';
 import { GoogleMapCircleController } from './circle/GoogleMapCircleController';
@@ -68,6 +70,19 @@ export class GoogleMapViewController
 
   getMap(): GoogleMapActualMap {
     return this.holder.map;
+  }
+
+  /**
+   * `Map3DElement` exposes only `gestureHandling` (auto / cooperative / greedy)
+   * — there is no switch for an individual gesture, so nothing can be applied
+   * here. `GoogleMapView2D` does support the flags.
+   */
+  applyUISettings(settings: MapUISettings): void {
+    const reason = 'Map3DElement has no per-gesture switch; use GoogleMapView2D to gate gestures';
+    MapUISettingsDiagnostics.warnIfRequested(settings.scrollGesture, 'scroll', 'GoogleMaps3D', reason);
+    MapUISettingsDiagnostics.warnIfRequested(settings.zoomGesture, 'zoom', 'GoogleMaps3D', reason);
+    MapUISettingsDiagnostics.warnIfRequested(settings.rotateGesture, 'rotate', 'GoogleMaps3D', reason);
+    MapUISettingsDiagnostics.warnIfRequested(settings.tiltGesture, 'tilt', 'GoogleMaps3D', reason);
   }
 
   private setupEventListeners(): void {

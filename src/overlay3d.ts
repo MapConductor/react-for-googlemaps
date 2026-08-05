@@ -1,8 +1,8 @@
 import {
   circleToRing,
   closeRing,
-  createInterpolatePoints,
-  createLinearInterpolatePoints,
+  WGS84Geodesic,
+  Planar,
   type CircleState,
   type GeoPoint,
   type PolygonState,
@@ -29,8 +29,8 @@ export function toLatLngAltitudePath(points: GeoPoint[]): google.maps.LatLngAlti
 
 export function buildPolylinePath(state: PolylineState): google.maps.LatLngAltitudeLiteral[] {
   const points = state.geodesic
-    ? createInterpolatePoints(state.points)
-    : createLinearInterpolatePoints(state.points);
+    ? WGS84Geodesic.createInterpolatePoints(state.points)
+    : Planar.createInterpolatePoints(state.points);
   return toLatLngAltitudePath(points);
 }
 
@@ -40,8 +40,8 @@ export function buildPolygonPath(
   maxSegmentLengthMeters: number = 10000.0,
 ): google.maps.LatLngAltitudeLiteral[] {
   const path = geodesic
-    ? createInterpolatePoints(points, maxSegmentLengthMeters)
-    : createLinearInterpolatePoints(points);
+    ? WGS84Geodesic.createInterpolatePoints(points, maxSegmentLengthMeters)
+    : Planar.createInterpolatePoints(points);
   return toLatLngAltitudePath(path);
 }
 

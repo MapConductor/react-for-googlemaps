@@ -96,10 +96,7 @@ export abstract class AbstractGoogleMapsController<
 
     const server = LocalTileServer.startServer();
     const { iconScaleCallback } = this.tilingOptions;
-    const tileRenderer = new MarkerTileRenderer<MarkerState>(tiledStates, {
-      tileSize: 256,
-      iconScaleCallback: iconScaleCallback ?? undefined,
-    });
+    const tileRenderer = new MarkerTileRenderer<MarkerState>(tiledStates, 256, iconScaleCallback ?? undefined);
     this.tileRenderer = tileRenderer;
     this.tileVersion++;
     server.register(this.tileRouteId, tileRenderer);

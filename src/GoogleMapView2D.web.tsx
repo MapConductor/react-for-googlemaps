@@ -6,6 +6,7 @@ import {
   InfoBubbleOverlay,
   MarkerAnimationLayer,
   MapAttributionOverlay,
+  useMapUISettings,
   type InfoBubbleEntry,
 } from '@mapconductor/js-sdk-react';
 import type {
@@ -13,6 +14,7 @@ import type {
   GeoPoint,
   OverlayCollector,
   MarkerAnimationOverlayEntry,
+  MapViewControllerInterface,
 } from '@mapconductor/js-sdk-core';
 import type { GoogleMapViewController2D } from './GoogleMapViewController2D';
 import { GoogleMapViewProps } from '.';
@@ -46,7 +48,7 @@ export function GoogleMapView2D({
   const containerRef = useRef<HTMLDivElement>(null);
   const [provider] = useState(() => new GoogleMapProvider2D());
   const [scope] = useState(() => new MapViewScope());
-  const [controller, setController] = useState<any>(null);
+  const [controller, setController] = useState<MapViewControllerInterface | null>(null);
   const [isReady, setIsReady] = useState(false);
   const bridgeUnsubs = useRef<(() => void)[]>([]);
   const typedControllerRef = useRef<GoogleMapViewController2D | null>(null);
@@ -193,6 +195,8 @@ export function GoogleMapView2D({
   // so that toScreenOffset() recalculates bubble positions.
   void cameraTick;
 
+  useMapUISettings(state, controller);
+
   return (
     <MapContext.Provider value={{ controller, isReady }}>
       <div
@@ -238,7 +242,7 @@ export function GoogleMapView2D({
                   tailOffset={entry.tailOffset}
                   style={{ pointerEvents: 'auto' }}
                 >
-                  {entry.content as any}
+                  {entry.content}
                 </InfoBubbleOverlay>
               );
             })}

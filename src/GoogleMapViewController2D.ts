@@ -27,6 +27,8 @@ import {
   type RasterLayerCapable,
   type RasterLayerState,
   type VisibleRegion,
+  MapUISettingsDiagnostics,
+  type MapUISettings,
 } from '@mapconductor/js-sdk-core';
 import { latLngToGeoPoint, geoPointToLatLng } from './helpers';
 import { GoogleMapCircleController } from './circle/GoogleMapCircleController';
@@ -75,6 +77,42 @@ export class GoogleMapViewController2D
 
   getMap(): GoogleMapActualMap2D {
     return this.holder.map;
+  }
+
+  /** The map's own `gestureHandling`, restored when gestures are re-enabled. */
+  private baseGestureHandling: string | null = null;
+
+  /**
+   * `draggable` and `scrollwheel` cover mouse pan and wheel zoom, but touch
+   * pinch-zoom is only reachable through `gestureHandling: 'none'`, which stops
+   * panning too. So the map is dropped to `'none'` only when both are off, and a
+   * touch pinch survives a zoom-only block — warned about below.
+   *
+   * `headingInteractionEnabled` / `tiltInteractionEnabled` are vector-map
+   * options; a raster map has no rotate or tilt gesture to begin with.
+   */
+  applyUISettings(settings: MapUISettings): void {
+    const map = this.holder.map;
+    if (this.baseGestureHandling === null) {
+      this.baseGestureHandling = (map.get('gestureHandling') as string | undefined) ?? 'auto';
+    }
+    const interactive = settings.scrollGesture || settings.zoomGesture;
+
+    map.setOptions({
+      gestureHandling: interactive ? this.baseGestureHandling : 'none',
+      draggable: settings.scrollGesture,
+      scrollwheel: settings.zoomGesture,
+      disableDoubleClickZoom: !settings.zoomGesture,
+      headingInteractionEnabled: settings.rotateGesture,
+      tiltInteractionEnabled: settings.tiltGesture,
+    });
+
+    if (!settings.zoomGesture && settings.scrollGesture) {
+      MapUISettingsDiagnostics.warnIfRequested(
+        false, 'zoom', 'GoogleMaps',
+        'a touch pinch can only be blocked together with panning, so pinch zoom stays available while panning is enabled',
+      );
+    }
   }
 
   private setupEventListeners(): void {
