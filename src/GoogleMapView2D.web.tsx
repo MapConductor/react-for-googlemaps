@@ -2,13 +2,18 @@ import { useEffect, useRef, useState } from 'react';
 import {
   MapContext,
   MapViewScope,
+  MapServiceRegistryProvider,
   MapViewScopeProvider,
   InfoBubbleOverlay,
   MarkerAnimationLayer,
   MapAttributionOverlay,
-  useMapUISettings,
   type InfoBubbleEntry,
 } from '@mapconductor/js-sdk-react';
+import {
+  useCameraRestriction,
+  useMapUISettings,
+  useMarkerRenderingSupport,
+} from '@mapconductor/js-sdk-react/internal';
 import type {
   MapCameraPosition,
   GeoPoint,
@@ -42,6 +47,7 @@ export function GoogleMapView2D({
   minZoom,
   maxZoom,
   restrictBounds,
+  cameraRestriction,
   onError,
   children,
 }: GoogleMapViewProps) {
@@ -50,6 +56,9 @@ export function GoogleMapView2D({
   const [scope] = useState(() => new MapViewScope());
   const [controller, setController] = useState<MapViewControllerInterface | null>(null);
   const [isReady, setIsReady] = useState(false);
+  // `onMapLoaded` と同じ瞬間を「値」として持つ。イベントを取り逃した後から
+  // マウントした子（examples の Three.js overlay 等）も読めるようにするため。
+  const [isLoaded, setIsLoaded] = useState(false);
   const bridgeUnsubs = useRef<(() => void)[]>([]);
   const typedControllerRef = useRef<GoogleMapViewController2D | null>(null);
   const [bubbleEntries, setBubbleEntries] = useState<InfoBubbleEntry[]>([]);
@@ -121,6 +130,10 @@ export function GoogleMapView2D({
         // getProjection() may return null right after new Map() — this listener fires after
         // tilesloaded, at which point the projection is guaranteed to be available.
         ctrl.setMapInitializedListener(() => {
+          const initialCamera = typedControllerRef.current?.getCameraPosition() ?? null;
+          // 地図が出来た時点の実カメラ（visibleRegion 込み）を state へ流し込む。
+          if (initialCamera) state.updateCameraPosition(initialCamera);
+          setIsLoaded(true);
           onMapLoadedRef.current?.(state);
           setCameraTick(t => t + 1);
         });
@@ -196,9 +209,18 @@ export function GoogleMapView2D({
   void cameraTick;
 
   useMapUISettings(state, controller);
+  // マップ生成時 config だけでなく、prop の変化にも追随させる（android-sdk 相当）。
+  useCameraRestriction(controller, { cameraRestriction, restrictBounds, minZoom, maxZoom });
+
+
+  // マーカー描画 capability をこのマップのサービスレジストリへ登録する。
+  // marker-clustering などの拡張がここから解決する
+  // （android-sdk の *MapView.kt / ios-sdk の *MapView.swift が
+  //  MarkerRenderingSupportKey を put するのと同じ位置づけ）。
+  useMarkerRenderingSupport(state, scope, controller);
 
   return (
-    <MapContext.Provider value={{ controller, isReady }}>
+    <MapContext.Provider value={{ controller, isReady, isLoaded, state }}>
       <div
         style={{
           position: 'relative',
@@ -214,7 +236,7 @@ export function GoogleMapView2D({
         />
         <MapAttributionOverlay
           scope={scope}
-          camera={typedControllerRef.current?.getCameraPosition() ?? state.cameraPosition}
+          camera={state.cameraPosition}
           designAttributionRules={state.mapDesignType.attributionRules}
         />
         {animationEntries.length > 0 && typedControllerRef.current && (
@@ -249,9 +271,11 @@ export function GoogleMapView2D({
           </div>
         )}
       </div>
-      <MapViewScopeProvider scope={scope}>
-        {children}
-      </MapViewScopeProvider>
+      <MapServiceRegistryProvider registry={state.serviceRegistry}>
+        <MapViewScopeProvider scope={scope}>
+          {children}
+        </MapViewScopeProvider>
+      </MapServiceRegistryProvider>
     </MapContext.Provider>
   );
 }

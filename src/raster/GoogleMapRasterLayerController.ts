@@ -3,6 +3,7 @@ import {
   RasterLayerController,
   RasterLayerManager,
   type RasterLayerState,
+  type RasterHeaderSupport,
 } from '@mapconductor/js-sdk-core';
 import { GoogleMapRasterLayerOverlayRenderer } from './GoogleMapRasterLayerOverlayRenderer';
 import { GoogleMapRasterLayerOverlayRenderer2D } from './GoogleMapRasterLayerOverlayRenderer2D';
@@ -12,6 +13,16 @@ type GoogleMapRasterLayerRenderer =
   | GoogleMapRasterLayerOverlayRenderer2D;
 
 export class GoogleMapRasterLayerController extends RasterLayerController<google.maps.ImageMapType> {
+  /**
+   * ImageMapType は getTileUrl で URL を返すだけで、タイルの取得は Maps JS が img で行う。
+   * リクエストに介入する口が無い。android / ios は自前でタイルを取りに行くので対応済み。
+   *
+   * userAgent はブラウザが上書きを許さないので、どのプロバイダでも web では効かない。
+   */
+  protected override get headerSupport(): RasterHeaderSupport {
+    return { provider: 'Google Maps', extraHeaders: false };
+  }
+
   declare readonly renderer: GoogleMapRasterLayerRenderer;
 
   constructor(renderer: GoogleMapRasterLayerRenderer) {

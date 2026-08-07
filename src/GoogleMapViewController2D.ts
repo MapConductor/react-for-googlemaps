@@ -3,7 +3,6 @@ import {
   BaseMapViewController,
   createGeoRectBounds,
   createMapCameraPosition,
-  type CameraOptions,
   type CircleCapable,
   type CircleState,
   type GeoRectBounds,
@@ -29,6 +28,8 @@ import {
   type VisibleRegion,
   MapUISettingsDiagnostics,
   type MapUISettings,
+  type CameraRestriction,
+  isEmptyCameraRestriction,
 } from '@mapconductor/js-sdk-core';
 import { latLngToGeoPoint, geoPointToLatLng } from './helpers';
 import { GoogleMapCircleController } from './circle/GoogleMapCircleController';
@@ -176,7 +177,7 @@ export class GoogleMapViewController2D
     });
   }
 
-  animateCamera(position: MapCameraPosition, _options?: CameraOptions): Promise<boolean> {
+  animateCamera(position: MapCameraPosition, _durationMillis: number): Promise<boolean> {
     const camera = toGoogleMapsCameraPosition(position);
     return new Promise((resolve) => {
       const idleListener = this.holder.map.addListener('idle', () => {
@@ -190,7 +191,7 @@ export class GoogleMapViewController2D
     });
   }
 
-  fitBounds(bounds: GeoRectBounds, options?: CameraOptions): Promise<boolean> {
+  fitBounds(bounds: GeoRectBounds, padding: number): Promise<boolean> {
     return new Promise((resolve) => {
       if (!bounds.southWest || !bounds.northEast) {
         resolve(false);
@@ -204,7 +205,7 @@ export class GoogleMapViewController2D
         geoPointToLatLng(bounds.southWest),
         geoPointToLatLng(bounds.northEast),
       );
-      this.holder.map.fitBounds(googleBounds, options?.padding ?? options?.paddings);
+      this.holder.map.fitBounds(googleBounds, padding);
     });
   }
 
@@ -223,9 +224,6 @@ export class GoogleMapViewController2D
     });
   }
 
-  getBounds(): GeoRectBounds | null {
-    return this.getVisibleRegion()?.bounds ?? null;
-  }
 
   /**
    * Projects the four screen corners of the map viewport back to geo
@@ -393,7 +391,37 @@ export class GoogleMapViewController2D
     this.rasterLayerController.clear();
   }
 
+  /**
+   * Google Maps JS API は `setOptions({restriction, minZoom, maxZoom})` で
+   * ランタイム変更できるので直接適用する。ズームは統一ズームと同一体系。
+   */
+  override setCameraRestriction(restriction: CameraRestriction | null): void {
+    // super は呼ばない。基底クラスに保持させるとカメラ停止時のクランプ補正まで走ってしまう。
+    // ネイティブ API 側で既に制限されているので二重適用になる（android-sdk と同じ振り分け）。
+    const effective = isEmptyCameraRestriction(restriction) ? null : restriction;
+
+    const sw = effective?.bounds?.southWest ?? null;
+    const ne = effective?.bounds?.northEast ?? null;
+    this.getMap().setOptions({
+      restriction:
+        sw != null && ne != null
+          ? {
+              latLngBounds: {
+                south: sw.latitude,
+                west: sw.longitude,
+                north: ne.latitude,
+                east: ne.longitude,
+              },
+              strictBounds: false,
+            }
+          : null,
+      minZoom: effective?.minZoom ?? null,
+      maxZoom: effective?.maxZoom ?? null,
+    });
+  }
+
   destroy(): void {
+    super.destroy();
     void this.clearOverlays();
     for (const listener of this.mapListeners) {
       google.maps.event.removeListener(listener);

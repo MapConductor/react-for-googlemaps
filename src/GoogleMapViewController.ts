@@ -3,7 +3,6 @@ import {
   BaseMapViewController,
   createGeoPoint,
   createMapCameraPosition,
-  type CameraOptions,
   type CircleCapable,
   type CircleState,
   type GeoRectBounds,
@@ -30,6 +29,8 @@ import {
   type VisibleRegion,
   MapUISettingsDiagnostics,
   type MapUISettings,
+  type CameraRestriction,
+  isEmptyCameraRestriction,
 } from '@mapconductor/js-sdk-core';
 import { GoogleMapMarkerController } from './marker/GoogleMapMarkerController';
 import { GoogleMapCircleController } from './circle/GoogleMapCircleController';
@@ -148,13 +149,13 @@ export class GoogleMapViewController
     return Promise.resolve(true);
   }
 
-  async animateCamera(position: MapCameraPosition, options?: CameraOptions): Promise<boolean> {
+  async animateCamera(position: MapCameraPosition, durationMillis: number): Promise<boolean> {
     const cameraOptions = this.holder.zoomConverter.mapCameraPositionToCameraOptions(position);
     if (!cameraOptions) return Promise.resolve(false);
 
     this.holder.map.flyCameraTo({
       endCamera: cameraOptions,
-      durationMillis: options?.duration ?? 1000,
+      durationMillis: durationMillis ?? 1000,
     });
     return new Promise((resolve) => {
       this.holder.map.addEventListener('gmp-animationend', () => resolve(true), {
@@ -163,7 +164,7 @@ export class GoogleMapViewController
     })
   }
 
-  fitBounds(_bounds: GeoRectBounds, _options?: CameraOptions): Promise<boolean> {
+  fitBounds(_bounds: GeoRectBounds, _padding: number): Promise<boolean> {
     return Promise.resolve(false);
   }
 
@@ -193,9 +194,6 @@ export class GoogleMapViewController
     });
   }
 
-  getBounds(): GeoRectBounds | null {
-    return this.getVisibleRegion()?.bounds ?? null;
-  }
 
   /**
    * Projects the four screen corners of the 3D scene view back to geo
@@ -365,7 +363,41 @@ export class GoogleMapViewController
     this.rasterLayerController.clear();
   }
 
+  /**
+   * `Map3DElement` は `bounds` / `minAltitude` / `maxAltitude` を実行時に差し替えられる。
+   * 統一ズーム（Google 準拠）を高度へ変換して適用する。GoogleMapProvider の生成時と同じく、
+   * 高度変換は緯度依存なので単一の基準緯度で行う（現在のカメラ緯度を使う）。
+   *
+   * 高度はズームと逆向き（ズームが大きいほど低い）なので、minZoom→maxAltitude /
+   * maxZoom→minAltitude と入れ替わることに注意。
+   */
+  override setCameraRestriction(restriction: CameraRestriction | null): void {
+    // super は呼ばない。基底クラスに保持させるとカメラ停止時のクランプ補正まで走ってしまう。
+    // ネイティブ API 側で既に制限されているので二重適用になる（android-sdk と同じ振り分け）。
+    const effective = isEmptyCameraRestriction(restriction) ? null : restriction;
+
+    const map = this.getMap() as unknown as {
+      bounds?: unknown;
+      minAltitude?: number | null;
+      maxAltitude?: number | null;
+    };
+
+    const sw = effective?.bounds?.southWest ?? null;
+    const ne = effective?.bounds?.northEast ?? null;
+    map.bounds =
+      sw != null && ne != null
+        ? { south: sw.latitude, west: sw.longitude, north: ne.latitude, east: ne.longitude }
+        : null;
+
+    const referenceLatitude = this.getCameraPosition()?.position.latitude ?? 0;
+    const toAltitude = (zoomLevel: number): number =>
+      this.holder.zoomConverter.zoomLevelToAltitude({ zoomLevel, latitude: referenceLatitude, tilt: 0 });
+    map.minAltitude = effective?.maxZoom == null ? null : toAltitude(effective.maxZoom);
+    map.maxAltitude = effective?.minZoom == null ? null : toAltitude(effective.minZoom);
+  }
+
   destroy(): void {
+    super.destroy();
     void this.clearOverlays();
     for (const fn of this.eventCleanup) fn();
     this.eventCleanup.length = 0;
