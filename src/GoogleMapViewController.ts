@@ -4,27 +4,17 @@ import {
   createGeoPoint,
   createMapCameraPosition,
   type CircleCapable,
-  type CircleState,
   type GeoRectBounds,
   type GroundImageCapable,
-  type GroundImageState,
   type MapCameraPosition,
   type OnMapInitializedHandler,
   type MapViewControllerInterface,
   type MarkerAnimationOverlayHost,
   type MarkerCapable,
-  type MarkerState,
-  type OnCircleEventHandler,
-  type OnGroundImageEventHandler,
   type OnMarkerEventHandler,
-  type OnPolygonEventHandler,
-  type OnPolylineEventHandler,
   type PolygonCapable,
-  type PolygonState,
   type PolylineCapable,
-  type PolylineState,
   type RasterLayerCapable,
-  type RasterLayerState,
   createGeoRectBounds,
   type VisibleRegion,
   MapUISettingsDiagnostics,
@@ -66,6 +56,22 @@ export class GoogleMapViewController
     private readonly rasterLayerController: GoogleMapRasterLayerController,
   ) {
     super();
+
+    // Capable ファサードの既定実装がここから kind で引く。
+
+    // **登録を忘れると composition が黙って捨てられる。**
+
+    this.registerOverlayController(this.markerController);
+
+    this.registerOverlayController(this.circleController);
+
+    this.registerOverlayController(this.polylineController);
+
+    this.registerOverlayController(this.polygonController);
+
+    this.registerOverlayController(this.groundImageController);
+
+    this.registerOverlayController(this.rasterLayerController);
     this.setupEventListeners();
   }
 
@@ -194,7 +200,6 @@ export class GoogleMapViewController
     });
   }
 
-
   /**
    * Projects the four screen corners of the 3D scene view back to geo
    * coordinates via `fromScreenOffsetSync` (ray/ellipsoid intersection) and
@@ -226,18 +231,6 @@ export class GoogleMapViewController
 
   // --- Marker ---
 
-  async compositionMarkers(data: MarkerState[]): Promise<void> {
-    await this.markerController.composition(data);
-  }
-
-  async updateMarker(state: MarkerState): Promise<void> {
-    await this.markerController.update(state);
-  }
-
-  hasMarker(state: MarkerState): boolean {
-    return this.markerController.has(state);
-  }
-
   setOnMarkerClickListener(listener: OnMarkerEventHandler | null): void {
     this.markerController.setOnClickListener(listener);
   }
@@ -268,89 +261,13 @@ export class GoogleMapViewController
 
   // --- Circle ---
 
-  async compositionCircles(data: CircleState[]): Promise<void> {
-    await this.circleController.composition(data);
-  }
-
-  async updateCircle(state: CircleState): Promise<void> {
-    await this.circleController.update(state);
-  }
-
-  hasCircle(state: CircleState): boolean {
-    return this.circleController.has(state);
-  }
-
-  setOnCircleClickListener(listener: OnCircleEventHandler | null): void {
-    this.circleController.setOnClickListener(listener);
-  }
-
   // --- Polyline ---
-
-  async compositionPolylines(data: PolylineState[]): Promise<void> {
-    await this.polylineController.composition(data);
-  }
-
-  async updatePolyline(state: PolylineState): Promise<void> {
-    await this.polylineController.update(state);
-  }
-
-  hasPolyline(state: PolylineState): boolean {
-    return this.polylineController.has(state);
-  }
-
-  setOnPolylineClickListener(listener: OnPolylineEventHandler | null): void {
-    this.polylineController.setOnClickListener(listener);
-  }
 
   // --- Polygon ---
 
-  async compositionPolygons(data: PolygonState[]): Promise<void> {
-    await this.polygonController.composition(data);
-  }
-
-  async updatePolygon(state: PolygonState): Promise<void> {
-    await this.polygonController.update(state);
-  }
-
-  hasPolygon(state: PolygonState): boolean {
-    return this.polygonController.has(state);
-  }
-
-  setOnPolygonClickListener(listener: OnPolygonEventHandler | null): void {
-    this.polygonController.setOnClickListener(listener);
-  }
-
   // --- GroundImage ---
 
-  async compositionGroundImages(data: GroundImageState[]): Promise<void> {
-    await this.groundImageController.composition(data);
-  }
-
-  async updateGroundImage(state: GroundImageState): Promise<void> {
-    await this.groundImageController.update(state);
-  }
-
-  hasGroundImage(state: GroundImageState): boolean {
-    return this.groundImageController.has(state);
-  }
-
-  setOnGroundImageClickListener(listener: OnGroundImageEventHandler | null): void {
-    this.groundImageController.setOnClickListener(listener);
-  }
-
   // --- RasterLayer ---
-
-  async compositionRasterLayers(data: RasterLayerState[]): Promise<void> {
-    await this.rasterLayerController.composition(data);
-  }
-
-  async updateRasterLayer(state: RasterLayerState): Promise<void> {
-    await this.rasterLayerController.update(state);
-  }
-
-  hasRasterLayer(state: RasterLayerState): boolean {
-    return this.rasterLayerController.has(state);
-  }
 
   // --- Lifecycle ---
 
