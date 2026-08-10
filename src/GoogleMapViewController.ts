@@ -119,7 +119,10 @@ export class GoogleMapViewController
       const e = event as google.maps.maps3d.LocationClickEvent;
       if (e.position) {
         const point = createGeoPoint({ latitude: e.position.lat, longitude: e.position.lng });
-        this.notifyMapClick(point);
+        // marker → circle → groundImage → polyline → polygon → map の一本道。
+        // 3D の Map3DElement はオーバーレイのネイティブクリックを持たないので、
+        // 判定はすべてコアの幾何ヒットテストで行う。
+        this.dispatchTap(point);
       }
     };
 

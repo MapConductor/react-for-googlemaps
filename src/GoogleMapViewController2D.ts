@@ -20,6 +20,7 @@ import {
   type MapUISettings,
   type CameraRestriction,
   isEmptyCameraRestriction,
+  type GeoPoint,
 } from '@mapconductor/js-sdk-core';
 import { latLngToGeoPoint, geoPointToLatLng } from './helpers';
 import { GoogleMapCircleController } from './circle/GoogleMapCircleController';
@@ -113,14 +114,11 @@ export class GoogleMapViewController2D
       this.holder.map.addListener('click', (e: google.maps.MapMouseEvent) => {
         if (!e.latLng) return;
         const point = latLngToGeoPoint(e.latLng);
-        // Check tiled markers first (regular markers handle their own clicks via listeners)
-        const zoom = this.holder.map.getZoom() ?? 10;
-        const tiledEntity = this.markerController.findTiled(point, zoom);
-        if (tiledEntity?.state.clickable) {
-          this.markerController.dispatchClick(tiledEntity.state);
-          return;
-        }
-        this.notifyMapClick(point);
+        // Google Maps のオーバーレイ（Polygon / Polyline / Circle / GroundOverlay）は
+        // ネイティブの clickable で自分のクリックを受け、当たったときは map click が
+        // そもそも飛んでこない。よってここへ来るのは「どのオーバーレイにも当たらなかった」
+        // タップだけ。marker → ... → map の一本道はコアの dispatchTap が持つ。
+        this.dispatchTap(point);
       }),
       this.holder.map.addListener('rightclick', (e: google.maps.MapMouseEvent) => {
         if (e.latLng) {
@@ -328,5 +326,19 @@ export class GoogleMapViewController2D
       google.maps.event.removeListener(listener);
     }
     this.mapListeners.length = 0;
+  }
+
+  /**
+   * マーカーのヒットテストと配送。カスケードの先頭。
+   *
+   * 通常のマーカーは自前のリスナーでクリックを受けるので、ここで見るのは
+   * タイル方式のマーカー（ラスターオーバーレイに描かれ、リスナーを持たない）だけ。
+   */
+  protected override dispatchMarkerTap(point: GeoPoint): boolean {
+    const zoom = this.holder.map.getZoom() ?? 10;
+    const tiled = this.markerController.findTiled(point, zoom);
+    if (!tiled?.state.clickable) return false;
+    this.markerController.dispatchClick(tiled.state);
+    return true;
   }
 }

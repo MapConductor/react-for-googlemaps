@@ -486,6 +486,13 @@ declare class GoogleMapViewController2D extends BaseMapViewController implements
      */
     setCameraRestriction(restriction: CameraRestriction | null): void;
     destroy(): void;
+    /**
+     * マーカーのヒットテストと配送。カスケードの先頭。
+     *
+     * 通常のマーカーは自前のリスナーでクリックを受けるので、ここで見るのは
+     * タイル方式のマーカー（ラスターオーバーレイに描かれ、リスナーを持たない）だけ。
+     */
+    protected dispatchMarkerTap(point: GeoPoint): boolean;
 }
 
 type GoogleMapDesignType = MapDesignTypeInterface<string>;
