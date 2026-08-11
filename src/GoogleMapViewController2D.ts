@@ -57,6 +57,15 @@ export class GoogleMapViewController2D
     private readonly rasterLayerController: GoogleMapRasterLayerController,
   ) {
     super();
+    // Capable ファサードの既定実装がここから kind で引く。
+    // **登録を忘れると composition が黙って捨てられる**（実際に 2D だけ漏れて
+    // 全オーバーレイが無描画になっていた。3D 側と同じ並び）。
+    this.registerOverlayController(this.markerController);
+    this.registerOverlayController(this.circleController);
+    this.registerOverlayController(this.polylineController);
+    this.registerOverlayController(this.polygonController);
+    this.registerOverlayController(this.groundImageController);
+    this.registerOverlayController(this.rasterLayerController);
     this.markerController.onRasterLayerUpdate = async (state) => {
       if (state) {
         await this.rasterLayerController.updateInternal(state);
