@@ -1,6 +1,8 @@
-import { MapConfig, MarkerTilingOptions, GeoRectBounds, MapProvider, MapViewControllerInterface, OnMarkerEventHandler, MarkerAnimationOverlayHost, AddParams, ChangeParams, MarkerEntity, GeoPoint, MarkerState, AbstractMarkerController, RasterLayerState, AbstractZoomAltitudeConverter, MapCameraPosition, MapViewHolderBase, GeoPointInterface, Offset, AbstractMarkerOverlayRenderer, AbstractCircleOverlayRenderer, CircleState, CircleEntity, CircleController, AbstractPolylineOverlayRenderer, PolylineState, PolylineEntity, PolylineController, AbstractPolygonOverlayRenderer, PolygonState, PolygonEntity, PolygonController, AbstractGroundImageOverlayRenderer, GroundImageState, GroundImageEntity, GroundImageController, RasterLayerAddParams, RasterLayerChangeParams, RasterLayerEntity, RasterLayerController, RasterHeaderSupport, BaseMapViewController, MarkerCapable, CircleCapable, PolylineCapable, PolygonCapable, GroundImageCapable, RasterLayerCapable, MapUISettings, OnMapInitializedHandler, CameraRestriction, MapDesignTypeInterface, AttributionRule, MapViewStateInterface, MapViewState, MapPaddings, MapViewBaseProps } from '@mapconductor/js-sdk-core';
+import { MapConfig, MarkerTilingOptions, GeoRectBounds, MapProvider, MapViewControllerInterface, OnMarkerEventHandler, MarkerAnimationOverlayHost, AddParams, ChangeParams, MarkerEntity, GeoPoint, MarkerState, AbstractMarkerController, RasterLayerState, AbstractZoomAltitudeConverter, MapCameraPosition, MapViewHolderBase, GeoPointInterface, Offset, AbstractMarkerOverlayRenderer, AbstractCircleOverlayRenderer, CircleState, CircleEntity, CircleController, AbstractPolylineOverlayRenderer, PolylineState, PolylineEntity, PolylineController, AbstractPolygonOverlayRenderer, PolygonState, PolygonEntity, PolygonController, AbstractGroundImageOverlayRenderer, GroundImageState, GroundImageEntity, GroundImageController, RasterLayerAddParams, RasterLayerChangeParams, RasterLayerEntity, RasterLayerController, RasterHeaderSupport, BaseMapViewController, MarkerCapable, CircleCapable, PolylineCapable, PolygonCapable, GroundImageCapable, RasterLayerCapable, MapUISettings, OnMapInitializedHandler, CameraRestriction, MapViewBaseProps } from '@mapconductor/js-sdk-core';
 import * as React from 'react';
 import React__default from 'react';
+import { GoogleMapViewStateInterface } from './state.js';
+export { GoogleMapDesign, GoogleMapDesignType, GoogleMapViewState, useGoogleMapViewState } from './state.js';
 
 interface GoogleMapConfig2D extends GoogleMapConfigBase {
     mapDesignType?: string;
@@ -495,39 +497,6 @@ declare class GoogleMapViewController2D extends BaseMapViewController implements
     protected dispatchMarkerTap(point: GeoPoint): boolean;
 }
 
-type GoogleMapDesignType = MapDesignTypeInterface<string>;
-declare namespace GoogleMapDesign {
-    const Normal: GoogleMapDesignType;
-    const Satellite: GoogleMapDesignType;
-    const Hybrid: GoogleMapDesignType;
-    const Terrain: GoogleMapDesignType;
-    const None: GoogleMapDesignType;
-    function Create(id: string, attributionRules?: readonly AttributionRule[]): GoogleMapDesignType;
-}
-
-interface GoogleMapViewStateInterface extends MapViewStateInterface<GoogleMapDesignType> {
-    readonly apiKey: string;
-}
-interface GoogleMapViewStateParams {
-    id?: string;
-    apiKey?: string;
-    mapId?: string;
-    mapDesignType?: GoogleMapDesignType;
-    cameraPosition?: MapCameraPosition;
-}
-declare class GoogleMapViewState extends MapViewState<GoogleMapDesignType> implements GoogleMapViewStateInterface {
-    readonly apiKey: string;
-    readonly mapId: string | null;
-    private _mapDesignType;
-    private _padding;
-    constructor({ id, apiKey, mapId, mapDesignType, cameraPosition, }?: GoogleMapViewStateParams);
-    get mapDesignType(): GoogleMapDesignType;
-    get padding(): MapPaddings;
-    set mapDesignType(value: GoogleMapDesignType);
-    setPadding(paddings: MapPaddings): void;
-}
-declare function useGoogleMapViewState({ id, apiKey, mapId, mapDesignType, cameraPosition, }?: GoogleMapViewStateParams): GoogleMapViewState;
-
 interface GoogleMapViewProps extends MapViewBaseProps<GoogleMapViewStateInterface> {
     mapId?: string;
     markerTilingOptions?: MarkerTilingOptions;
@@ -552,4 +521,4 @@ declare function GoogleMapView({ state, mapId, className, style, version, marker
  */
 declare function GoogleMapView2D({ state, onMapLoaded, onMapClick, onMapLongClick, onCameraMoveStart, onCameraMove, onCameraMoveEnd, mapId, className, style, version, libraries, markerTilingOptions, minZoom, maxZoom, restrictBounds, cameraRestriction, onError, children, }: GoogleMapViewProps): React.JSX.Element;
 
-export { type GoogleMapActualCircle, type GoogleMapActualMap, type GoogleMapActualMap2D, type GoogleMapActualMarker, type GoogleMapActualMarker2D, type GoogleMapActualPolygon, type GoogleMapActualPolyline, type GoogleMapConfig, GoogleMapDesign, type GoogleMapDesignType, GoogleMapProvider, GoogleMapProvider2D, GoogleMapView, GoogleMapView2D, GoogleMapViewController, GoogleMapViewController2D, type GoogleMapViewProps, GoogleMapViewState, type GoogleMapViewStateInterface, ZoomAltitudeConverter, type ZoomAltitudeViewportSize, useGoogleMapViewState };
+export { type GoogleMapActualCircle, type GoogleMapActualMap, type GoogleMapActualMap2D, type GoogleMapActualMarker, type GoogleMapActualMarker2D, type GoogleMapActualPolygon, type GoogleMapActualPolyline, type GoogleMapConfig, GoogleMapProvider, GoogleMapProvider2D, GoogleMapView, GoogleMapView2D, GoogleMapViewController, GoogleMapViewController2D, type GoogleMapViewProps, GoogleMapViewStateInterface, ZoomAltitudeConverter, type ZoomAltitudeViewportSize };
