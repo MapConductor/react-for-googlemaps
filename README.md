@@ -61,7 +61,7 @@ npm install @mapconductor/react-for-googlemaps
   automatically as dependencies.
 - You'll also need an API key from the
   [Google Cloud console](https://console.cloud.google.com/google/maps-apis),
-  set as the `VITE_GOOGLE_MAPS_API_KEY` environment variable.
+  set as the `GOOGLE_MAPS_API_KEY` environment variable.
 
 ### Step 3: Show the map
 
@@ -76,12 +76,16 @@ import {
 } from '@mapconductor/react-for-googlemaps';
 import { createGeoPoint, createMapCameraPosition } from '@mapconductor/js-sdk-core';
 
+// Your own key. Read it from your environment however your build tool does
+// it, and keep it out of source control.
+const GOOGLE_MAPS_API_KEY = '…';
+
 const TOKYO = createGeoPoint({ latitude: 35.6812, longitude: 139.7671 });
 const INITIAL_CAMERA = createMapCameraPosition({ position: TOKYO, zoom: 14 });
 
 export default function App() {
   const mapViewState = useGoogleMapViewState({
-    apiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
+    apiKey: GOOGLE_MAPS_API_KEY,
     mapDesignType: GoogleMapDesign.Normal,
     cameraPosition: INITIAL_CAMERA,
   });
@@ -138,12 +142,16 @@ import {
 } from '@mapconductor/js-sdk-core';
 import { InfoBubble, Marker } from '@mapconductor/js-sdk-react';
 
+// Your own key. Read it from your environment however your build tool does
+// it, and keep it out of source control.
+const GOOGLE_MAPS_API_KEY = '…';
+
 const TOKYO = createGeoPoint({ latitude: 35.6812, longitude: 139.7671 });
 const INITIAL_CAMERA = createMapCameraPosition({ position: TOKYO, zoom: 14 });
 
 export default function App() {
   const mapViewState = useGoogleMapViewState({
-    apiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
+    apiKey: GOOGLE_MAPS_API_KEY,
     mapDesignType: GoogleMapDesign.Normal,
     cameraPosition: INITIAL_CAMERA,
   });

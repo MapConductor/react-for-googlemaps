@@ -45,7 +45,7 @@ npm install @mapconductor/react-for-googlemaps
 
 - `@mapconductor/react-for-googlemaps` — Google Maps 用のコンポーネント/フック
 - `@mapconductor/js-sdk-react` / `@mapconductor/js-sdk-core` は依存関係として自動的にインストールされます。
-- [Google Cloud コンソール](https://console.cloud.google.com/google/maps-apis)で取得した API キーも必要です。環境変数 `VITE_GOOGLE_MAPS_API_KEY` に設定してください。
+- [Google Cloud コンソール](https://console.cloud.google.com/google/maps-apis)で取得した API キーも必要です。環境変数 `GOOGLE_MAPS_API_KEY` に設定してください。
 
 ### ステップ 3: 地図を表示する
 
@@ -59,12 +59,16 @@ import {
 } from '@mapconductor/react-for-googlemaps';
 import { createGeoPoint, createMapCameraPosition } from '@mapconductor/js-sdk-core';
 
+// 自分のキー。実値はソース管理に入れず、使っているビルドツールのやり方で
+// 環境から読み込んでください。
+const GOOGLE_MAPS_API_KEY = '…';
+
 const TOKYO = createGeoPoint({ latitude: 35.6812, longitude: 139.7671 });
 const INITIAL_CAMERA = createMapCameraPosition({ position: TOKYO, zoom: 14 });
 
 export default function App() {
   const mapViewState = useGoogleMapViewState({
-    apiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
+    apiKey: GOOGLE_MAPS_API_KEY,
     mapDesignType: GoogleMapDesign.Normal,
     cameraPosition: INITIAL_CAMERA,
   });
@@ -118,12 +122,16 @@ import {
 } from '@mapconductor/js-sdk-core';
 import { InfoBubble, Marker } from '@mapconductor/js-sdk-react';
 
+// 自分のキー。実値はソース管理に入れず、使っているビルドツールのやり方で
+// 環境から読み込んでください。
+const GOOGLE_MAPS_API_KEY = '…';
+
 const TOKYO = createGeoPoint({ latitude: 35.6812, longitude: 139.7671 });
 const INITIAL_CAMERA = createMapCameraPosition({ position: TOKYO, zoom: 14 });
 
 export default function App() {
   const mapViewState = useGoogleMapViewState({
-    apiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
+    apiKey: GOOGLE_MAPS_API_KEY,
     mapDesignType: GoogleMapDesign.Normal,
     cameraPosition: INITIAL_CAMERA,
   });

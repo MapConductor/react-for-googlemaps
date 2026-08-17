@@ -48,7 +48,7 @@ npm install @mapconductor/react-for-googlemaps
   automáticamente como dependencias.
 - También necesitarás una clave de API de la
   [consola de Google Cloud](https://console.cloud.google.com/google/maps-apis),
-  configurada como la variable de entorno `VITE_GOOGLE_MAPS_API_KEY`.
+  configurada como la variable de entorno `GOOGLE_MAPS_API_KEY`.
 
 ### Paso 3: Muestra el mapa
 
@@ -62,12 +62,16 @@ import {
 } from '@mapconductor/react-for-googlemaps';
 import { createGeoPoint, createMapCameraPosition } from '@mapconductor/js-sdk-core';
 
+// Tu propia clave. Léela del entorno con el mecanismo de tu herramienta de
+// compilación y mantenla fuera del control de versiones.
+const GOOGLE_MAPS_API_KEY = '…';
+
 const TOKYO = createGeoPoint({ latitude: 35.6812, longitude: 139.7671 });
 const INITIAL_CAMERA = createMapCameraPosition({ position: TOKYO, zoom: 14 });
 
 export default function App() {
   const mapViewState = useGoogleMapViewState({
-    apiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
+    apiKey: GOOGLE_MAPS_API_KEY,
     mapDesignType: GoogleMapDesign.Normal,
     cameraPosition: INITIAL_CAMERA,
   });
@@ -121,12 +125,16 @@ import {
 } from '@mapconductor/js-sdk-core';
 import { InfoBubble, Marker } from '@mapconductor/js-sdk-react';
 
+// Tu propia clave. Léela del entorno con el mecanismo de tu herramienta de
+// compilación y mantenla fuera del control de versiones.
+const GOOGLE_MAPS_API_KEY = '…';
+
 const TOKYO = createGeoPoint({ latitude: 35.6812, longitude: 139.7671 });
 const INITIAL_CAMERA = createMapCameraPosition({ position: TOKYO, zoom: 14 });
 
 export default function App() {
   const mapViewState = useGoogleMapViewState({
-    apiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
+    apiKey: GOOGLE_MAPS_API_KEY,
     mapDesignType: GoogleMapDesign.Normal,
     cameraPosition: INITIAL_CAMERA,
   });
