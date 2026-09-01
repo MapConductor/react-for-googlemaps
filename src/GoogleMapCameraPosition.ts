@@ -1,4 +1,4 @@
-import { computeOffset, type GeoPoint, type MapCameraPosition } from '@mapconductor/js-sdk-core';
+import { computeOffset, type GeoPoint, type MapCameraPosition, toNativeHeading, } from '@mapconductor/js-sdk-core';
 import { ZoomAltitudeConverter } from './zoom/ZoomAltitudeConverter';
 
 const converter = new ZoomAltitudeConverter(ZoomAltitudeConverter.DEFAULT_ZOOM0_ALTITUDE);
@@ -25,7 +25,7 @@ export function toGoogleMapsCameraPosition(position: MapCameraPosition): GoogleM
     return {
       center: position.center,
       zoom: position.zoom,
-      bearing: position.bearing,
+      bearing: toNativeHeading(position.bearing),
       tilt,
     };
   }
@@ -39,13 +39,13 @@ export function toGoogleMapsCameraPosition(position: MapCameraPosition): GoogleM
   const center = computeOffset({
     origin: position.position,
     distance: altitude * Math.tan((tiltAbs * Math.PI) / 180),
-    heading: position.bearing,
+    heading: toNativeHeading(position.bearing),
   });
 
   return {
     center,
     zoom: position.zoom,
-    bearing: position.bearing,
+    bearing: toNativeHeading(position.bearing),
     tilt: tiltAbs,
   };
 }

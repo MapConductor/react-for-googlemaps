@@ -1,4 +1,4 @@
-import { AbstractZoomAltitudeConverter, computeOffset, MapCameraPosition } from '@mapconductor/js-sdk-core';
+import { AbstractZoomAltitudeConverter, computeOffset, MapCameraPosition, toNativeHeading, } from '@mapconductor/js-sdk-core';
 
 // Map3DElement allows tilt in [0, 90]. Keep a hair below the horizon so the
 // orbit camera never degenerates (range → ∞ at exactly 90°).
@@ -138,7 +138,7 @@ export class ZoomAltitudeConverter extends AbstractZoomAltitudeConverter {
                 },
                 range: this.zoomLevelToDistance({ zoomLevel: snapZoomToGoogle(zoom), latitude: position.latitude }),
                 tilt: Math.min(tilt, MAX_MAP3D_TILT),
-                heading: bearing,
+                heading: toNativeHeading(bearing),
             };
         }
 
@@ -153,7 +153,7 @@ export class ZoomAltitudeConverter extends AbstractZoomAltitudeConverter {
         const target = computeOffset({
             origin: position,
             distance: altitude * Math.tan(tiltAbsRad),
-            heading: bearing,
+            heading: toNativeHeading(bearing),
         });
 
         return {
@@ -164,7 +164,7 @@ export class ZoomAltitudeConverter extends AbstractZoomAltitudeConverter {
             },
             range: altitude / Math.cos(tiltAbsRad),
             tilt: tiltAbs,
-            heading: bearing,
+            heading: toNativeHeading(bearing),
         };
     }
 }

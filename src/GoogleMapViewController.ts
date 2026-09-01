@@ -20,8 +20,7 @@ import {
   MapUISettingsDiagnostics,
   type MapUISettings,
   type CameraRestriction,
-  isEmptyCameraRestriction,
-} from '@mapconductor/js-sdk-core';
+  isEmptyCameraRestriction, bearingFromNativeHeading, } from '@mapconductor/js-sdk-core';
 import { GoogleMapMarkerController } from './marker/GoogleMapMarkerController';
 import { GoogleMapCircleController } from './circle/GoogleMapCircleController';
 import { GoogleMapPolylineController } from './polyline/GoogleMapPolylineController';
@@ -195,7 +194,7 @@ export class GoogleMapViewController
     return createMapCameraPosition({
       position: latLngAltToGeoPoint(center),
       zoom,
-      bearing: this.holder.map.heading ?? 0,
+      bearing: bearingFromNativeHeading(this.holder.map.heading ?? 0),
       tilt: this.holder.map.tilt ?? 0,
       // Matches Android: the visible region rides on cameraPosition so that
       // mapViewState.cameraPosition.visibleRegion works without the controller.
