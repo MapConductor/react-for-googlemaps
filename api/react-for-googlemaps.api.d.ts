@@ -514,7 +514,7 @@ interface GoogleMapViewProps extends MapViewBaseProps<GoogleMapViewStateInterfac
 /**
  * Google Maps React component
  */
-declare function GoogleMapView({ state, mapId, className, style, version, markerTilingOptions, libraries, minZoom, maxZoom, restrictBounds, cameraRestriction, onError, onMapLoaded, onMapClick, onMapLongClick, onCameraMoveStart, onCameraMove, onCameraMoveEnd, children, }: GoogleMapViewProps): React.JSX.Element;
+declare function GoogleMapView({ state, mapStyle, onStyleDiagnostics, mapId, className, style, version, markerTilingOptions, libraries, minZoom, maxZoom, restrictBounds, cameraRestriction, onError, onMapLoaded, onMapClick, onMapLongClick, onCameraMoveStart, onCameraMove, onCameraMoveEnd, children, }: GoogleMapViewProps): React.JSX.Element;
 
 /**
  * Google Maps React component
