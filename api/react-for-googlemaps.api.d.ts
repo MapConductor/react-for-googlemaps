@@ -519,6 +519,6 @@ declare function GoogleMapView({ state, mapStyle, onStyleDiagnostics, mapId, cla
 /**
  * Google Maps React component
  */
-declare function GoogleMapView2D({ state, onMapLoaded, onMapClick, onMapLongClick, onCameraMoveStart, onCameraMove, onCameraMoveEnd, mapId, className, style, version, libraries, markerTilingOptions, minZoom, maxZoom, restrictBounds, cameraRestriction, onError, children, }: GoogleMapViewProps): React.JSX.Element;
+declare function GoogleMapView2D({ state, mapStyle, onStyleDiagnostics, onMapLoaded, onMapClick, onMapLongClick, onCameraMoveStart, onCameraMove, onCameraMoveEnd, mapId, className, style, version, libraries, markerTilingOptions, minZoom, maxZoom, restrictBounds, cameraRestriction, onError, children, }: GoogleMapViewProps): React.JSX.Element;
 
 export { type GoogleMapActualCircle, type GoogleMapActualMap, type GoogleMapActualMap2D, type GoogleMapActualMarker, type GoogleMapActualMarker2D, type GoogleMapActualPolygon, type GoogleMapActualPolyline, type GoogleMapConfig, GoogleMapProvider, GoogleMapProvider2D, GoogleMapView, GoogleMapView2D, GoogleMapViewController, GoogleMapViewController2D, type GoogleMapViewProps, GoogleMapViewStateInterface, ZoomAltitudeConverter, type ZoomAltitudeViewportSize };

@@ -40,6 +40,8 @@ function tileZoomForGoogleTileSize(zoom: number, tileSize: number): number {
 }
 
 export class GoogleMapRasterLayerOverlayRenderer2D {
+  private readonly zIndices = new WeakMap<google.maps.MapType, number>();
+
   constructor(readonly holder: GoogleMapViewHolder2D) {}
 
   async onAdd(data: RasterLayerAddParams[]): Promise<(google.maps.ImageMapType | null)[]> {
@@ -67,17 +69,21 @@ export class GoogleMapRasterLayerOverlayRenderer2D {
     const mapType = this.mapTypeFromState(state);
     if (!mapType) return null;
 
-    const insertIndex = Math.max(
-      0,
-      Math.min(state.zIndex, this.holder.map.overlayMapTypes.getLength()),
+    // zIndex is a stacking value, not an MVCArray index. In particular,
+    // clamping both -2 (ground) and -1 (labels) to zero hides the labels.
+    const overlays = this.holder.map.overlayMapTypes;
+    const nextIndex = overlays.getArray().findIndex(existing =>
+      (existing ? this.zIndices.get(existing) ?? 0 : 0) > state.zIndex,
     );
-    this.holder.map.overlayMapTypes.insertAt(insertIndex, mapType);
+    this.zIndices.set(mapType, state.zIndex);
+    overlays.insertAt(nextIndex < 0 ? overlays.getLength() : nextIndex, mapType);
     return mapType;
   }
 
   remove(mapType: google.maps.ImageMapType): void {
     const index = this.holder.map.overlayMapTypes.getArray().indexOf(mapType);
     if (index >= 0) this.holder.map.overlayMapTypes.removeAt(index);
+    this.zIndices.delete(mapType);
   }
 
   private mapTypeFromState(state: RasterLayerState): google.maps.ImageMapType | null {
