@@ -211,7 +211,9 @@ export function GoogleMapView2D({
       bridgeUnsubs.current = [];
       provider.destroy();
     };
-  }, [mapId, state.apiKey, state.mapDesignType.id]);
+    // Design changes are applied live via the controller (see the state's
+    // `mapDesignType` setter), so they must not recreate the map.
+  }, [mapId, state.apiKey]);
 
   // cameraTick is read here only to force a re-render when the camera moves,
   // so that toScreenOffset() recalculates bubble positions.

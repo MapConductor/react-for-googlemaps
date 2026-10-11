@@ -1,8 +1,8 @@
 import { MapConfig, MarkerTilingOptions, GeoRectBounds, MapProvider, MapViewControllerInterface, OnMarkerEventHandler, MarkerAnimationOverlayHost, AddParams, ChangeParams, MarkerEntity, GeoPoint, MarkerState, AbstractMarkerController, RasterLayerState, AbstractZoomAltitudeConverter, MapCameraPosition, MapViewHolderBase, GeoPointInterface, Offset, AbstractMarkerOverlayRenderer, AbstractCircleOverlayRenderer, CircleState, CircleEntity, CircleController, AbstractPolylineOverlayRenderer, PolylineState, PolylineEntity, PolylineController, AbstractPolygonOverlayRenderer, PolygonState, PolygonEntity, PolygonController, AbstractGroundImageOverlayRenderer, GroundImageState, GroundImageEntity, GroundImageController, RasterLayerAddParams, RasterLayerChangeParams, RasterLayerEntity, RasterLayerController, RasterHeaderSupport, BaseMapViewController, MarkerCapable, CircleCapable, PolylineCapable, PolygonCapable, GroundImageCapable, RasterLayerCapable, MapUISettings, OnMapInitializedHandler, CameraRestriction, MapViewBaseProps } from '@mapconductor/js-sdk-core';
+import { GoogleMapDesignType, GoogleMapViewStateInterface } from './state.js';
+export { GoogleMapDesign, GoogleMapViewState, useGoogleMapViewState } from './state.js';
 import * as React from 'react';
 import React__default from 'react';
-import { GoogleMapViewStateInterface } from './state.js';
-export { GoogleMapDesign, GoogleMapDesignType, GoogleMapViewState, useGoogleMapViewState } from './state.js';
 
 interface GoogleMapConfig2D extends GoogleMapConfigBase {
     mapDesignType?: string;
@@ -392,6 +392,13 @@ declare class GoogleMapViewController extends BaseMapViewController implements M
     constructor(holder: GoogleMapViewHolder, markerController: GoogleMapMarkerController, circleController: GoogleMapCircleController, polylineController: GoogleMapPolylineController, polygonController: GoogleMapPolygonController, groundImageController: GoogleMapGroundImageController, rasterLayerController: GoogleMapRasterLayerController);
     getMap(): GoogleMapActualMap;
     /**
+     * Swaps `Map3DElement.mode` in place. The same three modes the element
+     * accepts at creation, and the same error for anything else -- there is
+     * no blank mode on the 3D map. Called by the view state's `mapDesignType`
+     * setter.
+     */
+    setMapDesignType(design: GoogleMapDesignType): void;
+    /**
      * `Map3DElement` exposes only `gestureHandling` (auto / cooperative / greedy)
      * — there is no switch for an individual gesture, so nothing can be applied
      * here. `GoogleMapView2D` does support the flags.
@@ -449,6 +456,12 @@ declare class GoogleMapViewController2D extends BaseMapViewController implements
     private initialized;
     constructor(holder: GoogleMapViewHolder2D, markerController: GoogleMapMarkerController2D, circleController: GoogleMapCircleController, polylineController: GoogleMapPolylineController, polygonController: GoogleMapPolygonController, groundImageController: GoogleMapGroundImageController, rasterLayerController: GoogleMapRasterLayerController);
     getMap(): GoogleMapActualMap2D;
+    /**
+     * Swaps the base map in place. Overlays are bound to the `Map`, not to
+     * its tiles, so nothing is re-added. Called by the view state's
+     * `mapDesignType` setter.
+     */
+    setMapDesignType(design: GoogleMapDesignType): void;
     /** The map's own `gestureHandling`, restored when gestures are re-enabled. */
     private baseGestureHandling;
     /**
@@ -522,4 +535,4 @@ declare function GoogleMapView({ state, mapStyle, onStyleDiagnostics, mapId, cla
  */
 declare function GoogleMapView2D({ state, mapStyle, onStyleDiagnostics, onMapLoaded, onMapClick, onMapLongClick, onCameraMoveStart, onCameraMove, onCameraMoveEnd, mapId, className, style, version, libraries, markerTilingOptions, minZoom, maxZoom, restrictBounds, cameraRestriction, onError, children, }: GoogleMapViewProps): React.JSX.Element;
 
-export { type GoogleMapActualCircle, type GoogleMapActualMap, type GoogleMapActualMap2D, type GoogleMapActualMarker, type GoogleMapActualMarker2D, type GoogleMapActualPolygon, type GoogleMapActualPolyline, type GoogleMapConfig, GoogleMapProvider, GoogleMapProvider2D, GoogleMapView, GoogleMapView2D, GoogleMapViewController, GoogleMapViewController2D, type GoogleMapViewProps, GoogleMapViewStateInterface, ZoomAltitudeConverter, type ZoomAltitudeViewportSize };
+export { type GoogleMapActualCircle, type GoogleMapActualMap, type GoogleMapActualMap2D, type GoogleMapActualMarker, type GoogleMapActualMarker2D, type GoogleMapActualPolygon, type GoogleMapActualPolyline, type GoogleMapConfig, GoogleMapDesignType, GoogleMapProvider, GoogleMapProvider2D, GoogleMapView, GoogleMapView2D, GoogleMapViewController, GoogleMapViewController2D, type GoogleMapViewProps, GoogleMapViewStateInterface, ZoomAltitudeConverter, type ZoomAltitudeViewportSize };
