@@ -348,6 +348,7 @@ declare class GoogleMapRasterLayerOverlayRenderer {
 
 declare class GoogleMapRasterLayerOverlayRenderer2D {
     readonly holder: GoogleMapViewHolder2D;
+    private readonly zIndices;
     constructor(holder: GoogleMapViewHolder2D);
     onAdd(data: RasterLayerAddParams[]): Promise<(google.maps.ImageMapType | null)[]>;
     onChange(data: RasterLayerChangeParams<google.maps.ImageMapType>[]): Promise<(google.maps.ImageMapType | null)[]>;
