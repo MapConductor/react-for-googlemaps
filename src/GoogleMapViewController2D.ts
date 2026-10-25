@@ -22,6 +22,7 @@ import {
   isEmptyCameraRestriction,
   type GeoPoint, bearingFromNativeHeading, } from '@mapconductor/js-sdk-core';
 import { latLngToGeoPoint, geoPointToLatLng } from './helpers';
+import { GoogleMapDesign, type GoogleMapDesignType } from './GoogleMapDesign';
 import { GoogleMapCircleController } from './circle/GoogleMapCircleController';
 import { GoogleMapPolylineController } from './polyline/GoogleMapPolylineController';
 import { GoogleMapPolygonController } from './polygon/GoogleMapPolygonController';
@@ -77,6 +78,29 @@ export class GoogleMapViewController2D
 
   getMap(): GoogleMapActualMap2D {
     return this.holder.map;
+  }
+
+  /**
+   * Swaps the base map in place. Overlays are bound to the `Map`, not to
+   * its tiles, so nothing is re-added. Called by the view state's
+   * `mapDesignType` setter.
+   */
+  setMapDesignType(design: GoogleMapDesignType): void {
+    const map = this.holder.map;
+    const id = design.getValue();
+    // `None` is an id the map has never heard of. At creation that draws
+    // nothing, which is the point; `setMapTypeId` with it is ignored and the
+    // old tiles stay. So the first switch registers an empty map type for
+    // it, and from then on it is a type like any other.
+    if (id === GoogleMapDesign.None.id && !map.mapTypes.get(id)) {
+      map.mapTypes.set(id, new google.maps.ImageMapType({
+        name: id,
+        tileSize: new google.maps.Size(256, 256),
+        getTileUrl: () => null,
+        maxZoom: 22,
+      }));
+    }
+    map.setMapTypeId(id);
   }
 
   /** The map's own `gestureHandling`, restored when gestures are re-enabled. */

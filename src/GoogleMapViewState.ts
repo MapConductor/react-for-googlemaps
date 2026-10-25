@@ -53,6 +53,9 @@ export class GoogleMapViewState extends MapViewState<GoogleMapDesignType>
 
   override set mapDesignType(value: GoogleMapDesignType) {
     this._mapDesignType = value;
+    // Applied live by the controller; the view does not rebuild the map.
+    const controller = this.attachedMapController as { setMapDesignType?: (design: GoogleMapDesignType) => void } | null;
+    controller?.setMapDesignType?.(value);
   }
 
   // Called by GoogleMapView when controller is initialized

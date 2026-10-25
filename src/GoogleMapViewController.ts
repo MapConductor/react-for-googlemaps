@@ -30,6 +30,7 @@ import { GoogleMapRasterLayerController } from './raster/GoogleMapRasterLayerCon
 import { GoogleMapViewHolder } from './GoogleMapViewHolder';
 import { GoogleMapActualMap } from './GoogleMapTypeAlias';
 import { latLngAltToGeoPoint } from './helpers';
+import type { GoogleMapDesignType } from './GoogleMapDesign';
 
 export class GoogleMapViewController
   extends BaseMapViewController
@@ -76,6 +77,20 @@ export class GoogleMapViewController
 
   getMap(): GoogleMapActualMap {
     return this.holder.map;
+  }
+
+  /**
+   * Swaps `Map3DElement.mode` in place. The same three modes the element
+   * accepts at creation, and the same error for anything else -- there is
+   * no blank mode on the 3D map. Called by the view state's `mapDesignType`
+   * setter.
+   */
+  setMapDesignType(design: GoogleMapDesignType): void {
+    const mode = design.getValue().toUpperCase();
+    if (mode !== 'ROADMAP' && mode !== 'HYBRID' && mode !== 'SATELLITE') {
+      throw new Error(`Map3D supports only following mapDesignTypes: ROADMAP, HYBRID, and SATELLITE.`);
+    }
+    this.holder.map.mode = mode as google.maps.maps3d.MapModeString;
   }
 
   /**

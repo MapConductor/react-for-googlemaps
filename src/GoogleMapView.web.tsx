@@ -12,6 +12,7 @@ import {
   createMapContextValue,
 } from '@mapconductor/js-sdk-react';
 import {
+  useMapViewStyle,
   useCameraRestriction,
   useMapUISettings,
   useMarkerRenderingSupport,
@@ -33,6 +34,8 @@ import { GoogleMapConfig } from './GoogleMapConfig';
  */
 export function GoogleMapView({
   state,
+  mapStyle,
+  onStyleDiagnostics,
   mapId,
   className,
   style,
@@ -56,6 +59,11 @@ export function GoogleMapView({
   const [provider] = useState(() => new GoogleMapProvider());
   const [scope] = useState(() => new MapViewScope());
   const [controller, setController] = useState<MapViewControllerInterface | null>(null);
+
+  // 地図の見た目。何が起きるかはこのバックエンドが宣言した能力で決まるので、
+  // ここにプロバイダ固有の分岐は無い。android-sdk の `MapViewStyleEffect`、
+  // ios-sdk の `MapViewStyleHost` と同じ役目。
+  useMapViewStyle(state, controller, mapStyle, onStyleDiagnostics);
   const [isReady, setIsReady] = useState(false);
   // `onMapLoaded` と同じ瞬間を「値」として持つ。イベントを取り逃した後から
   // マウントした子（examples の Three.js overlay 等）も読めるようにするため。
@@ -211,7 +219,9 @@ export function GoogleMapView({
       bridgeUnsubs.current = [];
       provider.destroy();
     };
-  }, [mapId, state.apiKey, state.mapDesignType.id]);
+    // Design changes are applied live via the controller (see the state's
+    // `mapDesignType` setter), so they must not recreate the map.
+  }, [mapId, state.apiKey]);
 
   // cameraTick is read here only to force a re-render when the camera moves,
   // so that toScreenOffset() recalculates bubble positions.

@@ -14,6 +14,7 @@ import {
 import {
   useCameraRestriction,
   useMapUISettings,
+  useMapViewStyle,
   useMarkerRenderingSupport,
 } from '@mapconductor/js-sdk-react/internal';
 import type {
@@ -34,6 +35,8 @@ import { GoogleMapConfig2D } from './GoogleMapConfig';
  */
 export function GoogleMapView2D({
   state,
+  mapStyle,
+  onStyleDiagnostics,
   onMapLoaded,
   onMapClick,
   onMapLongClick,
@@ -57,6 +60,10 @@ export function GoogleMapView2D({
   const [provider] = useState(() => new GoogleMapProvider2D());
   const [scope] = useState(() => new MapViewScope());
   const [controller, setController] = useState<MapViewControllerInterface | null>(null);
+
+  // 地図の見た目。`GoogleMapView`（3D）と同じ一行で、ここが抜けていると
+  // 2D のときだけスタイルが黙って無視される。
+  useMapViewStyle(state, controller, mapStyle, onStyleDiagnostics);
   const [isReady, setIsReady] = useState(false);
   // `onMapLoaded` と同じ瞬間を「値」として持つ。イベントを取り逃した後から
   // マウントした子（examples の Three.js overlay 等）も読めるようにするため。
@@ -204,7 +211,9 @@ export function GoogleMapView2D({
       bridgeUnsubs.current = [];
       provider.destroy();
     };
-  }, [mapId, state.apiKey, state.mapDesignType.id]);
+    // Design changes are applied live via the controller (see the state's
+    // `mapDesignType` setter), so they must not recreate the map.
+  }, [mapId, state.apiKey]);
 
   // cameraTick is read here only to force a re-render when the camera moves,
   // so that toScreenOffset() recalculates bubble positions.
