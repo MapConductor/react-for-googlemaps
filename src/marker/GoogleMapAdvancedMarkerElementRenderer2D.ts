@@ -10,7 +10,7 @@ import {
 import { createMarkerEntity } from '@mapconductor/js-sdk-core';
 import { latLngToGeoPoint, geoPointToLatLng } from '../helpers';
 import { loadLibrary } from '../LibraryLoader';
-import { createMarkerContent } from './createMarkerContent';
+import { createMarkerContent, shapeMarkerHits } from './createMarkerContent';
 import { GoogleMapActualMarker2D } from '../GoogleMapTypeAlias';
 import { GoogleMapViewHolder2D } from '../GoogleMapViewHolder2D';
 import { GoogleMapMarkerRendererInterface } from './GoogleMapMarkerRendererInterface';
@@ -35,16 +35,18 @@ export class GoogleMapAdvancedMarkerElementRenderer2D extends AbstractMarkerOver
 
     const { AdvancedMarkerElement } = await loadLibrary<google.maps.MarkerLibrary>('marker');
 
-    return data.map(({ state, bitmapIcon }) =>
-      new AdvancedMarkerElement({
+    return data.map(({ state, bitmapIcon }) => {
+      const marker = new AdvancedMarkerElement({
         position: geoPointToLatLng(state.position),
         map: this.holder.map,
         content: createMarkerContent(bitmapIcon),
         gmpClickable: state.clickable,
         gmpDraggable: state.draggable,
         zIndex: Math.max(0, state.zIndex),
-      }),
-    );
+      });
+      shapeMarkerHits(marker);
+      return marker;
+    });
   }
 
   async onChange(

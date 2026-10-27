@@ -12,6 +12,7 @@ import { latLngToGeoPoint, geoPointToLatLng } from '../helpers';
 import { GoogleMapActualMarker2D } from '../GoogleMapTypeAlias';
 import { GoogleMapViewHolder2D } from '../GoogleMapViewHolder2D';
 import { GoogleMapMarkerRendererInterface } from './GoogleMapMarkerRendererInterface';
+import { markerHitRectInBitmap } from './createMarkerContent';
 
 export class GoogleMapMarkerRenderer2D extends AbstractMarkerOverlayRenderer<
   GoogleMapViewHolder2D,
@@ -42,6 +43,7 @@ export class GoogleMapMarkerRenderer2D extends AbstractMarkerOverlayRenderer<
         position: geoPointToLatLng(state.position),
         map: this.holder.map,
         icon,
+        shape: hitShape(bitmapIcon),
         clickable: state.clickable,
         draggable: state.draggable,
         zIndex: state.zIndex,
@@ -67,6 +69,7 @@ export class GoogleMapMarkerRenderer2D extends AbstractMarkerOverlayRenderer<
         position: geoPointToLatLng(current.state.position),
         map: this.holder.map,
         icon,
+        shape: hitShape(bitmapIcon),
         clickable: current.state.clickable,
         draggable: current.state.draggable,
         zIndex: current.state.zIndex,
@@ -111,4 +114,17 @@ export class GoogleMapMarkerRenderer2D extends AbstractMarkerOverlayRenderer<
       isRendered: true,
     });
   }
+}
+
+/**
+ * The clickable region in the icon image: the pin as drawn, not the whole
+ * bitmap (a default pin is about 31 px wide in a 48 px square). Clicks on the
+ * rest go to the map, as `google.maps.MarkerShape` does for any icon.
+ */
+function hitShape(bitmapIcon: AddParams['bitmapIcon']): google.maps.MarkerShape {
+  const rect = markerHitRectInBitmap(bitmapIcon);
+  return {
+    type: 'rect',
+    coords: [rect.left, rect.top, rect.left + rect.width, rect.top + rect.height].map(Math.round),
+  };
 }
