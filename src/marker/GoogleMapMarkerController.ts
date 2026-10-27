@@ -1,8 +1,9 @@
 /// <reference types="google.maps" />
-import { MarkerTilingOptions, type MarkerState } from '@mapconductor/js-sdk-core';
+import { MarkerTilingOptions, createDefaultIcon, type MarkerState } from '@mapconductor/js-sdk-core';
 import { GoogleMapActualMarker } from '../GoogleMapTypeAlias';
 import { AbstractGoogleMapsController } from './AbstractGoogleMapsController';
 import { GoogleMapMarkerRenderer } from './GoogleMapMarkerRenderer';
+import { markerHitRectInBitmap } from './createMarkerContent';
 
 export class GoogleMapMarkerController extends AbstractGoogleMapsController<
   GoogleMapActualMarker,
@@ -62,6 +63,9 @@ export class GoogleMapMarkerController extends AbstractGoogleMapsController<
     };
 
     source?.addEventListener('mousedown', (event) => {
+      // The image is the whole bitmap; a default pin covers about two thirds
+      // of it. A press on the rest is not this marker's — leave it to the map.
+      if (!this.onDrawnPin(source, event as MouseEvent, state)) return;
       event.stopPropagation();
       event.preventDefault();
       mousedownStartTime = Date.now();
@@ -73,5 +77,17 @@ export class GoogleMapMarkerController extends AbstractGoogleMapsController<
       }
       window.addEventListener('mouseup', onWindowMouseUp, true);
     });
+  }
+
+  /** Whether a pointer event is on the pin as drawn (`markerHitShape`), not just on its bitmap. */
+  private onDrawnPin(source: Element, event: MouseEvent, state: MarkerState): boolean {
+    const box = source.getBoundingClientRect();
+    if (box.width <= 0 || box.height <= 0) return true;
+    const bitmap = (state.icon ?? createDefaultIcon()).toBitmapIcon();
+    const rect = markerHitRectInBitmap(bitmap);
+    // In bitmap pixels: the element may be drawn at another size than the bitmap.
+    const x = ((event.clientX - box.left) / box.width) * bitmap.size.width;
+    const y = ((event.clientY - box.top) / box.height) * bitmap.size.height;
+    return x >= rect.left && x <= rect.left + rect.width && y >= rect.top && y <= rect.top + rect.height;
   }
 }
