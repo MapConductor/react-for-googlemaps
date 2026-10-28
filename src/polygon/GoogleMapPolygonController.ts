@@ -62,6 +62,7 @@ export class GoogleMapPolygonController extends PolygonController<GoogleMapActua
 
     if (polygon instanceof HTMLElement) {
       const listener = (event: Event) => {
+        if (!state.clickable) return;
         const position = (event as google.maps.maps3d.LocationClickEvent).position;
         if (!position) return;
         this.dispatchClick({
