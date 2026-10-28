@@ -24,7 +24,7 @@ export class GoogleMapPolylineOverlayRenderer2D extends AbstractPolylineOverlayR
       strokeWeight: state.strokeWidth,
       geodesic: state.geodesic,
       zIndex: state.zIndex,
-      clickable: true,
+      clickable: state.clickable,
       map: this.holder.map,
     });
   }
@@ -44,7 +44,7 @@ export class GoogleMapPolylineOverlayRenderer2D extends AbstractPolylineOverlayR
       strokeWeight: current.state.strokeWidth,
       geodesic: current.state.geodesic,
       zIndex: current.state.zIndex,
-      clickable: true,
+      clickable: current.state.clickable,
       map: this.holder.map,
     });
     return polyline2D;

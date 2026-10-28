@@ -62,6 +62,7 @@ export class GoogleMapPolylineController extends PolylineController<GoogleMapAct
 
     if (polyline instanceof HTMLElement) {
       const listener = (event: Event) => {
+        if (!state.clickable) return;
         const position = (event as google.maps.maps3d.LocationClickEvent).position;
         if (!position) return;
         this.dispatchClick({

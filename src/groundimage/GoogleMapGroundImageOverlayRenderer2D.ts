@@ -19,7 +19,7 @@ export class GoogleMapGroundImageOverlayRenderer2D extends AbstractGroundImageOv
     const bounds = geoRectToLatLngBounds(state.bounds);
     if (!bounds) return null;
     return new google.maps.GroundOverlay(state.imageUrl, bounds, {
-      clickable: true,
+      clickable: state.clickable,
       opacity: state.opacity,
       map: this.holder.map,
     });

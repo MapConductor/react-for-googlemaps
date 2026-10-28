@@ -29,7 +29,7 @@ export class GoogleMapPolygonOverlayRenderer2D extends AbstractPolygonOverlayRen
       fillOpacity: fill.opacity,
       geodesic: state.geodesic,
       zIndex: state.zIndex,
-      clickable: true,
+      clickable: state.clickable,
       map: this.holder.map,
     });
   }
@@ -52,7 +52,7 @@ export class GoogleMapPolygonOverlayRenderer2D extends AbstractPolygonOverlayRen
       fillOpacity: fill.opacity,
       geodesic: current.state.geodesic,
       zIndex: current.state.zIndex,
-      clickable: true,
+      clickable: current.state.clickable,
       map: this.holder.map,
     });
     return polygon2D;
