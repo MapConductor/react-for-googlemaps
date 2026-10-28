@@ -183,6 +183,8 @@ declare class GoogleMapMarkerRenderer extends AbstractMarkerOverlayRenderer<Goog
 declare class GoogleMapMarkerController extends AbstractGoogleMapsController<GoogleMapActualMarker, GoogleMapMarkerRenderer> {
     constructor(renderer: GoogleMapMarkerRenderer, tilingOptions?: MarkerTilingOptions);
     protected attachListeners(marker: GoogleMapActualMarker, state: MarkerState): void;
+    /** Whether a pointer event is on the pin as drawn (`markerHitShape`), not just on its bitmap. */
+    private onDrawnPin;
 }
 
 declare class GoogleMapCircleOverlayRenderer extends AbstractCircleOverlayRenderer<GoogleMapViewHolder, GoogleMapActualCircle> {
