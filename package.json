@@ -46,9 +46,9 @@
     "@mapconductor/js-sdk-react": "^0.2.1"
   },
   "devDependencies": {
-    "@types/google.maps": "^3.66.7",
-    "react": "^19.3.0",
-    "tsup": "^8.5.1",
+    "@types/google.maps": "^3.66.9",
+    "react": "^19.3.1",
+    "tsup": "^9.0.0",
     "typescript": "^5.9.3"
   }
 }
