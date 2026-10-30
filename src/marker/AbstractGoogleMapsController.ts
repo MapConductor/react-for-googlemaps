@@ -7,11 +7,13 @@ import {
   MarkerTileRenderer,
   MarkerTilingOptions,
   RasterLayerSource,
+  tilePixelRatio,
   type GeoPoint,
   type MarkerEntity,
   type MarkerState,
   type RasterLayerState,
 } from '@mapconductor/js-sdk-core';
+import { localTileUrlTemplate } from '../raster/localTileUrl';
 import { GoogleMapMarkerRendererInterface } from './GoogleMapMarkerRendererInterface';
 
 export abstract class AbstractGoogleMapsController<
@@ -23,6 +25,8 @@ export abstract class AbstractGoogleMapsController<
   private tileRenderer: MarkerTileRenderer<MarkerState> | null = null;
   private tileRouteId: string | null = null;
   private tileVersion = 0;
+  /** Device pixels per CSS pixel the current tiles are drawn at. */
+  private tilePixelRatio = 1;
   // Bumped on every syncTiledOverlay()/removeTileOverlay() call. syncTiledOverlay
   // awaits SW round-trips, so an earlier call must not overwrite a newer result.
   private tileGeneration = 0;
@@ -96,7 +100,18 @@ export abstract class AbstractGoogleMapsController<
 
     const server = LocalTileServer.startServer();
     const { iconScaleCallback } = this.tilingOptions;
-    const tileRenderer = new MarkerTileRenderer<MarkerState>(tiledStates, 256, iconScaleCallback ?? undefined);
+    // Tiles are laid out as 256 CSS pixels; drawing them at the display's ratio
+    // keeps pins and labels sharp instead of stretching a 1x image.
+    this.tilePixelRatio = tilePixelRatio();
+    const tileRenderer = new MarkerTileRenderer<MarkerState>(
+      tiledStates,
+      256,
+      iconScaleCallback ?? undefined,
+      1.0,
+      false,
+      this.tilingOptions.declutterPx,
+      this.tilePixelRatio,
+    );
     this.tileRenderer = tileRenderer;
     this.tileVersion++;
     server.register(this.tileRouteId, tileRenderer);
@@ -128,12 +143,18 @@ export abstract class AbstractGoogleMapsController<
       routeId: this.tileRouteId!,
       tileSize: 256,
       cacheKey: String(this.tileVersion),
+      pixelRatio: this.tilePixelRatio,
     });
   }
 
   private async localTileTemplate(tileRenderer: MarkerTileRenderer<MarkerState>): Promise<string> {
     await tileRenderer.preloadIcons();
-    return `mc-local-tile://${this.tileRouteId}/256/${this.tileVersion}/{z}/{x}/{y}.png`;
+    return localTileUrlTemplate({
+      routeId: this.tileRouteId!,
+      tileSize: 256,
+      cacheKey: String(this.tileVersion),
+      pixelRatio: this.tilePixelRatio,
+    });
   }
 
   private async removeTileOverlay(): Promise<void> {

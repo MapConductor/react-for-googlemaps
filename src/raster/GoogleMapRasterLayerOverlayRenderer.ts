@@ -9,17 +9,10 @@ import {
   type RasterLayerState,
 } from '@mapconductor/js-sdk-core';
 import { GoogleMapViewHolder } from '../GoogleMapViewHolder';
+import { parseLocalTileTemplate } from './localTileUrl';
 
 const EMPTY_TILE_DATA_URL =
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVR42mNgAAIAAAUAASImBZsAAAAASUVORK5CYII=';
-
-function parseLocalTileTemplate(template: string): { routeId: string; tileSize: number } | null {
-  if (!template.startsWith('mc-local-tile://')) return null;
-  const url = new URL(template);
-  const tileSize = Number(url.pathname.split('/').filter(Boolean)[0]);
-  if (!Number.isFinite(tileSize)) return null;
-  return { routeId: url.hostname, tileSize };
-}
 
 function normalizeTileX(x: number, zoom: number): number {
   const scale = 1 << zoom;
@@ -90,6 +83,7 @@ export class GoogleMapRasterLayerOverlayRenderer {
           return this.localTileImageMapType({
             routeId: localTile.routeId,
             tileSize: localTile.tileSize,
+            pixelRatio: localTile.pixelRatio,
             opacity: state.opacity,
           });
         }
@@ -132,10 +126,12 @@ export class GoogleMapRasterLayerOverlayRenderer {
   private localTileImageMapType({
     routeId,
     tileSize,
+    pixelRatio,
     opacity,
   }: {
     routeId: string;
     tileSize: number;
+    pixelRatio: number;
     opacity: number;
   }): google.maps.ImageMapType {
     return new google.maps.ImageMapType({
@@ -146,11 +142,13 @@ export class GoogleMapRasterLayerOverlayRenderer {
           x: normalizeTileX(coord.x, tileZoom),
           y: coord.y,
           z: tileZoom,
+          pixelRatio,
         }) ?? EMPTY_TILE_DATA_URL;
       },
       maxZoom: 22,
       minZoom: 0,
       opacity,
+      // A `@2x` image is still shown at tileSize CSS pixels.
       tileSize: new google.maps.Size(tileSize, tileSize),
     });
   }
