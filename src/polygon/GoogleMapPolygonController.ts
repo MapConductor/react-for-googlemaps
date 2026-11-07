@@ -59,6 +59,8 @@ export class GoogleMapPolygonController extends PolygonController<GoogleMapActua
   private setClickHandler(entity: PolygonEntity<GoogleMapActualPolygon>): void {
     const { polygon, state } = entity;
     this.clearClickHandler(state.id, polygon);
+    // A tiled polygon has no overlay; its taps come through the map click.
+    if (polygon == null) return;
 
     if (polygon instanceof HTMLElement) {
       const listener = (event: Event) => {
@@ -94,7 +96,7 @@ export class GoogleMapPolygonController extends PolygonController<GoogleMapActua
   private clearClickHandler(id: string, polygon: GoogleMapActualPolygon): void {
     this.clickCleanups.get(id)?.();
     this.clickCleanups.delete(id);
-    if (!(polygon instanceof HTMLElement)) {
+    if (polygon != null && !(polygon instanceof HTMLElement)) {
       google.maps.event.clearInstanceListeners(polygon);
     }
   }
