@@ -5,6 +5,7 @@ import {
   closeRing,
   type CircleEntity,
   type CircleState,
+  overlayStackZ,
 } from '@mapconductor/js-sdk-core';
 import { toGoogleMapFillStyle } from '../color';
 import { geoPointToLatLng } from '../helpers';
@@ -32,7 +33,7 @@ export class GoogleMapCircleOverlayRenderer2D extends AbstractCircleOverlayRende
       strokeWeight: state.strokeWidth,
       fillColor: fill.color,
       fillOpacity: fill.opacity,
-      zIndex: state.zIndex,
+      zIndex: overlayStackZ('circle', state.zIndex),
       clickable: state.clickable,
       map: this.holder.map,
     });
@@ -54,7 +55,7 @@ export class GoogleMapCircleOverlayRenderer2D extends AbstractCircleOverlayRende
       strokeWeight: current.state.strokeWidth,
       fillColor: fill.color,
       fillOpacity: fill.opacity,
-      zIndex: current.state.zIndex,
+      zIndex: overlayStackZ('circle', current.state.zIndex),
       clickable: current.state.clickable,
       map: this.holder.map,
     });
