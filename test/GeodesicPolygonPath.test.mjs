@@ -40,10 +40,16 @@ test('a geodesic polygon path follows the great circle on its closing edge', () 
     assert.ok(nearest < 0.1, `nearest ${nearest}`);
 });
 
-test('a non-geodesic polygon path is unchanged', () => {
+// geodesic=false も閉じる辺を緯度経度で線形補間する（ポリラインの false と同じ線）。
+test('a non-geodesic polygon path interpolates its closing edge linearly', () => {
     const path = buildPolygonPath(TRIANGLE, false);
-    const expected = Planar.createInterpolatePoints(TRIANGLE);
+    const expected = Planar.createInterpolatePoints([...TRIANGLE, BOSTON]).slice(0, -1);
     assert.equal(path.length, expected.length);
-    const last = path[path.length - 1];
-    assert.ok(last.lat === ICELAND.latitude && last.lng === ICELAND.longitude);
+    path.forEach((q, i) => {
+        assert.ok(Math.abs(q.lat - expected[i].latitude) < 1e-9 && Math.abs(q.lng - expected[i].longitude) < 1e-9, `point ${i}`);
+    });
+    // Halfway along Iceland -> Boston the linear edge passes 53.2N (the Mercator chord 54.7N).
+    const mid = p((ICELAND.latitude + BOSTON.latitude) / 2, (ICELAND.longitude + BOSTON.longitude) / 2);
+    const nearest = Math.min(...path.map((q) => Math.hypot(q.lat - mid.latitude, q.lng - mid.longitude)));
+    assert.ok(nearest < 0.1, `nearest ${nearest}`);
 });
