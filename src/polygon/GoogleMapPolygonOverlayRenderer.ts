@@ -3,6 +3,7 @@ import {
   AbstractPolygonOverlayRenderer,
   type PolygonEntity,
   type PolygonState,
+  overlayStackZ,
 } from '@mapconductor/js-sdk-core';
 import { GoogleMapActualPolygon } from '../GoogleMapTypeAlias';
 import { GoogleMapViewHolder } from '../GoogleMapViewHolder';
@@ -38,7 +39,7 @@ export class GoogleMapPolygonOverlayRenderer extends AbstractPolygonOverlayRende
       strokeWidth: state.strokeWidth,
       fillColor: state.fillColor,
       geodesic: false,
-      zIndex: state.zIndex,
+      zIndex: overlayStackZ('polygon', state.zIndex),
     });
     this.holder.map.append(polygon);
     return polygon;
@@ -66,7 +67,7 @@ export class GoogleMapPolygonOverlayRenderer extends AbstractPolygonOverlayRende
     polygon.strokeWidth = current.state.strokeWidth;
     polygon.fillColor = current.state.fillColor;
     polygon.geodesic = false;
-    polygon.zIndex = current.state.zIndex;
+    polygon.zIndex = overlayStackZ('polygon', current.state.zIndex);
     return polygon;
   }
 

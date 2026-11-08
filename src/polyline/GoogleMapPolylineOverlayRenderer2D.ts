@@ -4,6 +4,7 @@ import {
   buildUnwrappedPolylinePath,
   type PolylineEntity,
   type PolylineState,
+  overlayStackZ,
 } from '@mapconductor/js-sdk-core';
 import { geoPointToLatLng } from '../helpers';
 import { GoogleMapActualPolyline } from '../GoogleMapTypeAlias';
@@ -23,7 +24,7 @@ export class GoogleMapPolylineOverlayRenderer2D extends AbstractPolylineOverlayR
       strokeColor: state.strokeColor,
       strokeWeight: state.strokeWidth,
       geodesic: state.geodesic,
-      zIndex: state.zIndex,
+      zIndex: overlayStackZ('polyline', state.zIndex),
       clickable: state.clickable,
       map: this.holder.map,
     });
@@ -43,7 +44,7 @@ export class GoogleMapPolylineOverlayRenderer2D extends AbstractPolylineOverlayR
       strokeColor: current.state.strokeColor,
       strokeWeight: current.state.strokeWidth,
       geodesic: current.state.geodesic,
-      zIndex: current.state.zIndex,
+      zIndex: overlayStackZ('polyline', current.state.zIndex),
       clickable: current.state.clickable,
       map: this.holder.map,
     });
