@@ -1,6 +1,7 @@
 import {
   circleToRing,
   closeRing,
+  densifyGeodesicRing,
   WGS84Geodesic,
   Planar,
   type CircleState,
@@ -39,8 +40,10 @@ export function buildPolygonPath(
   geodesic: boolean,
   maxSegmentLengthMeters: number = 10000.0,
 ): google.maps.LatLngAltitudeLiteral[] {
+  // geodesic はリングの閉じる辺（末尾 → 先頭）も大圏で補間する。隣り合う点の間だけを補間すると、
+  // 閉じる辺が直線の弦になり、塗りも輪郭もそこだけ直線になる。
   const path = geodesic
-    ? WGS84Geodesic.createInterpolatePoints(points, maxSegmentLengthMeters)
+    ? densifyGeodesicRing(points, maxSegmentLengthMeters)
     : Planar.createInterpolatePoints(points);
   return toLatLngAltitudePath(path);
 }
