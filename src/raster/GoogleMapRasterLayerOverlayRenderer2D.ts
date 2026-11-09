@@ -7,6 +7,7 @@ import {
   type RasterLayerChangeParams,
   type RasterLayerEntity,
   type RasterLayerState,
+  POLYGON_TILE_LAYER_ID,
 } from '@mapconductor/js-sdk-core';
 import { GoogleMapViewHolder2D } from '../GoogleMapViewHolder2D';
 import { parseLocalTileTemplate } from './localTileUrl';
@@ -64,11 +65,14 @@ export class GoogleMapRasterLayerOverlayRenderer2D {
 
     // zIndex is a stacking value, not an MVCArray index. In particular,
     // clamping both -2 (ground) and -1 (labels) to zero hides the labels.
+    // Polygon tiles belong with the polygons. Google draws every overlay map type under its
+    // shapes and ground overlays, so they can only go over the app's rasters.
+    const zIndex = state.id === POLYGON_TILE_LAYER_ID ? Number.POSITIVE_INFINITY : state.zIndex;
     const overlays = this.holder.map.overlayMapTypes;
     const nextIndex = overlays.getArray().findIndex(existing =>
-      (existing ? this.zIndices.get(existing) ?? 0 : 0) > state.zIndex,
+      (existing ? this.zIndices.get(existing) ?? 0 : 0) > zIndex,
     );
-    this.zIndices.set(mapType, state.zIndex);
+    this.zIndices.set(mapType, zIndex);
     overlays.insertAt(nextIndex < 0 ? overlays.getLength() : nextIndex, mapType);
     return mapType;
   }

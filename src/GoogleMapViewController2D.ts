@@ -1,4 +1,5 @@
 /// <reference types="google.maps" />
+import { PolygonTiler, POLYGON_TILE_LAYER_ID, polygonTileRasterLayerState } from '@mapconductor/js-sdk-core';
 import {
   BaseMapViewController,
   createGeoRectBounds,
@@ -66,6 +67,13 @@ export class GoogleMapViewController2D
     this.registerOverlayController(this.polygonController);
     this.registerOverlayController(this.groundImageController);
     this.registerOverlayController(this.rasterLayerController);
+    // Many polygons are drawn as tiles by the tile service worker and shown
+    // as one raster layer; taps still resolve against the original shapes.
+    this.polygonController.tiler = new PolygonTiler();
+    this.polygonController.tiler.onTemplate = async (template, tileSize) => {
+      if (template) await this.rasterLayerController.upsert(polygonTileRasterLayerState(template, tileSize));
+      else await this.rasterLayerController.removeById(POLYGON_TILE_LAYER_ID);
+    };
     this.markerController.onRasterLayerUpdate = async (state) => {
       if (state) {
         await this.rasterLayerController.updateInternal(state);
