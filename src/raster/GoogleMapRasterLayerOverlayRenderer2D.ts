@@ -8,9 +8,13 @@ import {
   type RasterLayerEntity,
   type RasterLayerState,
   POLYGON_TILE_LAYER_ID,
+  POLYLINE_TILE_LAYER_ID,
 } from '@mapconductor/js-sdk-core';
 import { GoogleMapViewHolder2D } from '../GoogleMapViewHolder2D';
 import { parseLocalTileTemplate } from './localTileUrl';
+
+/** The raster the marker controller mounts for tiled markers (AbstractGoogleMapsController). */
+const MARKER_TILES_ID = 'mc-marker-tiles';
 
 const EMPTY_TILE_DATA_URL =
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVR42mNgAAIAAAUAASImBZsAAAAASUVORK5CYII=';
@@ -65,9 +69,17 @@ export class GoogleMapRasterLayerOverlayRenderer2D {
 
     // zIndex is a stacking value, not an MVCArray index. In particular,
     // clamping both -2 (ground) and -1 (labels) to zero hides the labels.
-    // Polygon tiles belong with the polygons. Google draws every overlay map type under its
-    // shapes and ground overlays, so they can only go over the app's rasters.
-    const zIndex = state.id === POLYGON_TILE_LAYER_ID ? Number.POSITIVE_INFINITY : state.zIndex;
+    // Polygon, polyline and marker tiles belong with their overlays. Google draws every overlay
+    // map type under its shapes and ground overlays, so they can only go over the app's rasters,
+    // in band order: polygon tiles, then polyline tiles, then marker tiles.
+    const zIndex =
+      state.id === POLYGON_TILE_LAYER_ID
+        ? Number.MAX_SAFE_INTEGER
+        : state.id === POLYLINE_TILE_LAYER_ID
+          ? Number.MAX_VALUE
+          : state.id === MARKER_TILES_ID
+            ? Number.POSITIVE_INFINITY
+            : state.zIndex;
     const overlays = this.holder.map.overlayMapTypes;
     const nextIndex = overlays.getArray().findIndex(existing =>
       (existing ? this.zIndices.get(existing) ?? 0 : 0) > zIndex,
