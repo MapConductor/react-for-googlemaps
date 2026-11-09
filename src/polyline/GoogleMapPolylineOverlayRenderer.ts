@@ -3,6 +3,7 @@ import {
   AbstractPolylineOverlayRenderer,
   type PolylineEntity,
   type PolylineState,
+  overlayStackZ,
 } from '@mapconductor/js-sdk-core';
 import { GoogleMapActualPolyline } from '../GoogleMapTypeAlias';
 import { GoogleMapViewHolder } from '../GoogleMapViewHolder';
@@ -25,7 +26,7 @@ export class GoogleMapPolylineOverlayRenderer extends AbstractPolylineOverlayRen
       strokeColor: state.strokeColor,
       strokeWidth: state.strokeWidth,
       geodesic: state.geodesic,
-      zIndex: state.zIndex,
+      zIndex: overlayStackZ('polyline', state.zIndex),
       altitudeMode: AltitudeMode.CLAMP_TO_GROUND,
     });
     this.holder.map.append(polyline);
@@ -45,7 +46,7 @@ export class GoogleMapPolylineOverlayRenderer extends AbstractPolylineOverlayRen
     polyline.strokeColor = current.state.strokeColor;
     polyline.strokeWidth = current.state.strokeWidth;
     polyline.geodesic = current.state.geodesic;
-    polyline.zIndex = current.state.zIndex;
+    polyline.zIndex = overlayStackZ('polyline', current.state.zIndex);
     return polyline;
   }
 

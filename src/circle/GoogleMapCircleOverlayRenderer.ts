@@ -3,11 +3,12 @@ import {
   AbstractCircleOverlayRenderer,
   type CircleEntity,
   type CircleState,
+  overlayStackZ,
 } from '@mapconductor/js-sdk-core';
 import { GoogleMapActualCircle } from '../GoogleMapTypeAlias';
 import { GoogleMapViewHolder } from '../GoogleMapViewHolder';
 import { loadLibrary } from '../LibraryLoader';
-import { buildCirclePath, calculateCircleZIndex } from '../overlay3d';
+import { buildCirclePath } from '../overlay3d';
 
 export class GoogleMapCircleOverlayRenderer extends AbstractCircleOverlayRenderer<
   GoogleMapViewHolder,
@@ -26,7 +27,7 @@ export class GoogleMapCircleOverlayRenderer extends AbstractCircleOverlayRendere
       strokeWidth: state.strokeWidth,
       fillColor: state.fillColor,
       geodesic: state.geodesic,
-      zIndex: state.zIndex ?? calculateCircleZIndex(state.center),
+      zIndex: overlayStackZ('circle', state.zIndex),
       altitudeMode: AltitudeMode.CLAMP_TO_GROUND,
     });
     this.holder.map.append(circle);
@@ -47,7 +48,7 @@ export class GoogleMapCircleOverlayRenderer extends AbstractCircleOverlayRendere
     circle.strokeWidth = current.state.strokeWidth;
     circle.fillColor = current.state.fillColor;
     circle.geodesic = current.state.geodesic;
-    circle.zIndex = current.state.zIndex ?? calculateCircleZIndex(current.state.center);
+    circle.zIndex = overlayStackZ('circle', current.state.zIndex);
     return circle;
   }
 

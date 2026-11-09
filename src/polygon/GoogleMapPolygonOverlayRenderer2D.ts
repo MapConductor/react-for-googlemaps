@@ -5,6 +5,7 @@ import {
   type GeoPoint,
   type PolygonEntity,
   type PolygonState,
+  overlayStackZ,
 } from '@mapconductor/js-sdk-core';
 import { toGoogleMapFillStyle } from '../color';
 import { ensureClockwise, ensureCounterClockwise, geoPointToLatLng } from '../helpers';
@@ -28,7 +29,7 @@ export class GoogleMapPolygonOverlayRenderer2D extends AbstractPolygonOverlayRen
       fillColor: fill.color,
       fillOpacity: fill.opacity,
       geodesic: state.geodesic,
-      zIndex: state.zIndex,
+      zIndex: overlayStackZ('polygon', state.zIndex),
       clickable: state.clickable,
       map: this.holder.map,
     });
@@ -51,7 +52,7 @@ export class GoogleMapPolygonOverlayRenderer2D extends AbstractPolygonOverlayRen
       fillColor: fill.color,
       fillOpacity: fill.opacity,
       geodesic: current.state.geodesic,
-      zIndex: current.state.zIndex,
+      zIndex: overlayStackZ('polygon', current.state.zIndex),
       clickable: current.state.clickable,
       map: this.holder.map,
     });

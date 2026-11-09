@@ -322,12 +322,14 @@ export class GoogleMapViewController2D
   // --- Lifecycle ---
 
   async clearOverlays(): Promise<void> {
-    this.markerController.clear();
-    this.circleController.clear();
-    this.polylineController.clear();
-    this.polygonController.clear();
-    this.groundImageController.clear();
-    this.rasterLayerController.clear();
+    await this.clearOverlayControllers([
+      this.markerController,
+      this.circleController,
+      this.polylineController,
+      this.polygonController,
+      this.groundImageController,
+      this.rasterLayerController,
+    ]);
   }
 
   /**
