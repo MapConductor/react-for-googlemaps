@@ -59,6 +59,8 @@ export class GoogleMapPolylineController extends PolylineController<GoogleMapAct
   private setClickHandler(entity: PolylineEntity<GoogleMapActualPolyline>): void {
     const { polyline, state } = entity;
     this.clearClickHandler(state.id, polyline);
+    // A tiled polyline has no overlay; its taps come through the map click.
+    if (polyline == null) return;
 
     if (polyline instanceof HTMLElement) {
       const listener = (event: Event) => {
@@ -94,7 +96,7 @@ export class GoogleMapPolylineController extends PolylineController<GoogleMapAct
   private clearClickHandler(id: string, polyline: GoogleMapActualPolyline): void {
     this.clickCleanups.get(id)?.();
     this.clickCleanups.delete(id);
-    if (!(polyline instanceof HTMLElement)) {
+    if (polyline != null && !(polyline instanceof HTMLElement)) {
       google.maps.event.clearInstanceListeners(polyline);
     }
   }
