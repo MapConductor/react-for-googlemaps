@@ -20,7 +20,7 @@ import {
   MapUISettingsDiagnostics,
   type MapUISettings,
   type CameraRestriction,
-  isEmptyCameraRestriction, bearingFromNativeHeading, } from '@mapconductor/js-sdk-core';
+  isEmptyCameraRestriction, bearingFromNativeHeading, computeFitBoundsCameraPosition, } from '@mapconductor/js-sdk-core';
 import { GoogleMapMarkerController } from './marker/GoogleMapMarkerController';
 import { GoogleMapCircleController } from './circle/GoogleMapCircleController';
 import { GoogleMapPolylineController } from './polyline/GoogleMapPolylineController';
@@ -151,7 +151,7 @@ export class GoogleMapViewController
     this.holder.map.addEventListener('gmp-load', handleLoad, { once: true });
 
     this.eventCleanup.push(
-      () => this.holder.map.removeEventListener('gmp-centerchange', handleCenterChange),
+      () => this.holder.map.removeEventListener('gmp-camerapositionchange', handleCenterChange),
       () => this.holder.map.removeEventListener('gmp-steadychange', handleSteadyChange),
       () => this.holder.map.removeEventListener('gmp-click', handleClick),
     );
@@ -187,8 +187,28 @@ export class GoogleMapViewController
     })
   }
 
-  fitBounds(_bounds: GeoRectBounds, _padding: number): Promise<boolean> {
-    return Promise.resolve(false);
+  // Map3DElement has no fitBounds of its own. The core computes center + zoom
+  // from the bounds and the padded viewport; the current heading and tilt are
+  // kept. The range is set from the fractional fit zoom directly — going
+  // through moveCamera would snap it to an integer and lose `padding`.
+  fitBounds(bounds: GeoRectBounds, padding: number): Promise<boolean> {
+    if (!bounds.southWest || !bounds.northEast) return Promise.resolve(false);
+    const rect = this.holder.map.getBoundingClientRect();
+    const heading = this.holder.map.heading ?? 0;
+    const fit = computeFitBoundsCameraPosition({
+      bounds,
+      viewportWidthPx: rect.width,
+      viewportHeightPx: rect.height,
+      padding,
+      bearing: bearingFromNativeHeading(heading),
+    });
+    if (!fit) return Promise.resolve(false);
+    this.holder.map.center = { lat: fit.center.latitude, lng: fit.center.longitude, altitude: 0 };
+    this.holder.map.range = this.holder.zoomConverter.zoomLevelToDistance({
+      zoomLevel: fit.zoom,
+      latitude: fit.center.latitude,
+    });
+    return Promise.resolve(true);
   }
 
   getCameraPosition(): MapCameraPosition | null {
