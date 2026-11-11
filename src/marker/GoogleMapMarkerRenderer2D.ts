@@ -13,6 +13,7 @@ import { GoogleMapActualMarker2D } from '../GoogleMapTypeAlias';
 import { GoogleMapViewHolder2D } from '../GoogleMapViewHolder2D';
 import { GoogleMapMarkerRendererInterface } from './GoogleMapMarkerRendererInterface';
 import { markerHitRectInBitmap } from './createMarkerContent';
+import { googleMarkerZIndex } from './markerZIndex';
 
 export class GoogleMapMarkerRenderer2D extends AbstractMarkerOverlayRenderer<
   GoogleMapViewHolder2D,
@@ -46,7 +47,7 @@ export class GoogleMapMarkerRenderer2D extends AbstractMarkerOverlayRenderer<
         shape: hitShape(bitmapIcon),
         clickable: state.clickable,
         draggable: state.draggable,
-        zIndex: state.zIndex,
+        zIndex: googleMarkerZIndex(state),
       });
     });
   }
@@ -72,7 +73,7 @@ export class GoogleMapMarkerRenderer2D extends AbstractMarkerOverlayRenderer<
         shape: hitShape(bitmapIcon),
         clickable: current.state.clickable,
         draggable: current.state.draggable,
-        zIndex: current.state.zIndex,
+        zIndex: googleMarkerZIndex(current.state),
       });
       return marker;
     });
@@ -92,6 +93,7 @@ export class GoogleMapMarkerRenderer2D extends AbstractMarkerOverlayRenderer<
 
   setMarkerPosition(entity: MarkerEntity<GoogleMapActualMarker2D>, position: GeoPoint): void {
     (entity.marker as google.maps.Marker)?.setPosition(geoPointToLatLng(position));
+    (entity.marker as google.maps.Marker)?.setZIndex(googleMarkerZIndex(entity.state, position));
   }
 
   override setMarkerVisible(entity: MarkerEntity<GoogleMapActualMarker2D>, visible: boolean): void {
