@@ -1,4 +1,4 @@
-import { GeoRectBounds, MapConfig, MarkerTilingOptions, PolylineTilingOptions } from "@mapconductor/js-sdk-core";
+import { GeoRectBounds, MapConfig, MarkerTilingOptions, PolylineTilingOptions, CircleTilingOptions } from "@mapconductor/js-sdk-core";
 
 export interface GoogleMapConfig2D extends GoogleMapConfigBase {
   mapDesignType?: string;
@@ -7,6 +7,11 @@ export interface GoogleMapConfig2D extends GoogleMapConfigBase {
    * The controller's `setPolylineTilingOptions` replaces it later.
    */
   polylineTilingOptions?: PolylineTilingOptions;
+  /**
+   * When to draw circles as raster tiles; {@link CircleTilingOptions.Default} if omitted.
+   * The controller's `setCircleTilingOptions` replaces it later.
+   */
+  circleTilingOptions?: CircleTilingOptions;
 }
 
 export interface GoogleMapConfig extends GoogleMapConfigBase {
