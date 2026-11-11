@@ -14,7 +14,7 @@ import { createMarkerContent, shapeMarkerHits } from './createMarkerContent';
 import { GoogleMapActualMarker2D } from '../GoogleMapTypeAlias';
 import { GoogleMapViewHolder2D } from '../GoogleMapViewHolder2D';
 import { GoogleMapMarkerRendererInterface } from './GoogleMapMarkerRendererInterface';
-import { googleMarkerZIndex } from './markerZIndex';
+import { GoogleMarkerStacking } from './markerZIndex';
 
 
 
@@ -22,9 +22,12 @@ export class GoogleMapAdvancedMarkerElementRenderer2D extends AbstractMarkerOver
   GoogleMapViewHolder2D,
   GoogleMapActualMarker2D
 > implements GoogleMapMarkerRendererInterface<GoogleMapActualMarker2D> {
+  private readonly stacking: GoogleMarkerStacking<GoogleMapActualMarker2D>;
+
   constructor(holder: GoogleMapViewHolder2D) {
     super({ holder });
     this.supportsAnimationOverlay = true;
+    this.stacking = new GoogleMarkerStacking(holder.map, (marker, zIndex) => ((marker as google.maps.marker.AdvancedMarkerElement).zIndex = zIndex));
   }
 
   clickEventName: string | null = 'gmp-click';
@@ -43,9 +46,10 @@ export class GoogleMapAdvancedMarkerElementRenderer2D extends AbstractMarkerOver
         content: createMarkerContent(bitmapIcon),
         gmpClickable: state.clickable,
         gmpDraggable: state.draggable,
-        zIndex: googleMarkerZIndex(state),
+        zIndex: this.stacking.zIndexOf(state),
       });
       shapeMarkerHits(marker);
+      this.stacking.track(marker, state);
       return marker;
     });
   }
@@ -60,7 +64,8 @@ export class GoogleMapAdvancedMarkerElementRenderer2D extends AbstractMarkerOver
       marker.content = createMarkerContent(bitmapIcon);
       marker.gmpClickable = current.state.clickable;
       marker.gmpDraggable = current.state.draggable;
-      marker.zIndex = googleMarkerZIndex(current.state);
+      marker.zIndex = this.stacking.zIndexOf(current.state);
+      this.stacking.track(marker, current.state);
       return marker;
     });
   }
@@ -70,6 +75,7 @@ export class GoogleMapAdvancedMarkerElementRenderer2D extends AbstractMarkerOver
       if (!entity.marker) continue;
       google.maps.event.clearInstanceListeners(entity.marker);
       (entity.marker as google.maps.marker.AdvancedMarkerElement).map = null;
+      this.stacking.forget(entity.marker);
     }
   }
 
@@ -83,7 +89,7 @@ export class GoogleMapAdvancedMarkerElementRenderer2D extends AbstractMarkerOver
   ): void {
     if (!entity.marker) return;
     (entity.marker as google.maps.marker.AdvancedMarkerElement).position = geoPointToLatLng(position);
-    (entity.marker as google.maps.marker.AdvancedMarkerElement).zIndex = googleMarkerZIndex(entity.state, position);
+    (entity.marker as google.maps.marker.AdvancedMarkerElement).zIndex = this.stacking.zIndexOf(entity.state, position);
   }
 
   override setMarkerVisible(entity: MarkerEntity<GoogleMapActualMarker2D>, visible: boolean): void {
