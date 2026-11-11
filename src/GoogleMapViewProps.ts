@@ -1,5 +1,5 @@
 import React from "react";
-import { GeoRectBounds, MapViewBaseProps, MarkerTilingOptions, PolylineTilingOptions } from "@mapconductor/js-sdk-core";
+import { GeoRectBounds, MapViewBaseProps, MarkerTilingOptions, PolylineTilingOptions, CircleTilingOptions } from "@mapconductor/js-sdk-core";
 import type { GoogleMapViewStateInterface } from "./GoogleMapViewState";
 
 export interface GoogleMapViewProps extends MapViewBaseProps<GoogleMapViewStateInterface> {
@@ -12,6 +12,12 @@ export interface GoogleMapViewProps extends MapViewBaseProps<GoogleMapViewStateI
    * polylines are handed to the map. The 3D map draws every polyline itself.
    */
   polylineTilingOptions?: PolylineTilingOptions;
+  /**
+   * When to draw circles as raster tiles ({@link CircleTilingOptions.Default} if omitted).
+   * Read when the map is created; a later value applies from the next time the circles are
+   * handed to the map.
+   */
+  circleTilingOptions?: CircleTilingOptions;
   style?: React.CSSProperties;
   version?: string;
   onError?: (error: Error) => void;

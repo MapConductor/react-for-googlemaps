@@ -1,4 +1,4 @@
-import { PolylineTiler, PolylineTilingOptions } from '@mapconductor/js-sdk-core';
+import { PolylineTiler, PolylineTilingOptions, CircleTiler, CircleTilingOptions } from '@mapconductor/js-sdk-core';
 import { setOptions } from '@googlemaps/js-api-loader';
 import { MapProvider, type MapViewControllerInterface } from '@mapconductor/js-sdk-core';
 import { geoPointToLatLngAltitude } from './GeoPoint';
@@ -94,6 +94,9 @@ export class GoogleMapProvider2D extends MapProvider {
     // Many polylines are drawn as tiles by the tile service worker and shown as one raster
     // layer (the view controller mounts it); taps still resolve against the original paths.
     polylineController.tiler = new PolylineTiler(config.polylineTilingOptions ?? PolylineTilingOptions.Default);
+    // Many circles are drawn as tiles too, shown as one raster layer at the bottom of the circle
+    // band (the view controller mounts it); taps still resolve against the original circles.
+    circleController.tiler = new CircleTiler(config.circleTilingOptions ?? CircleTilingOptions.Default);
     const polygonController = getPolygonController(holder);
     const groundImageController = getGroundImageController(holder);
     const rasterLayerController = getRasterLayerController(holder);

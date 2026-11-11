@@ -1,4 +1,4 @@
-import { MapConfig, MarkerTilingOptions, GeoRectBounds, PolylineTilingOptions, MapProvider, MapViewControllerInterface, OnMarkerEventHandler, MarkerAnimationOverlayHost, AddParams, ChangeParams, MarkerEntity, GeoPoint, MarkerState, AbstractMarkerController, RasterLayerState, AbstractZoomAltitudeConverter, MapCameraPosition, MapViewHolderBase, GeoPointInterface, Offset, AbstractMarkerOverlayRenderer, AbstractCircleOverlayRenderer, CircleState, CircleEntity, CircleController, AbstractPolylineOverlayRenderer, PolylineState, PolylineEntity, PolylineController, AbstractPolygonOverlayRenderer, PolygonState, PolygonEntity, PolygonController, AbstractGroundImageOverlayRenderer, GroundImageState, GroundImageEntity, GroundImageController, RasterLayerAddParams, RasterLayerChangeParams, RasterLayerEntity, RasterLayerController, RasterHeaderSupport, BaseMapViewController, MarkerCapable, CircleCapable, PolylineCapable, PolygonCapable, GroundImageCapable, RasterLayerCapable, MapUISettings, OnMapInitializedHandler, CameraRestriction, MapViewBaseProps } from '@mapconductor/js-sdk-core';
+import { MapConfig, MarkerTilingOptions, GeoRectBounds, PolylineTilingOptions, CircleTilingOptions, MapProvider, MapViewControllerInterface, OnMarkerEventHandler, MarkerAnimationOverlayHost, AddParams, ChangeParams, MarkerEntity, GeoPoint, MarkerState, AbstractMarkerController, RasterLayerState, AbstractZoomAltitudeConverter, MapCameraPosition, MapViewHolderBase, GeoPointInterface, Offset, AbstractMarkerOverlayRenderer, AbstractCircleOverlayRenderer, CircleState, CircleEntity, CircleController, AbstractPolylineOverlayRenderer, PolylineState, PolylineEntity, PolylineController, AbstractPolygonOverlayRenderer, PolygonState, PolygonEntity, PolygonController, AbstractGroundImageOverlayRenderer, GroundImageState, GroundImageEntity, GroundImageController, RasterLayerAddParams, RasterLayerChangeParams, RasterLayerEntity, RasterLayerController, RasterHeaderSupport, BaseMapViewController, MarkerCapable, CircleCapable, PolylineCapable, PolygonCapable, GroundImageCapable, RasterLayerCapable, MapUISettings, OnMapInitializedHandler, CameraRestriction, MapViewBaseProps } from '@mapconductor/js-sdk-core';
 import { GoogleMapDesignType, GoogleMapViewStateInterface } from './state.js';
 export { GoogleMapDesign, GoogleMapViewState, useGoogleMapViewState } from './state.js';
 import * as React from 'react';
@@ -11,6 +11,11 @@ interface GoogleMapConfig2D extends GoogleMapConfigBase {
      * The controller's `setPolylineTilingOptions` replaces it later.
      */
     polylineTilingOptions?: PolylineTilingOptions;
+    /**
+     * When to draw circles as raster tiles; {@link CircleTilingOptions.Default} if omitted.
+     * The controller's `setCircleTilingOptions` replaces it later.
+     */
+    circleTilingOptions?: CircleTilingOptions;
 }
 interface GoogleMapConfig extends GoogleMapConfigBase {
     mapDesignType?: 'ROADMAP' | 'HYBRID' | 'SATELLITE';
@@ -529,6 +534,12 @@ interface GoogleMapViewProps extends MapViewBaseProps<GoogleMapViewStateInterfac
      * polylines are handed to the map. The 3D map draws every polyline itself.
      */
     polylineTilingOptions?: PolylineTilingOptions;
+    /**
+     * When to draw circles as raster tiles ({@link CircleTilingOptions.Default} if omitted).
+     * Read when the map is created; a later value applies from the next time the circles are
+     * handed to the map.
+     */
+    circleTilingOptions?: CircleTilingOptions;
     style?: React__default.CSSProperties;
     version?: string;
     onError?: (error: Error) => void;
@@ -548,7 +559,7 @@ declare function GoogleMapView({ state, mapStyle, onStyleDiagnostics, mapId, cla
 /**
  * Google Maps React component
  */
-declare function GoogleMapView2D({ state, mapStyle, onStyleDiagnostics, onMapLoaded, onMapClick, onMapLongClick, onCameraMoveStart, onCameraMove, onCameraMoveEnd, mapId, className, style, version, libraries, markerTilingOptions, polylineTilingOptions, minZoom, maxZoom, restrictBounds, cameraRestriction, onError, children, }: GoogleMapViewProps): React.JSX.Element;
+declare function GoogleMapView2D({ state, mapStyle, onStyleDiagnostics, onMapLoaded, onMapClick, onMapLongClick, onCameraMoveStart, onCameraMove, onCameraMoveEnd, mapId, className, style, version, libraries, markerTilingOptions, polylineTilingOptions, circleTilingOptions, minZoom, maxZoom, restrictBounds, cameraRestriction, onError, children, }: GoogleMapViewProps): React.JSX.Element;
 
 export { GoogleMapDesignType, GoogleMapProvider, GoogleMapProvider2D, GoogleMapView, GoogleMapView2D, GoogleMapViewController, GoogleMapViewController2D, GoogleMapViewStateInterface, ZoomAltitudeConverter };
 export type { GoogleMapActualCircle, GoogleMapActualMap, GoogleMapActualMap2D, GoogleMapActualMarker, GoogleMapActualMarker2D, GoogleMapActualPolygon, GoogleMapActualPolyline, GoogleMapConfig, GoogleMapViewProps, ZoomAltitudeViewportSize };
