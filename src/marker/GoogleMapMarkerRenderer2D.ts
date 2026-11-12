@@ -13,6 +13,7 @@ import { GoogleMapActualMarker2D } from '../GoogleMapTypeAlias';
 import { GoogleMapViewHolder2D } from '../GoogleMapViewHolder2D';
 import { GoogleMapMarkerRendererInterface } from './GoogleMapMarkerRendererInterface';
 import { markerHitRectInBitmap } from './createMarkerContent';
+import { GoogleMarkerStacking } from './markerZIndex';
 
 export class GoogleMapMarkerRenderer2D extends AbstractMarkerOverlayRenderer<
   GoogleMapViewHolder2D,
@@ -24,9 +25,12 @@ export class GoogleMapMarkerRenderer2D extends AbstractMarkerOverlayRenderer<
   dragEventName: string | null = 'drag';
   dragendEventName: string | null = 'dragend';
 
+  private readonly stacking: GoogleMarkerStacking<GoogleMapActualMarker2D>;
+
   constructor(holder: GoogleMapViewHolder2D) {
     super({ holder });
     this.supportsAnimationOverlay = true;
+    this.stacking = new GoogleMarkerStacking(holder.map, (marker, zIndex) => (marker as google.maps.Marker).setZIndex(zIndex));
   }
 
   async onAdd(data: AddParams[]): Promise<(GoogleMapActualMarker2D | null)[]> {
@@ -39,15 +43,17 @@ export class GoogleMapMarkerRenderer2D extends AbstractMarkerOverlayRenderer<
         ),
         scaledSize: new google.maps.Size(bitmapIcon.size.width, bitmapIcon.size.height),
       };
-      return new google.maps.Marker({
+      const marker = new google.maps.Marker({
         position: geoPointToLatLng(state.position),
         map: this.holder.map,
         icon,
         shape: hitShape(bitmapIcon),
         clickable: state.clickable,
         draggable: state.draggable,
-        zIndex: state.zIndex,
+        zIndex: this.stacking.zIndexOf(state),
       });
+      this.stacking.track(marker, state);
+      return marker;
     });
   }
 
@@ -72,8 +78,9 @@ export class GoogleMapMarkerRenderer2D extends AbstractMarkerOverlayRenderer<
         shape: hitShape(bitmapIcon),
         clickable: current.state.clickable,
         draggable: current.state.draggable,
-        zIndex: current.state.zIndex,
+        zIndex: this.stacking.zIndexOf(current.state),
       });
+      this.stacking.track(marker, current.state);
       return marker;
     });
   }
@@ -83,6 +90,7 @@ export class GoogleMapMarkerRenderer2D extends AbstractMarkerOverlayRenderer<
       if (!entity.marker) continue;
       google.maps.event.clearInstanceListeners(entity.marker);
       (entity.marker as google.maps.Marker).setMap(null);
+      this.stacking.forget(entity.marker);
     }
   }
 
@@ -92,6 +100,7 @@ export class GoogleMapMarkerRenderer2D extends AbstractMarkerOverlayRenderer<
 
   setMarkerPosition(entity: MarkerEntity<GoogleMapActualMarker2D>, position: GeoPoint): void {
     (entity.marker as google.maps.Marker)?.setPosition(geoPointToLatLng(position));
+    (entity.marker as google.maps.Marker)?.setZIndex(this.stacking.zIndexOf(entity.state, position));
   }
 
   override setMarkerVisible(entity: MarkerEntity<GoogleMapActualMarker2D>, visible: boolean): void {

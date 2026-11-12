@@ -1,12 +1,16 @@
 /// <reference types="google.maps" />
 import {
   createGeoPoint,
+  MapCoordinateSystem,
   MapViewHolderBase,
+  ProjectedUnit,
   type GeoPoint,
   type GeoPointInterface,
   type Offset,
 } from '@mapconductor/js-sdk-core';
 import { GoogleMapActualMap2D } from './GoogleMapTypeAlias';
+
+const BUILT_IN_MAP_TYPE_IDS = new Set<string>(['roadmap', 'satellite', 'hybrid', 'terrain']);
 
 export class GoogleMapViewHolder2D extends MapViewHolderBase<HTMLElement, GoogleMapActualMap2D> {
   constructor(
@@ -14,6 +18,48 @@ export class GoogleMapViewHolder2D extends MapViewHolderBase<HTMLElement, Google
     readonly map: GoogleMapActualMap2D,
   ) {
     super();
+  }
+
+  /**
+   * The current map type's own projection, when it has one.
+   *
+   * Google's built-in map types are Mercator; an app can register
+   * a custom `MapType` with a `projection` (Gall-Peters and the like), and the
+   * map then lays itself out in it.
+   *
+   * @internal
+   */
+  private customProjection(): google.maps.Projection | null {
+    const typeId = this.map.getMapTypeId();
+    // The built-in types carry Google's Mercator projection in the registry too.
+    if (!typeId || BUILT_IN_MAP_TYPE_IDS.has(typeId)) return null;
+    const mapType = this.map.mapTypes?.get(typeId) as google.maps.MapType | undefined;
+    return mapType?.projection ?? null;
+  }
+
+  /**
+   * EPSG:3857 meters for the built-in map types. With a custom projection the
+   * values are that projection's own world coordinates (`fromLatLngToPoint`,
+   * 256 per world at zoom 0), which have no EPSG code.
+   */
+  override get coordinateSystem(): MapCoordinateSystem {
+    return this.customProjection()
+      ? { code: null, unit: ProjectedUnit.Other }
+      : MapCoordinateSystem.WebMercator;
+  }
+
+  override toProjectedPoint(position: GeoPointInterface): Offset | null {
+    const projection = this.customProjection();
+    if (!projection) return super.toProjectedPoint(position);
+    const point = projection.fromLatLngToPoint(new google.maps.LatLng(position.latitude, position.longitude));
+    return point && Number.isFinite(point.x) && Number.isFinite(point.y) ? { x: point.x, y: point.y } : null;
+  }
+
+  override fromProjectedPoint(point: Offset): GeoPoint | null {
+    const projection = this.customProjection();
+    if (!projection) return super.fromProjectedPoint(point);
+    const latLng = projection.fromPointToLatLng(new google.maps.Point(point.x, point.y));
+    return latLng ? createGeoPoint({ latitude: latLng.lat(), longitude: latLng.lng() }) : null;
   }
 
   toScreenOffset(position: GeoPointInterface): Offset | null {
