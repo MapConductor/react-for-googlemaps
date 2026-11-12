@@ -403,6 +403,11 @@ declare class GoogleMapViewController extends BaseMapViewController implements M
     private readonly rasterLayerController;
     private readonly eventCleanup;
     private initialized;
+    /**
+     * 最後に動かしたときの `MapCameraPosition.paddings`。Map3DElement にカメラの
+     * パディングは無いので、中心をずらして再現し、読み戻しで元に戻す。
+     */
+    private cameraPaddings;
     constructor(holder: GoogleMapViewHolder, markerController: GoogleMapMarkerController, circleController: GoogleMapCircleController, polylineController: GoogleMapPolylineController, polygonController: GoogleMapPolygonController, groundImageController: GoogleMapGroundImageController, rasterLayerController: GoogleMapRasterLayerController);
     getMap(): GoogleMapActualMap;
     /**
@@ -422,8 +427,17 @@ declare class GoogleMapViewController extends BaseMapViewController implements M
     setMapInitializedListener(listener: OnMapInitializedHandler | null): void;
     moveCamera(position: MapCameraPosition): Promise<boolean>;
     animateCamera(position: MapCameraPosition, durationMillis: number): Promise<boolean>;
-    fitBounds(_bounds: GeoRectBounds, _padding: number): Promise<boolean>;
+    fitBounds(bounds: GeoRectBounds, padding: number): Promise<boolean>;
     getCameraPosition(): MapCameraPosition | null;
+    /** Map3DElement の上下視野角（度）。未設定なら Google の既定 35°。 */
+    private verticalFov;
+    /**
+     * パディングのずらし量の計算に渡す値。3D はカメラまでの距離（range）と視野角で
+     * 画面中央の縮尺が決まるので、そこから縮尺の等しい zoom を逆算して渡す。
+     */
+    private paddingParams;
+    /** パディングを除いた領域の中央に target が来るよう、送るカメラの中心をずらす。 */
+    private withPaddedCenter;
     /**
      * Projects the four screen corners of the 3D scene view back to geo
      * coordinates via `fromScreenOffsetSync` (ray/ellipsoid intersection) and
@@ -468,6 +482,11 @@ declare class GoogleMapViewController2D extends BaseMapViewController implements
     private readonly rasterLayerController;
     private readonly mapListeners;
     private initialized;
+    /**
+     * 最後に動かしたときの `MapCameraPosition.paddings`。Google Maps JS の 2D 地図には
+     * カメラのパディングが無いので、中心をずらして再現し、読み戻しで元に戻す。
+     */
+    private cameraPaddings;
     constructor(holder: GoogleMapViewHolder2D, markerController: GoogleMapMarkerController2D, circleController: GoogleMapCircleController, polylineController: GoogleMapPolylineController, polygonController: GoogleMapPolygonController, groundImageController: GoogleMapGroundImageController, rasterLayerController: GoogleMapRasterLayerController);
     getMap(): GoogleMapActualMap2D;
     /**
@@ -494,6 +513,15 @@ declare class GoogleMapViewController2D extends BaseMapViewController implements
     animateCamera(position: MapCameraPosition, _durationMillis: number): Promise<boolean>;
     fitBounds(bounds: GeoRectBounds, padding: number): Promise<boolean>;
     getCameraPosition(): MapCameraPosition | null;
+    /**
+     * 描いているカメラの上下視野角（度）。ベクター地図だけが傾くので、ラスターは null。
+     * Google は値を公開していないので、実測値（画面の高さによらず約 25.1°）を使う。
+     */
+    private verticalFov;
+    private isVectorMap;
+    private viewportSize;
+    /** パディングを除いた領域の中央に target が来るよう、送る中心をずらす。 */
+    private withPaddedCenter;
     /**
      * Projects the four screen corners of the map viewport back to geo
      * coordinates via `fromScreenOffsetSync` and extends a bounds from them,

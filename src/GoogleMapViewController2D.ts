@@ -1,7 +1,8 @@
 /// <reference types="google.maps" />
-import { PolygonTiler, POLYGON_TILE_LAYER_ID, polygonTileRasterLayerState, POLYLINE_TILE_LAYER_ID, polylineTileRasterLayerState, CIRCLE_TILE_LAYER_ID, circleTileRasterLayerState } from '@mapconductor/js-sdk-core';
+import { cameraFromPaddedCenter, type MapPaddings, paddedCameraCenter, PolygonTiler, POLYGON_TILE_LAYER_ID, polygonTileRasterLayerState, POLYLINE_TILE_LAYER_ID, polylineTileRasterLayerState, CIRCLE_TILE_LAYER_ID, circleTileRasterLayerState } from '@mapconductor/js-sdk-core';
 import {
   BaseMapViewController,
+  type GeoPointInterface,
   createGeoRectBounds,
   createMapCameraPosition,
   type CircleCapable,
@@ -34,6 +35,13 @@ import { GoogleMapActualMap2D } from './GoogleMapTypeAlias';
 import { GoogleMapMarkerController2D } from './marker/GoogleMapMarkerController2D';
 import { toGoogleMapsCameraPosition } from './GoogleMapCameraPosition';
 
+/**
+ * Google Maps JS ベクター地図のカメラの上下視野角（度）。API からは読めないので実測した
+ * （傾けた地図に置いた AdvancedMarker の画面位置から、画面の高さ 500 / 800 / 1000 px、
+ * tilt 30 / 45 / 60° で 24.6〜25.8°、平均 25.1°。焦点距離は画面の高さの約 2.25 倍）。
+ */
+const GOOGLE_MAPS_2D_VECTOR_VERTICAL_FOV_DEGREES = 25.1;
+
 export class GoogleMapViewController2D
   extends BaseMapViewController
   implements
@@ -47,6 +55,11 @@ export class GoogleMapViewController2D
 {
   private readonly mapListeners: google.maps.MapsEventListener[] = [];
   private initialized = false;
+  /**
+   * 最後に動かしたときの `MapCameraPosition.paddings`。Google Maps JS の 2D 地図には
+   * カメラのパディングが無いので、中心をずらして再現し、読み戻しで元に戻す。
+   */
+  private cameraPaddings: MapPaddings | null = null;
 
   constructor(
     readonly holder: GoogleMapViewHolder2D,
@@ -208,7 +221,7 @@ export class GoogleMapViewController2D
   }
 
   moveCamera(position: MapCameraPosition): Promise<boolean> {
-    const camera = toGoogleMapsCameraPosition(position);
+    const camera = this.withPaddedCenter(toGoogleMapsCameraPosition(position), position);
     return new Promise((resolve) => {
       const idleListener = this.holder.map.addListener('idle', () => {
         google.maps.event.removeListener(idleListener);
@@ -222,7 +235,7 @@ export class GoogleMapViewController2D
   }
 
   animateCamera(position: MapCameraPosition, _durationMillis: number): Promise<boolean> {
-    const camera = toGoogleMapsCameraPosition(position);
+    const camera = this.withPaddedCenter(toGoogleMapsCameraPosition(position), position);
     return new Promise((resolve) => {
       const idleListener = this.holder.map.addListener('idle', () => {
         google.maps.event.removeListener(idleListener);
@@ -257,7 +270,7 @@ export class GoogleMapViewController2D
     const center = this.holder.map.getCenter();
     const zoom = this.holder.map.getZoom();
     if (!center || zoom === undefined) return null;
-    return createMapCameraPosition({
+    const camera = createMapCameraPosition({
       position: latLngToGeoPoint(center),
       zoom,
       bearing: bearingFromNativeHeading(this.holder.map.getHeading() ?? 0),
@@ -266,6 +279,45 @@ export class GoogleMapViewController2D
       // mapViewState.cameraPosition.visibleRegion works without the controller.
       visibleRegion: this.getVisibleRegion(),
     });
+    return cameraFromPaddedCenter(camera, this.cameraPaddings, this.verticalFov(), this.viewportSize());
+  }
+
+  /**
+   * 描いているカメラの上下視野角（度）。ベクター地図だけが傾くので、ラスターは null。
+   * Google は値を公開していないので、実測値（画面の高さによらず約 25.1°）を使う。
+   */
+  private verticalFov(): number | null {
+    return this.isVectorMap() ? GOOGLE_MAPS_2D_VECTOR_VERTICAL_FOV_DEGREES : null;
+  }
+
+  private isVectorMap(): boolean {
+    return this.holder.map.getRenderingType?.() === google.maps.RenderingType.VECTOR;
+  }
+
+  private viewportSize(): { width: number; height: number } {
+    return { width: this.holder.mapView.offsetWidth, height: this.holder.mapView.offsetHeight };
+  }
+
+  /** パディングを除いた領域の中央に target が来るよう、送る中心をずらす。 */
+  private withPaddedCenter<T extends { center: GeoPointInterface; zoom: number; bearing: number; tilt: number }>(
+    camera: T,
+    requested: MapCameraPosition,
+  ): T {
+    const paddings = requested.paddings ?? this.cameraPaddings;
+    this.cameraPaddings = paddings;
+    if (!paddings) return camera;
+    // ラスター地図は zoom を整数に丸めて描く。
+    const zoom = this.isVectorMap() ? camera.zoom : Math.round(camera.zoom);
+    const center = paddedCameraCenter(camera.center, {
+      zoom,
+      tilt: camera.tilt,
+      // ラスター地図は回らない（heading は無視される）ので、北が上としてずらす。
+      bearing: this.isVectorMap() ? requested.bearing : 0,
+      paddings,
+      fov: this.verticalFov(),
+      viewport: this.viewportSize(),
+    });
+    return { ...camera, center };
   }
 
   /**
