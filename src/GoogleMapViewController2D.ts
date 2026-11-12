@@ -262,6 +262,9 @@ export class GoogleMapViewController2D
         geoPointToLatLng(bounds.southWest),
         geoPointToLatLng(bounds.northEast),
       );
+      // A fit frames the bounds in the whole viewport: the paddings of the last
+      // move no longer apply, so the read-back must not shift the fitted center.
+      this.cameraPaddings = null;
       this.holder.map.fitBounds(googleBounds, padding);
     });
   }

@@ -216,6 +216,9 @@ export class GoogleMapViewController
       bearing: bearingFromNativeHeading(heading),
     });
     if (!fit) return Promise.resolve(false);
+    // The fit is framed in the whole viewport: the paddings of the last move no
+    // longer apply, so the read-back must not shift the fitted center by them.
+    this.cameraPaddings = null;
     this.holder.map.center = { lat: fit.center.latitude, lng: fit.center.longitude, altitude: 0 };
     this.holder.map.range = this.holder.zoomConverter.zoomLevelToDistance({
       zoomLevel: fit.zoom,
