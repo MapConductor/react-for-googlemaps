@@ -1,6 +1,11 @@
 /// <reference types="google.maps" />
 import {
   BaseMapViewController,
+  AbstractZoomAltitudeConverter,
+  type GeoPointInterface,
+  MapPaddings,
+  paddedCameraCenter,
+  paddedCameraTarget,
   createGeoPoint,
   createMapCameraPosition,
   type CircleCapable,
@@ -32,6 +37,9 @@ import { GoogleMapActualMap } from './GoogleMapTypeAlias';
 import { latLngAltToGeoPoint } from './helpers';
 import type { GoogleMapDesignType } from './GoogleMapDesign';
 
+/** Map3DElement の `fov` の既定値（Google のリファレンスに記載の 35°）。 */
+const GOOGLE_MAPS_3D_DEFAULT_VERTICAL_FOV_DEGREES = 35;
+
 export class GoogleMapViewController
   extends BaseMapViewController
   implements
@@ -45,6 +53,11 @@ export class GoogleMapViewController
 {
   private readonly eventCleanup: (() => void)[] = [];
   private initialized = false;
+  /**
+   * 最後に動かしたときの `MapCameraPosition.paddings`。Map3DElement にカメラの
+   * パディングは無いので、中心をずらして再現し、読み戻しで元に戻す。
+   */
+  private cameraPaddings: MapPaddings | null = null;
 
   constructor(
     readonly holder: GoogleMapViewHolder,
@@ -163,7 +176,7 @@ export class GoogleMapViewController
   }
 
   moveCamera(position: MapCameraPosition): Promise<boolean> {
-    const cameraOptions = this.holder.zoomConverter.mapCameraPositionToCameraOptions(position);
+    const cameraOptions = this.withPaddedCenter(this.holder.zoomConverter.mapCameraPositionToCameraOptions(position), position);
     if (!cameraOptions) return Promise.resolve(false);
     this.holder.map.center = cameraOptions.center;
     this.holder.map.range = cameraOptions.range;
@@ -173,7 +186,7 @@ export class GoogleMapViewController
   }
 
   async animateCamera(position: MapCameraPosition, durationMillis: number): Promise<boolean> {
-    const cameraOptions = this.holder.zoomConverter.mapCameraPositionToCameraOptions(position);
+    const cameraOptions = this.withPaddedCenter(this.holder.zoomConverter.mapCameraPositionToCameraOptions(position), position);
     if (!cameraOptions) return Promise.resolve(false);
 
     this.holder.map.flyCameraTo({
@@ -226,15 +239,59 @@ export class GoogleMapViewController
       distance: range,
       latitude: center.lat,
     });
+    const bearing = bearingFromNativeHeading(this.holder.map.heading ?? 0);
+    const tilt = this.holder.map.tilt ?? 0;
+    const live = latLngAltToGeoPoint(center);
     return createMapCameraPosition({
-      position: latLngAltToGeoPoint(center),
+      position: this.cameraPaddings
+        ? paddedCameraTarget(live, this.paddingParams(this.cameraPaddings, range, live.latitude, tilt, bearing))
+        : live,
       zoom,
-      bearing: bearingFromNativeHeading(this.holder.map.heading ?? 0),
-      tilt: this.holder.map.tilt ?? 0,
+      bearing,
+      tilt,
+      paddings: this.cameraPaddings ?? MapPaddings.Zeros,
+      fov: this.verticalFov(),
       // Matches Android: the visible region rides on cameraPosition so that
       // mapViewState.cameraPosition.visibleRegion works without the controller.
       visibleRegion: this.getVisibleRegion(),
     });
+  }
+
+  /** Map3DElement の上下視野角（度）。未設定なら Google の既定 35°。 */
+  private verticalFov(): number {
+    return this.holder.map.fov ?? GOOGLE_MAPS_3D_DEFAULT_VERTICAL_FOV_DEGREES;
+  }
+
+  /**
+   * パディングのずらし量の計算に渡す値。3D はカメラまでの距離（range）と視野角で
+   * 画面中央の縮尺が決まるので、そこから縮尺の等しい zoom を逆算して渡す。
+   */
+  private paddingParams(paddings: MapPaddings, range: number, latitude: number, tilt: number, bearing: number) {
+    const rect = this.holder.map.getBoundingClientRect();
+    const fov = this.verticalFov();
+    const focal = rect.height / 2 / Math.tan((fov * Math.PI) / 360);
+    const metersPerPixel = range / focal;
+    const cosLat = Math.max(Math.cos((latitude * Math.PI) / 180), 0.01);
+    const zoom = Math.log2((AbstractZoomAltitudeConverter.WEB_MERCATOR_INITIAL_MPP_256 * cosLat) / metersPerPixel);
+    return { zoom, tilt, bearing, paddings, fov, viewport: { width: rect.width, height: rect.height } };
+  }
+
+  /** パディングを除いた領域の中央に target が来るよう、送るカメラの中心をずらす。 */
+  private withPaddedCenter(
+    cameraOptions: google.maps.maps3d.CameraOptions | null,
+    requested: MapCameraPosition,
+  ): google.maps.maps3d.CameraOptions | null {
+    const paddings = requested.paddings ?? this.cameraPaddings;
+    this.cameraPaddings = paddings;
+    if (!cameraOptions || !paddings || cameraOptions.range == null) return cameraOptions;
+    const literal = cameraOptions.center as google.maps.LatLngAltitudeLiteral | null | undefined;
+    if (!literal) return cameraOptions;
+    const target: GeoPointInterface = { latitude: literal.lat, longitude: literal.lng };
+    const center = paddedCameraCenter(
+      target,
+      this.paddingParams(paddings, cameraOptions.range, target.latitude, cameraOptions.tilt ?? 0, requested.bearing),
+    );
+    return { ...cameraOptions, center: { ...literal, lat: center.latitude, lng: center.longitude } };
   }
 
   /**
