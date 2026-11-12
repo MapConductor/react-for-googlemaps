@@ -422,7 +422,7 @@ declare class GoogleMapViewController extends BaseMapViewController implements M
     setMapInitializedListener(listener: OnMapInitializedHandler | null): void;
     moveCamera(position: MapCameraPosition): Promise<boolean>;
     animateCamera(position: MapCameraPosition, durationMillis: number): Promise<boolean>;
-    fitBounds(_bounds: GeoRectBounds, _padding: number): Promise<boolean>;
+    fitBounds(bounds: GeoRectBounds, padding: number): Promise<boolean>;
     getCameraPosition(): MapCameraPosition | null;
     /**
      * Projects the four screen corners of the 3D scene view back to geo
