@@ -13,7 +13,7 @@ import {
 } from '@mapconductor/js-sdk-react';
 import {
   useCameraRestriction,
-  useMapUISettings,
+  useMapUISettings, usePolylineTilingOptions, useCircleTilingOptions,
   useMapViewStyle,
   useMarkerRenderingSupport,
 } from '@mapconductor/js-sdk-react/internal';
@@ -49,6 +49,8 @@ export function GoogleMapView2D({
   version,
   libraries,
   markerTilingOptions,
+  polylineTilingOptions,
+  circleTilingOptions,
   minZoom,
   maxZoom,
   restrictBounds,
@@ -100,6 +102,8 @@ export function GoogleMapView2D({
       initCameraPosition: state.cameraPosition,
       mapDesignType: state.mapDesignType.getValue(),
       markerTilingOptions,
+      polylineTilingOptions,
+      circleTilingOptions,
       version,
       libraries: libraryList,
       minZoom,
@@ -220,6 +224,8 @@ export function GoogleMapView2D({
   void cameraTick;
 
   useMapUISettings(state, controller);
+  usePolylineTilingOptions(controller, polylineTilingOptions);
+  useCircleTilingOptions(controller, circleTilingOptions);
   // マップ生成時 config だけでなく、prop の変化にも追随させる（android-sdk 相当）。
   useCameraRestriction(controller, { cameraRestriction, restrictBounds, minZoom, maxZoom });
 

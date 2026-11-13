@@ -23,7 +23,7 @@ export function toGoogleMapsCameraPosition(position: MapCameraPosition): GoogleM
   const tilt = Math.min(Math.max(position.tilt, -MAX_GOOGLE_MAPS_TILT), MAX_GOOGLE_MAPS_TILT);
   if (tilt >= 0) {
     return {
-      center: position.center,
+      center: position.position,
       zoom: position.zoom,
       bearing: toNativeHeading(position.bearing),
       tilt,

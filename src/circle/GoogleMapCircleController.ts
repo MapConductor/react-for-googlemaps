@@ -30,7 +30,7 @@ export class GoogleMapCircleController extends CircleController<GoogleMapActualC
 
   override async add(data: CircleState[]): Promise<void> {
     const newIds = new Set(data.map((state) => state.id));
-    for (const entity of this.circleManager.allEntities()) {
+    for (const entity of (this.circleManager.nativeEntities?.() ?? this.circleManager.allEntities())) {
       if (!newIds.has(entity.state.id)) {
         this.clearClickHandler(entity.state.id, entity.circle);
       }
@@ -38,7 +38,7 @@ export class GoogleMapCircleController extends CircleController<GoogleMapActualC
 
     await super.add(data);
 
-    for (const entity of this.circleManager.allEntities()) {
+    for (const entity of (this.circleManager.nativeEntities?.() ?? this.circleManager.allEntities())) {
       this.setClickHandler(entity);
     }
   }
@@ -50,7 +50,7 @@ export class GoogleMapCircleController extends CircleController<GoogleMapActualC
   }
 
   override async clear(): Promise<void> {
-    for (const entity of this.circleManager.allEntities()) {
+    for (const entity of (this.circleManager.nativeEntities?.() ?? this.circleManager.allEntities())) {
       this.clearClickHandler(entity.state.id, entity.circle);
     }
     await super.clear();
@@ -59,6 +59,8 @@ export class GoogleMapCircleController extends CircleController<GoogleMapActualC
   private setClickHandler(entity: CircleEntity<GoogleMapActualCircle>): void {
     const { circle, state } = entity;
     this.clearClickHandler(state.id, circle);
+    // A tiled circle has no overlay; its taps come through the map click.
+    if (circle == null) return;
 
     if (circle instanceof HTMLElement) {
       const listener = (event: Event) => {
@@ -94,7 +96,7 @@ export class GoogleMapCircleController extends CircleController<GoogleMapActualC
   private clearClickHandler(id: string, circle: GoogleMapActualCircle): void {
     this.clickCleanups.get(id)?.();
     this.clickCleanups.delete(id);
-    if (!(circle instanceof HTMLElement)) {
+    if (circle != null && !(circle instanceof HTMLElement)) {
       google.maps.event.clearInstanceListeners(circle);
     }
   }

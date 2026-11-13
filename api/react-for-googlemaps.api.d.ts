@@ -1,4 +1,4 @@
-import { MapConfig, MarkerTilingOptions, GeoRectBounds, MapProvider, MapViewControllerInterface, OnMarkerEventHandler, MarkerAnimationOverlayHost, AddParams, ChangeParams, MarkerEntity, GeoPoint, MarkerState, AbstractMarkerController, RasterLayerState, AbstractZoomAltitudeConverter, MapCameraPosition, MapViewHolderBase, GeoPointInterface, Offset, AbstractMarkerOverlayRenderer, AbstractCircleOverlayRenderer, CircleState, CircleEntity, CircleController, AbstractPolylineOverlayRenderer, PolylineState, PolylineEntity, PolylineController, AbstractPolygonOverlayRenderer, PolygonState, PolygonEntity, PolygonController, AbstractGroundImageOverlayRenderer, GroundImageState, GroundImageEntity, GroundImageController, RasterLayerAddParams, RasterLayerChangeParams, RasterLayerEntity, RasterLayerController, RasterHeaderSupport, BaseMapViewController, MarkerCapable, CircleCapable, PolylineCapable, PolygonCapable, GroundImageCapable, RasterLayerCapable, MapUISettings, OnMapInitializedHandler, CameraRestriction, MapViewBaseProps } from '@mapconductor/js-sdk-core';
+import { MapConfig, MarkerTilingOptions, GeoRectBounds, PolylineTilingOptions, CircleTilingOptions, MapProvider, MapViewControllerInterface, OnMarkerEventHandler, MarkerAnimationOverlayHost, AddParams, ChangeParams, MarkerEntity, GeoPoint, MarkerState, AbstractMarkerController, RasterLayerState, AbstractZoomAltitudeConverter, MapCameraPosition, MapViewHolderBase, GeoPointInterface, Offset, AbstractMarkerOverlayRenderer, AbstractCircleOverlayRenderer, CircleState, CircleEntity, MapCoordinateSystem, CircleController, AbstractPolylineOverlayRenderer, PolylineState, PolylineEntity, PolylineController, AbstractPolygonOverlayRenderer, PolygonState, PolygonEntity, PolygonController, AbstractGroundImageOverlayRenderer, GroundImageState, GroundImageEntity, GroundImageController, RasterLayerAddParams, RasterLayerChangeParams, RasterLayerEntity, RasterLayerController, RasterHeaderSupport, BaseMapViewController, MarkerCapable, CircleCapable, PolylineCapable, PolygonCapable, GroundImageCapable, RasterLayerCapable, MapUISettings, OnMapInitializedHandler, CameraRestriction, MapViewBaseProps } from '@mapconductor/js-sdk-core';
 import { GoogleMapDesignType, GoogleMapViewStateInterface } from './state.js';
 export { GoogleMapDesign, GoogleMapViewState, useGoogleMapViewState } from './state.js';
 import * as React from 'react';
@@ -6,6 +6,16 @@ import React__default from 'react';
 
 interface GoogleMapConfig2D extends GoogleMapConfigBase {
     mapDesignType?: string;
+    /**
+     * When to draw polylines as raster tiles; {@link PolylineTilingOptions.Default} if omitted.
+     * The controller's `setPolylineTilingOptions` replaces it later.
+     */
+    polylineTilingOptions?: PolylineTilingOptions;
+    /**
+     * When to draw circles as raster tiles; {@link CircleTilingOptions.Default} if omitted.
+     * The controller's `setCircleTilingOptions` replaces it later.
+     */
+    circleTilingOptions?: CircleTilingOptions;
 }
 interface GoogleMapConfig extends GoogleMapConfigBase {
     mapDesignType?: 'ROADMAP' | 'HYBRID' | 'SATELLITE';
@@ -204,6 +214,14 @@ declare class GoogleMapViewHolder2D extends MapViewHolderBase<HTMLElement, Googl
     readonly mapView: HTMLElement;
     readonly map: GoogleMapActualMap2D;
     constructor(mapView: HTMLElement, map: GoogleMapActualMap2D);
+    /**
+     * EPSG:3857 meters for the built-in map types. With a custom projection the
+     * values are that projection's own world coordinates (`fromLatLngToPoint`,
+     * 256 per world at zoom 0), which have no EPSG code.
+     */
+    get coordinateSystem(): MapCoordinateSystem;
+    toProjectedPoint(position: GeoPointInterface): Offset | null;
+    fromProjectedPoint(point: Offset): GeoPoint | null;
     toScreenOffset(position: GeoPointInterface): Offset | null;
     fromScreenOffsetSync(offset: Offset): GeoPoint | null;
 }
@@ -393,6 +411,11 @@ declare class GoogleMapViewController extends BaseMapViewController implements M
     private readonly rasterLayerController;
     private readonly eventCleanup;
     private initialized;
+    /**
+     * 最後に動かしたときの `MapCameraPosition.paddings`。Map3DElement にカメラの
+     * パディングは無いので、中心をずらして再現し、読み戻しで元に戻す。
+     */
+    private cameraPaddings;
     constructor(holder: GoogleMapViewHolder, markerController: GoogleMapMarkerController, circleController: GoogleMapCircleController, polylineController: GoogleMapPolylineController, polygonController: GoogleMapPolygonController, groundImageController: GoogleMapGroundImageController, rasterLayerController: GoogleMapRasterLayerController);
     getMap(): GoogleMapActualMap;
     /**
@@ -412,8 +435,17 @@ declare class GoogleMapViewController extends BaseMapViewController implements M
     setMapInitializedListener(listener: OnMapInitializedHandler | null): void;
     moveCamera(position: MapCameraPosition): Promise<boolean>;
     animateCamera(position: MapCameraPosition, durationMillis: number): Promise<boolean>;
-    fitBounds(_bounds: GeoRectBounds, _padding: number): Promise<boolean>;
+    fitBounds(bounds: GeoRectBounds, padding: number): Promise<boolean>;
     getCameraPosition(): MapCameraPosition | null;
+    /** Map3DElement の上下視野角（度）。未設定なら Google の既定 35°。 */
+    private verticalFov;
+    /**
+     * パディングのずらし量の計算に渡す値。3D はカメラまでの距離（range）と視野角で
+     * 画面中央の縮尺が決まるので、そこから縮尺の等しい zoom を逆算して渡す。
+     */
+    private paddingParams;
+    /** パディングを除いた領域の中央に target が来るよう、送るカメラの中心をずらす。 */
+    private withPaddedCenter;
     /**
      * Projects the four screen corners of the 3D scene view back to geo
      * coordinates via `fromScreenOffsetSync` (ray/ellipsoid intersection) and
@@ -458,6 +490,11 @@ declare class GoogleMapViewController2D extends BaseMapViewController implements
     private readonly rasterLayerController;
     private readonly mapListeners;
     private initialized;
+    /**
+     * 最後に動かしたときの `MapCameraPosition.paddings`。Google Maps JS の 2D 地図には
+     * カメラのパディングが無いので、中心をずらして再現し、読み戻しで元に戻す。
+     */
+    private cameraPaddings;
     constructor(holder: GoogleMapViewHolder2D, markerController: GoogleMapMarkerController2D, circleController: GoogleMapCircleController, polylineController: GoogleMapPolylineController, polygonController: GoogleMapPolygonController, groundImageController: GoogleMapGroundImageController, rasterLayerController: GoogleMapRasterLayerController);
     getMap(): GoogleMapActualMap2D;
     /**
@@ -484,6 +521,15 @@ declare class GoogleMapViewController2D extends BaseMapViewController implements
     animateCamera(position: MapCameraPosition, _durationMillis: number): Promise<boolean>;
     fitBounds(bounds: GeoRectBounds, padding: number): Promise<boolean>;
     getCameraPosition(): MapCameraPosition | null;
+    /**
+     * 描いているカメラの上下視野角（度）。ベクター地図だけが傾くので、ラスターは null。
+     * Google は値を公開していないので、実測値（画面の高さによらず約 25.1°）を使う。
+     */
+    private verticalFov;
+    private isVectorMap;
+    private viewportSize;
+    /** パディングを除いた領域の中央に target が来るよう、送る中心をずらす。 */
+    private withPaddedCenter;
     /**
      * Projects the four screen corners of the map viewport back to geo
      * coordinates via `fromScreenOffsetSync` and extends a bounds from them,
@@ -518,6 +564,18 @@ declare class GoogleMapViewController2D extends BaseMapViewController implements
 interface GoogleMapViewProps extends MapViewBaseProps<GoogleMapViewStateInterface> {
     mapId?: string;
     markerTilingOptions?: MarkerTilingOptions;
+    /**
+     * When the 2D map draws polylines as raster tiles ({@link PolylineTilingOptions.Default} if
+     * omitted). Read when the map is created; a later value applies from the next time the
+     * polylines are handed to the map. The 3D map draws every polyline itself.
+     */
+    polylineTilingOptions?: PolylineTilingOptions;
+    /**
+     * When to draw circles as raster tiles ({@link CircleTilingOptions.Default} if omitted).
+     * Read when the map is created; a later value applies from the next time the circles are
+     * handed to the map.
+     */
+    circleTilingOptions?: CircleTilingOptions;
     style?: React__default.CSSProperties;
     version?: string;
     onError?: (error: Error) => void;
@@ -537,7 +595,7 @@ declare function GoogleMapView({ state, mapStyle, onStyleDiagnostics, mapId, cla
 /**
  * Google Maps React component
  */
-declare function GoogleMapView2D({ state, mapStyle, onStyleDiagnostics, onMapLoaded, onMapClick, onMapLongClick, onCameraMoveStart, onCameraMove, onCameraMoveEnd, mapId, className, style, version, libraries, markerTilingOptions, minZoom, maxZoom, restrictBounds, cameraRestriction, onError, children, }: GoogleMapViewProps): React.JSX.Element;
+declare function GoogleMapView2D({ state, mapStyle, onStyleDiagnostics, onMapLoaded, onMapClick, onMapLongClick, onCameraMoveStart, onCameraMove, onCameraMoveEnd, mapId, className, style, version, libraries, markerTilingOptions, polylineTilingOptions, circleTilingOptions, minZoom, maxZoom, restrictBounds, cameraRestriction, onError, children, }: GoogleMapViewProps): React.JSX.Element;
 
 export { GoogleMapDesignType, GoogleMapProvider, GoogleMapProvider2D, GoogleMapView, GoogleMapView2D, GoogleMapViewController, GoogleMapViewController2D, GoogleMapViewStateInterface, ZoomAltitudeConverter };
 export type { GoogleMapActualCircle, GoogleMapActualMap, GoogleMapActualMap2D, GoogleMapActualMarker, GoogleMapActualMarker2D, GoogleMapActualPolygon, GoogleMapActualPolyline, GoogleMapConfig, GoogleMapViewProps, ZoomAltitudeViewportSize };
