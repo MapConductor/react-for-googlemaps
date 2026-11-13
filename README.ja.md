@@ -4,6 +4,71 @@
 
 MapConductor React SDK の Google Maps プロバイダです。MapConductor のプロバイダ非依存なカメラ・マーカー・オーバーレイ API を通じて Google マップを描画するため、同じアプリケーションコードが MapLibre、Mapbox、Leaflet、OpenLayers、ArcGIS、Cesium、HERE でもそのまま動作します。
 
+## デモ
+
+[![Google Maps の店舗マップのサンプル](https://raw.githubusercontent.com/MapConductor/react-for-googlemaps/main/docs/images/demo.jpg)](https://demo-react.mapconductor.com/google-maps/map/en)
+
+[ライブデモ](https://demo-react.mapconductor.com/google-maps/map/en)で動かせます。同じ店舗マップがどのプロバイダでも動き、画面上で切り替えられます。店舗を 3 つに絞ったコード:
+
+```tsx
+import { useMemo, useState } from 'react';
+import {
+  createGeoPoint,
+  createMapCameraPosition,
+  createMarkerState,
+  type MarkerState,
+} from '@mapconductor/js-sdk-core';
+import { InfoBubble, Markers } from '@mapconductor/js-sdk-react';
+import { GoogleMapDesign, GoogleMapView2D, useGoogleMapViewState } from '@mapconductor/react-for-googlemaps';
+
+const STORES = [
+  { id: 'waikiki', name: 'Waikiki', latitude: 21.2793, longitude: -157.8292 },
+  { id: 'kailua', name: 'Kailua', latitude: 21.3972, longitude: -157.7394 },
+  { id: 'haleiwa', name: 'Haleiwa', latitude: 21.5928, longitude: -158.1034 },
+];
+
+const INITIAL_CAMERA = createMapCameraPosition({
+  position: createGeoPoint({ latitude: 21.38, longitude: -157.93 }),
+  zoom: 10,
+});
+
+export default function App() {
+  const mapViewState = useGoogleMapViewState({
+    apiKey: 'YOUR_GOOGLE_MAPS_API_KEY',
+    mapDesignType: GoogleMapDesign.Normal,
+    cameraPosition: INITIAL_CAMERA,
+  });
+  const [selected, setSelected] = useState<MarkerState | null>(null);
+  const markers = useMemo(
+    () =>
+      STORES.map(store =>
+        createMarkerState({
+          id: store.id,
+          position: createGeoPoint({ latitude: store.latitude, longitude: store.longitude }),
+          extra: store,
+          onClick: marker => setSelected(marker),
+        }),
+      ),
+    [],
+  );
+
+  return (
+    <div style={{ width: '100%', height: '100vh' }}>
+      <GoogleMapView2D state={mapViewState} mapId="DEMO_MAP_ID" onMapClick={() => setSelected(null)}>
+        <Markers states={markers} />
+        {selected && (
+          <InfoBubble marker={selected}>
+            <strong>{(selected.extra as (typeof STORES)[number]).name}</strong>
+          </InfoBubble>
+        )}
+      </GoogleMapView2D>
+    </div>
+  );
+}
+```
+
+`YOUR_GOOGLE_MAPS_API_KEY` はご自身のキーに置き換えてください。
+
 ## インストール
 
 ```shell
@@ -18,7 +83,7 @@ npm install @mapconductor/react-for-googlemaps @mapconductor/js-sdk-core @mapcon
 
 Maps JavaScript API は `@googlemaps/js-api-loader` により実行時にロードされます。[Google Cloud コンソール](https://console.cloud.google.com/google/maps-apis)で取得した API キーだけ用意してください。
 
-![](https://raw.githubusercontent.com/mapconductor/react-for-googlemaps/docs/images/hello-map.jpg)
+![](https://raw.githubusercontent.com/MapConductor/react-for-googlemaps/main/docs/images/hello-map.jpg)
 
 ## Hello Map チュートリアル
 
